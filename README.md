@@ -40,7 +40,9 @@ library(sf)
 A lot of different functions have been created to make the core code more easy to read and follow. These functions can be found in .src/functions.
 
 ## Code
-Five core code scripts have been created as quarto document (.qmd), one for each encroacjment account or indicator that were of interest in this project. They are accessible along with its HTML version in .src/code. The quarto documents and HTML versions contain both the code but a detailed explanation of the different steps and the metadata of the data used for each account and / or indicator:
+Five core code scripts have been created as quarto document (.qmd), one for each encroachment account or indicator that were of interest in this project. They are accessible along with its HTML version in .src/code. The quarto document has been adapted from an internal NINA quarto template from the ecRix project. It was initially created by Anders Kolstad.
+
+The quarto documents and HTML versions contain both the code but a detailed explanation of the different steps and the metadata of the data used for each account and / or indicator:
 
 - **Total encroachment of "especially valuable nature"**: encroachment_valuable_nature.qmd
 - **Total encroachment of recreation areas**: encroachment_all_recreation_areas.qmd
