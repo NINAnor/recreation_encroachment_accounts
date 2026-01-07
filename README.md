@@ -44,8 +44,7 @@ Five core code scripts have been created as quarto document (.qmd), one for each
 
 The quarto documents and HTML versions contain both the code but a detailed explanation of the different steps and the metadata of the data used for each account and / or indicator:
 
-- **Total encroachment of "especially valuable nature"**: encroachment_valuable_nature.qmd
+- **Total encroachment of nature in municipalities**: encroachment_total.qmd
 - **Total encroachment of recreation areas**: encroachment_all_recreation_areas.qmd
 - **Total encroachment of especially valuable recreation areas**, these are recreation areas classified as A and B according to M98 Miljødirektoratet methodology:  encroachment_recreation_areas_AB.qmd
-- **Total encroachment of “other especially valuable nature” (non-recreation)**, ???:  encroachment_other_valuable_nature.qmd
 - **Area of "other especially valuable nature"" types within especially valuable recreation areas**, ???: encroachment_other_valuable_nature_AB.qmd
