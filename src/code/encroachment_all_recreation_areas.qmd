@@ -266,30 +266,48 @@ However, the variation in the mean is defined by the spatial variation only, and
 <!--# You can add references manually or use a citation manager and add intext citations as with crossreferencing and hyperlinks. See https://quarto.org/docs/authoring/footnotes-and-citations.html -->
 
 ## 7. Import and prepare datasets
-In this section, we show how to import the data through API. We also prepare them  for analyses. 
+In this section, we show how to import the data through API. We also prepare them  for analyses. We first set up the path that will be used during th eproject. Users can change it to match their own path.
+```{r path_setup1}
+#| eval: true
+#| code-summary: "Path setup"
+
+# Path to the project folder
+project_path <- getwd()
+
+# Path to the functions folder within the project folder
+functions_path <- paste0(project_path, "/src/functions")
+```
 
 <!--# All the data import and preparation should be done in this chapter, before the analysis chapter. As a minimum, add code for importing data, and describe or show the data structure. You may also explain certain variables, what they represent, and their distributions -->
 
 ### 7.1 Recreation areas - DT01
-We download DT01 through an API from [Geonorge](https://kartkatalog.geonorge.no/metadata/friluftslivsomraader-kartlagte/91e31bb7-356f-4478-bcba-d5c2de6e91bc?search=friluftsliv). Downloading through API in Geornorge is not an easy process, hence we give some basic information below to facilitate the download of other datasets by users if they wish to. Note however that datasets not publicly accessible cannot be downloaded via an API.
+#### 7.1.1 Download DT01 for Geonorge through an API
+We download DT01 through an API from [Geonorge](https://kartkatalog.geonorge.no/metadata/friluftslivsomraader-kartlagte/91e31bb7-356f-4478-bcba-d5c2de6e91bc?search=friluftsliv). Downloading through API in Geonorge is not an easy process, hence we fully decompose the API download request to facilitate the download of other datasets by users if they wish to. Note however that datasets not publicly accessible cannot be downloaded via an API.
 
-1- The "base url" is the basic url that needs to be used when downloading data. It will be the same for all datasets. In Geonorge, users should go the their datsaset of interest and scroll to the bottom of the page to teh section *Distribusjon*. There, there are several subsections called *Distribusjonstype*. They display the "base url" depending on where the users want to download it from. In our case, we chose to download our data from Geonorge whose "base url" is https://geoapi.p.aks.miljodirektoratet.no/geonorge. Here we removed the last part of the url (/capabilities) as it refers to another concept explained in the point 3 below.
+1. **Create a  <u>base url<u>**. The *base url* is the basic url that needs to be used when downloading data. It will be the same for all datasets. In Geonorge, users should go the their datsaset of interest and scroll to the bottom of the page to the section *Distribusjon*. There, there are several subsections called *Distribusjonstype*. They display the *base url* depending on where the users want to download the data from. In our case, we chose to download our data from Geonorge whose *base url* is https://geoapi.p.aks.miljodirektoratet.no/geonorge. Here we removed the last part of the url (/capabilities) as it refers to another concept explained in the point 3 below.
 
-2- The dataset ID is called an uuid. It can be found by going to the dataset's page on Geonorge, it is the long series of numbers and letters in the url of the page: ".../metadata/dataset_name/uuid"
-
-3- When downloading data through an API, users have to choose what is called "capabilities". These refer to the settings that should be used when downloading the data such as geographic areas, raster or vector type, format etc.
-
-Given all of the information above, the code is below which each step commented.
-
-```{r import_rec_areas}
+```{r import_rec_areas_api1}
 #| eval: true
-#| code-summary: "Download DT01 from Geonorge through API"
+#| code-summary: "DT01 API download - base url"
 
 # base url for downloading dataset in Geonorge through API
 base_url <- "https://geoapi.p.aks.miljodirektoratet.no/geonorge"
+```
+
+
+2. **Identify the <u>dataset ID </u>**. The dataset ID is called an uuid. It can be found by going to the dataset's page on Geonorge, it is the long series of numbers and letters in the url of the page: ".../metadata/dataset_name/uuid"
+```{r import_rec_areas_api2}
+#| eval: true
+#| code-summary: "DT01 API download - dataset ID"
 
 # dataset specific ID from Geon
 dataset_uuid <- "91e31bb7-356f-4478-bcba-d5c2de6e91bc"
+```
+
+3. **Request the dataset's <u>capabilities</u>**. When downloading data through an API, users have to choose what is called "capabilities". These refer to the settings that should be used when downloading the data such as geographic areas, raster or vector type, format etc. We need to first build an API request to know what these capabilities are before downloading the data.
+```{r import_rec_areas_api3}
+#| eval: true
+#| code-summary: "DT01 API download - list capabilities"
 
 # httr:::GET() sends API request for dataset's capabilities
 dt_cap <- GET(
@@ -300,15 +318,212 @@ dt_cap <- GET(
 # check if the server's response is an error
 stop_for_status(dt_cap)
 
-# Read the JSON response of the server
-cap <- fromJSON(content(dt_cap, as = "text", encoding = "UTF-8"), simplifyVector = TRUE)
+# Read the JSON response of the server listing the capabilities
+cap_all <- fromJSON(content(dt_cap, as = "text", encoding = "UTF-8"), simplifyVector = TRUE)
+```
 
+
+4. **Choose the dataset's <u>capabilities</u> of relevance**. Now that we have the list of all the dataset's capabilities, we can choose those we want to download the dataset with. We are interested in three capabilities: projection, format, area and order. *Note: (i) order is the url to be used to order the dataset to the server; (ii) in the code below, the "rel" column just indicates what the link "href" refers to, meaning project, format, area, order etc. The url to use are in the "href" column; (iii) four projections can be chosen but in reality, only two are available for Norway as a country: ESPG:25833 and WGS84. Trying the others codes will lead to an error.*
+```{r import_rec_areas_api4}
+#| eval: true
+#| code-summary: "DT01 API download - choose capabilities"
+
+# Extract the capablities into a dataframe so it's easier to choose from
+projection <- GET(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/projection", "href"]) %>%
+                content(., as = "text", encoding = "UTF-8") %>%
+                fromJSON(.)
+
+format <- GET(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/format", "href"]) %>%
+                content(., as = "text", encoding = "UTF-8") %>%
+                fromJSON(.)
+
+area <- GET(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/area", "href"]) %>%
+                content(., as = "text", encoding = "UTF-8") %>%
+                fromJSON(.)
+
+# Choose the code of interest for each capabilities
+choice_proj <- projection[2,] # ESPG:25833
+
+choice_format <- format$name[2] # FILEGDB
+
+choice_area <- area[1,] # Norway with Svalbard
+
+order_url <- cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/order", "href"]
+
+```
+
+
+5. **Create an <u>order</u>**. Here we create the API request to order the data from the server. In our case, the server responds with a downloadable link that we can then use. Every server has its own JSON request structure, it is important to go on the [API help page of Geonorge](https://nedlasting.geonorge.no/Help) to use the correct structure. As we use a POST API order, we need to go to the [POST API oder page](https://nedlasting.geonorge.no/Help/Api/POST-api-order) to figure it out.
+```{r import_rec_areas_api5}
+#| eval: true
+#| code-summary: "DT01 API download - order the data"
+
+# Create the order by listing the dataset id and capabilities of relevance
+order_body <- list(metadataUuid  = dataset_uuid,
+                   projection = projection_code,
+                   format = format_code,
+                   area = area_code)
+
+
+
+order_body <- list(
+  downloadAsBundle = FALSE,
+  email = "sylvie.clappe@nina.no",
+  orderLines = list(
+    list(
+      areas = list(
+        list(
+          code = choice_area$code,  
+          name = choice_area$name,
+          type = choice_area$type
+        )
+      ),
+      formats = list(
+        list(name = format_code)
+      ),
+      metadataUuid = dataset_uuid,
+      projections = list(
+        list(
+          code = choice_proj$code,
+          name = choice_proj$name,
+          codespace = choice_proj$codespace
+        )
+      )
+    )
+  )
+)
+
+# Send the order to the server
+order_req <- POST(url = order_url,
+                  body = order_body,
+                  encode = "json",
+                  accept_json())
+
+# Check if the server returns an error
+stop_for_status(order_req)
+
+
+# Read the order information
+order_info <- fromJSON(content(order_req, as = "text", encoding = "UTF-8"))
+
+```
+
+6. **Download the data**. Now that we have the downloadable link, we just have the use it to download the dataset in R. *Note: we download the data in a temporary file which can then be deleted.*
+```{r import_rec_areas_api6}
+#| eval: true
+#| code-summary: "DT01 API download - download and read the data"
+
+# URL to dowload the data
+down_url <- order_info$files$downloadUrl
+
+# Create a temporary directroy to store the dataset .zip and unzipped
+temp_dir <- tempdir()
+
+# Create a temporary file to store the dataset .zip
+destination_tmp <- tempfile(fileext = ".zip", tmpdir = temp_dir)
+
+# Download the .zip file containing the dataset
+download.file(down_url, destfile = destination_tmp, mode = "wb")
+
+# Unzip the .zip
+unzip(destination_tmp, exdir = temp_dir)
+
+# Use "\\.gdb$" pattern to identify the file to read
+gdb_file <- list.files(temp_dir, pattern = "\\.gdb$", full.names = TRUE)
+
+```
+
+
+#### 7.1.2 Read DT01
+Now that the dataset has been downloaded in a temporary file, we can read it in R and clean the R environment.
+```{r read_rec_area}
+#| eval: true
+#| code-summary: "DT01 - read the data"
+
+# Read data
+rec_no <- st_read(gdb_file)
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  "rec_no"))
+```
+
+#### 7.1.3 Clean and format the data for analyses
+We first need to select the column of relevance for our work and clean the topological and geometrical errors if any.
+
+```{r clean_rec_area}
+#| eval: true
+#| code-summary: "DT01 - clean and format"
+
+# Select columns of relevance
+rec_areas <- rec_no %>%
+              select(fylkesnr,
+                     kommune,
+                     kartleggingsår,
+                     kartlagtStatus,
+                     identifikasjon_lokalid,
+                     områdeverdi)
+
+# Check for topological and geometrical errors
+which(st_is_valid(rec_areas) == FALSE) %>% length()
+which(st_is_empty(rec_areas) == TRUE) %>% length()
+
+# Correct invalid geometries
+rec_cln <- st_make_valid(rec_areas)
+
+# Check correction worked
+which(st_is_valid(rec_cln) == FALSE) %>% length()
+which(st_is_empty(rec_cln) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  "rec_cln"))
 
 ```
 
 ### 7.2. Encroachment areas - DT02
+#### 7.2.1 Download DT01 from Zenodo through an API
+The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downlodable link to the data.
+```{r enc_link}
+#| eval: true
+#| code-summary: "DT02 API download"
 
+# Call for the function that will read the data through an API
+source(paste0(functions_path,"/api_zenodo.R"))
 
+# Retrieve downloadable link to the data
+encroach_link <- api_zenodo(zenodo_url = "https://zenodo.org/records/15130992")
+```
+
+#### 7.2.2 Read DT02
+Now that we have the downloadable link, we can read the data in R and clean the R environment.
+```{r enc_read}
+#| eval: true
+#| code-summary: "DT02 - read"
+
+encroach_dt <- st_read(encroach_link)
+
+```
+
+#### 7.2.3 Clean and format the data for analyses
+All columns are of relevance to our work but we need to clean the topological and geometrical errors if any.
+
+```{r clean_rec_area}
+#| eval: true
+#| code-summary: "DT02 - clean"
+
+# Check for topological and geometrical errors
+which(st_is_valid(encroach_dt) == FALSE) %>% length()
+which(st_is_empty(encroach_dt) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  "rec_cln",
+                  "encroach_dt"))
+
+```
+
+The data are all clear and do not need further corrections.
 
 
 ## 8. Spatial units
