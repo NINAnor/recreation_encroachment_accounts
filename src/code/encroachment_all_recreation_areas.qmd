@@ -1,15 +1,15 @@
 ---
 title: "Thematic accounts - encroachment in recreation areas"
 subtitle: |
-  [ENCREC-001] (ENCroachments in all RECreation areas) \
-  [ENCREC-002] (ENCroachments in very important (A) and important (B) RECreation areas)  
+  [ENCREC_001] (ENCroachments in all RECreation areas) \
+  [ENCREC_002] (ENCroachments in very important (A) and important (B) RECreation areas)  
 # delete the line with the second indicatorID (line 5) 
 # if it's not relevant for you.
 # In the parentheses you can add a word to distinguish multiple indicators 
 # from each other, for example the ecosystem type that they cover
 indicatorID: 
-  - ENCREC-001
-  - ENCREC-002 # delete whole line if not needed
+  - ENCREC_001
+  - ENCREC_002 # delete whole line if not needed
 # If you are presenting multiple indicators, and have multiple 
 # indicator IDs, then add them as a list here, and make sure you add
 # the same number of list entries, 
@@ -531,6 +531,8 @@ The data are all clear and do not need further corrections.
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
 
 ## 9. Analyses
+The analyses primarily rely on spatial intersections between DT01 and DT02. For ENCREC_001, we do the intersection with DT01 and DT02 as they are. For ENCREC_002, we first need to select the recreation areas that are considered as "important" and "very important", and then intersect them with DT02.
+
 
 <!--# 
 
