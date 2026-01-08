@@ -32,12 +32,23 @@ We use a number of datasets including:
 
 ## Packages
 ```{r}
+library(knitr)
+library(tidyverse)
+library(kableExtra)
+library(here)
+library(anybadger)
+library(yaml)
+library(tibble)
+library(conflicted)
+library(httr)
+library(jsonlite)
 library(sf)
 ```
 
 
 ## Functions
-A lot of different functions have been created to make the core code more easy to read and follow. These functions can be found in .src/functions.
+A lot of different functions have been created to make the core code more easy to read and follow. These functions can be found in .src/functions:
+- api_zenodo: download a zenodo dataset through an API request.
 
 ## Code
 Five core code scripts have been created as quarto document (.qmd), one for each encroachment account or indicator that were of interest in this project. They are accessible along with its HTML version in .src/code. The quarto document has been adapted from an internal NINA quarto template from the ecRix project. It was initially created by Anders Kolstad.
