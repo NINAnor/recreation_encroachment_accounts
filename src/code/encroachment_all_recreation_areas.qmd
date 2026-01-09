@@ -100,6 +100,7 @@ library(giscoR)
 library(zen4R)
 library(jsonlite)
 library(sf)
+library(purrr)
 library(numform)
 library(DT)
 
@@ -622,7 +623,7 @@ All recreation areas have been mapped in different years ranging from 2010 to 20
 First we present the thematic accounting table for encroachment areas between 2018 and 2024 for all recreation areas within each municipalities in Norway which mapped their recreation areas. We also present a total across all municipalities in Norway which mapped their recreation areas. This accounts are not cumulative over the years. This means that the areas recorder for each year have been built over this year only. These accounts do not really align with the System of Environmental Economic Accounting - Ecosystem Accounting as not net change can be calculated. 
 ```{r res_acc_tables1}
 #| eval: true
-#| code-summary: "Create accounting tables"
+#| code-summary: "ENCREC_001 - Create accounting table"
 
 # ENCREC_001
 kom_navn <- lau_no %>%
@@ -648,7 +649,7 @@ encrec_001_tot <- encrec_001_kom %>%
                     summarise(area_m2 = sum(area_m2),
                               area_dekar = sum(area_dekar),
                               area_km2 = sum(area_km2)) %>%
-                    mutate(kommune = "NA",
+                    mutate(kommune = "Not Applicable",
                            LAU_NAME = "Total", .after = year)
                     
                 
@@ -665,7 +666,10 @@ colnames(encrec_001_acc) <- c("År",
 datatable(encrec_001_acc,
           extensions = 'Buttons',
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'))) %>%
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Table 1 - Thematic extent accounts: yearly encroachment in all recreation areas over 2018-2024.")
+  )) %>%
     formatCurrency(
     columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
     currency = "",                
@@ -675,12 +679,24 @@ datatable(encrec_001_acc,
     
 ```
 
-#### 10.1.2 Accounts aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
-```{r res_acc_tables}
+```{r res_acc_tables1}
 #| eval: true
-#| code-summary: "Create accounting tables"
+#| code-summary: "ENCREC_002 - Create accounting table"
 
-# ENCREC_001
+    
+```
+
+#### 10.1.2 Accounts aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
+```{r res_acc_tables3}
+#| eval: true
+#| output: true
+#| code-summary: "ENCREC_001 - Create accounting tables"
+
+## Call function to add net change
+source(paste0(functions_path,"/add_net_change.R"))
+
+## ENCREC_001
+# Accounts for all municipalities
 encrec_001_kom2 <- encrec %>%
                     st_drop_geometry() %>%
                     select(fylkesnr,
@@ -691,20 +707,44 @@ encrec_001_kom2 <- encrec %>%
                     summarise(area_m2 = round2(sum(area_inter_m2), 2),
                               area_dekar = round2(sum(area_inter_m2)/1000, 2),
                               area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
+                    mutate(cum_area_m2 = cumsum(area_m2),
+                           cum_area_dekar = cumsum(area_dekar),
+                           cum_area_km2 = cumsum(area_km2)) %>%
                     left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
                     relocate(c(kommune,LAU_NAME), .after = year)
 
-encrec_001_tot2 <- encrec_001 %>%
+# Total across all municipalities
+encrec_001_tot2 <- encrec_001_kom2 %>%
                     group_by(year) %>%
                     summarise(area_m2 = sum(area_m2),
                               area_dekar = sum(area_dekar),
                               area_km2 = sum(area_km2)) %>%
-                    mutate(kommune = "NA",
-                           LAU_NAME = "Total", .after = year)
+                    mutate(kommune = "0000",
+                           LAU_NAME = "Total",
+                           cum_area_m2 = cumsum(area_m2),
+                           cum_area_dekar = cumsum(area_dekar),
+                           cum_area_km2 = cumsum(area_km2),
+                           .after = year)
                     
-                
+# Final accounting table               
 encrec_001_acc2 <- bind_rows(encrec_001_tot2, 
-                            encrec_001_kom2)
+                             encrec_001_kom2) %>%
+                    filter(LAU_NAME %in% c("Oslo", "Total", "Bergen")) 
+
+encrec_001_acc2$year <- as.character(encrec_001_acc2$year)
+
+encrec_001_acc2 <- encrec_001_acc2 %>%
+                      group_split(kommune) %>% 
+                      map(~ add_net_change(., 
+                                           year_column = "year",
+                                           area1 = "cum_area_m2",
+                                           area2 = "cum_area_dekar",
+                                           area3 = "cum_area_km2")) %>% 
+                      compact() %>%
+                      bind_rows() %>%
+                      select(!c(area_m2, area_dekar, area_km2))
+
+encrec_001_acc2$kommune[which(encrec_001_acc2$kommune == "0000")] <- "Not Applicable"
 
 colnames(encrec_001_acc2) <- c("År",
                               "Kommune nummer",
@@ -713,15 +753,29 @@ colnames(encrec_001_acc2) <- c("År",
                               "Areal i dekar",
                               "Areal i km2")
 
-datatable(encrec_001_acc2) %>%
+# Display the table dynamically
+datatable(encrec_001_acc,
+          extensions = 'Buttons',
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Table 3 - Thematic extent accounts: cumulative encroachment in all recreation areas over 2018-2024.")
+  )) %>%
     formatCurrency(
-    columns = c("Areal i m2", "Areal i dekar"),  # specify numeric columns
-    currency = "",                # no currency symbol
-    interval = 3,                 # every 3 digits
-    mark = ","                    # comma separator
-  )
+    columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",")
+
 ```
 
+```{r res_acc_tables4}
+#| eval: true
+#| code-summary: "ENCREC_002 - Create accounting tables"
+
+
+```
 ### 10.2 Maps
 
 
