@@ -96,8 +96,12 @@ library(yaml)
 library(tibble)
 library(conflicted)
 library(httr)
+library(httr2)
+library(giscoR)
+library(zen4R)
 library(jsonlite)
 library(sf)
+
 # weird workarounds for cache issues
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::lag)
@@ -309,44 +313,33 @@ dataset_uuid <- "91e31bb7-356f-4478-bcba-d5c2de6e91bc"
 #| eval: true
 #| code-summary: "DT01 API download - list capabilities"
 
-# httr:::GET() sends API request for dataset's capabilities
-dt_cap <- GET(
-  url = sprintf("%s/capabilities/%s", base_url, dataset_uuid), # builds all the url
-  accept_json() # signals the server we request JSON format
-)
+# httr2:::req_perform() sends API request for dataset's capabilities
+dt_cap <- request(sprintf("%s/capabilities/%s", base_url, dataset_uuid)) %>% # create request
+            req_headers("Accept" = "application/json") %>% # create request
+            req_perform()
 
-# check if the server's response is an error
-stop_for_status(dt_cap)
 
 # Read the JSON response of the server listing the capabilities
-cap_all <- fromJSON(content(dt_cap, as = "text", encoding = "UTF-8"), simplifyVector = TRUE)
+cap_all <- resp_body_json(dt_cap, simplifyVector = TRUE)
 ```
 
 
-4. **Choose the dataset's <u>capabilities</u> of relevance**. Now that we have the list of all the dataset's capabilities, we can choose those we want to download the dataset with. We are interested in three capabilities: projection, format, area and order. *Note: (i) order is the url to be used to order the dataset to the server; (ii) in the code below, the "rel" column just indicates what the link "href" refers to, meaning project, format, area, order etc. The url to use are in the "href" column; (iii) four projections can be chosen but in reality, only two are available for Norway as a country: ESPG:25833 and WGS84. Trying the others codes will lead to an error.*
+4. **Choose the dataset's <u>capabilities</u> of relevance**. Now that we have the list of all the dataset's capabilities, we can choose those we want to download the dataset with. We are interested in three capabilities: projection, format, area and order. *Note: (i) order is the url to be used to order the dataset to the server; (ii) in the code below, the "rel" column just indicates what the link "href" refers to, meaning project, format, area, order etc. The url to use are in the "href" column; (iii) four projections can be chosen but in reality, only two are available for Norway as a country: ESPG:25833 and WGS84. Trying the others codes will lead to an error. (iv) we just read "http://rel.geonorge.no/download/area" as it has the area together withe project and format. So we don't need to read them all separately*
 ```{r import_rec_areas_api4}
 #| eval: true
 #| code-summary: "DT01 API download - choose capabilities"
 
 # Extract the capablities into a dataframe so it's easier to choose from
-projection <- GET(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/projection", "href"]) %>%
-                content(., as = "text", encoding = "UTF-8") %>%
-                fromJSON(.)
+cap_choice <- request(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/area", "href"]) %>%
+                req_perform() %>%
+                resp_body_json()
 
-format <- GET(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/format", "href"]) %>%
-                content(., as = "text", encoding = "UTF-8") %>%
-                fromJSON(.)
+# Separate each capabilities: project, format and area
+projection <- cap_choice[[1]]$projections[[1]] # ESPG:25833
 
-area <- GET(cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/area", "href"]) %>%
-                content(., as = "text", encoding = "UTF-8") %>%
-                fromJSON(.)
+format <- cap_choice[[1]]$formats[[2]]$name # FILEGDB
 
-# Choose the code of interest for each capabilities
-choice_proj <- projection[2,] # ESPG:25833
-
-choice_format <- format$name[2] # FILEGDB
-
-choice_area <- area[1,] # Norway with Svalbard
+area <- cap_choice[[1]] # Norway with Svalbard
 
 order_url <- cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/download/order", "href"]
 
@@ -366,20 +359,20 @@ order_body <- list(
     list(
       areas = list(
         list(
-          code = choice_area$code,  
-          name = choice_area$name,
-          type = choice_area$type
+          code = area$code,  
+          name = area$name,
+          type = area$type
         )
       ),
       formats = list(
-        list(name = choice_format)
+        list(name = format)
       ),
       metadataUuid = dataset_uuid,
       projections = list(
         list(
-          code = choice_proj$code,
-          name = choice_proj$name,
-          codespace = choice_proj$codespace
+          code = projection$code,
+          name = projection$name,
+          codespace = projection$codespace
         )
       )
     )
@@ -387,18 +380,13 @@ order_body <- list(
 )
 
 # Send the order to the server
-order_req <- POST(url = order_url,
-                  body = order_body,
-                  encode = "json",
-                  accept_json())
-
-# Check if the server returns an error
-stop_for_status(order_req)
-
+order_req <- request(order_url) %>% # create request
+                req_body_json(order_body) %>% # create request
+                req_headers("Accept" = "application/json") %>% # create request
+                req_perform() # send request
 
 # Read the order information
-order_info <- fromJSON(content(order_req, as = "text", encoding = "UTF-8"))
-
+order_info <- resp_body_json(order_req)
 ```
 
 6. **Download the data**. Now that we have the downloadable link, we just have the use it to download the dataset in R. *Note: we download the data in a temporary file which can then be deleted.*
@@ -407,9 +395,9 @@ order_info <- fromJSON(content(order_req, as = "text", encoding = "UTF-8"))
 #| code-summary: "DT01 API download - download and read the data"
 
 # URL to dowload the data
-down_url <- order_info$files$downloadUrl
+down_url <- order_info$files[[1]]$downloadUrl
 
-# Create a temporary directroy to store the dataset .zip and unzipped
+# Create a temporary directory to store the dataset .zip and unzipped
 temp_dir <- tempdir()
 
 # Create a temporary file to store the dataset .zip
@@ -479,8 +467,8 @@ rm(list = setdiff(ls(),
 ```
 
 ### 7.2. Encroachment areas - DT02
-#### 7.2.1 Download DT01 from Zenodo through an API
-The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downlodable link to the data.
+#### 7.2.1 Download DT02 from Zenodo through an API
+The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downlodable link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
 ```{r enc_link}
 #| eval: true
 #| code-summary: "DT02 API download"
@@ -490,6 +478,7 @@ source(paste0(functions_path,"/api_zenodo.R"))
 
 # Retrieve downloadable link to the data
 encroach_link <- api_zenodo(zenodo_url = "https://zenodo.org/records/15130992")
+
 ```
 
 #### 7.2.2 Read DT02
@@ -525,6 +514,55 @@ rm(list = setdiff(ls(),
 The data are all clear and do not need further corrections.
 
 
+### 7.3 Map of municipalities in Norway - DT03
+#### 7.3.1 Download & read DT03 from GISCO through an API
+For DT03, the API process is much simpler as a package has been developed to read data from GISCO via an API: `giscoR`. We just nee dto use one function to cache the dataset in a temporary directory and read it in R.
+```{r lau_down_data}
+#| eval: true
+#| code-summary: "DT03 API download"
+
+# Create a temporary directory to store the cache
+temp_dir <- tempdir()
+
+# Download the dataset
+lau_no <- gisco_get_lau(year = "2024",
+                        epsg = "3035",
+                        cache = TRUE,
+                        update_cache = TRUE,
+                        cache_dir = temp_dir,
+                        verbose = FALSE,
+                        country = "NO",
+                        gisco_id = NULL)
+
+```
+
+#### 7.2.2 Clean and format the data for analyses
+We select the columns of relevance to our work and clean the topological and geometrical errors if any. Note that we also need to clean the `GISCO_ID`, which is the municipality number. 
+
+```{r clean_rec_area}
+#| eval: true
+#| code-summary: "DT03 - general clean and format"
+
+# We select the columns of interests
+lau_no <- lau_no %>%
+            select(GISCO_ID,
+                   LAU_NAME) %>%
+            mutate(GISCO_ID = sub("NO_", "", .$GISCO_ID))
+
+# Check for topological and geometrical errors
+which(st_is_valid(lau_no) == FALSE) %>% length()
+which(st_is_empty(lau_no) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("rec_cln",
+                    "encroach_dt",
+                    "lau_no",
+                    "project_path",
+                    "functions_path")))
+```
+
+
 ## 8. Spatial units
 
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
@@ -550,6 +588,14 @@ st_crs(rcl_32) == st_crs(encroach_dt)
 # Perform spatial intersection
 encrec_001 <- st_intersection(rcl_32, encroach_dt)
 
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec_001")))
+
 ```
 
 ### 9.2 ENCREC_002 - Total encroachment in important and very important recreation areas.
@@ -566,6 +612,16 @@ rcl_32_imp <- rcl_32 %>%
 # Perform spatial intersection
 encrec_002 <- st_intersection(rcl_32_imp, encroach_dt)
 
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "rcl_32_imp",
+                    "encrec_001",
+                    "encrec_002")))
+
 ```
 <!--# 
 
@@ -578,7 +634,15 @@ Caching is also activated (from the top YAML), meaning that rendering to html wi
 -->
 
 ## 10. Results - Thematic Accounts: encroachment in recreation areas
-All recreation areas have been mapped in different years. We decided to not take this difference in our analyses and the subsequent presentation of the accounts. Our assumption for this is that the year of mapping does not indicate that the area mapped was not a recreation area before it was mapped. 
+Now we can built the accounting tables and maps based on the spatial intersection we performed in the previous section. We chose to build the thematic accounts over the years 2018, 2020, 2022, 2024. Maps will be created only for the opening (2028) and closing (2024) years of the total accounting period 2018-2024.
+
+All recreation areas have been mapped in different years ranging from 2010 to 2018. We decided to not take this difference in our analyses and the subsequent presentation of the accounts. This means that we consider the mapped recreation areas as homogeneous across the years. Our assumption for this is that the year of mapping does not indicate that the area mapped was not a recreation area before it was mapped. For example, we consider that recreation areas only mapped in 2025 should be part of the accounts as we assume that people would already use these areas to recreate in 2018, despite them not having been officially mapped in 2018 by municipalities. This assumption was used to *build the thematic accounts*. Nevertheless, we expect that a recreation areas mapped in 2010 might present some variations overtime and would present changes in its area in 2024. We took this possible temporal discrepancy into account in the uncertainty presented alongside the results.
+
+
+
+
+
+map of NO, Map per fylke
 
 
 <!--# 
