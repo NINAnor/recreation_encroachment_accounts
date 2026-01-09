@@ -473,8 +473,8 @@ which(st_is_empty(rec_cln) == TRUE) %>% length()
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("rec_cln",
-                  "project_path",
-                  "functions_path")))
+                    "project_path",
+                    "functions_path")))
 
 ```
 
@@ -516,9 +516,9 @@ which(st_is_empty(encroach_dt) == TRUE) %>% length()
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("rec_cln",
-                  "encroach_dt",
-                  "project_path",
-                  "functions_path")))
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path")))
 
 ```
 
@@ -533,14 +533,22 @@ The data are all clear and do not need further corrections.
 The analyses primarily rely on spatial intersections between DT01 and DT02. 
 
 ### 9.1 ENCREC_001 - Total encroachment in all recreation areas
-For ENCREC_001, we do the intersection with DT01 and DT02 as they are.
+For ENCREC_001, we do the intersection with DT01 and DT02 as they are. 
 ```{r clean_rec_area}
 #| eval: true
 #| code-summary: "ENCREC_001 - intersection"
 
 # Check the CRS of both DT01 and DT02
+st_crs(rec_cln) == st_crs(encroach_dt)
 
-# 
+# Re-project rec_cln into ESPG : 25832
+rcl_32 <- st_transform(rec_cln, crs = st_crs(encroach_dt))
+
+# Check CRS of both datasets are the same now
+st_crs(rcl_32) == st_crs(encroach_dt)
+
+# Perform spstial intersection
+encrec_001 <- st_intersection(rcl_32, encroach_dt)
 
 ```
 
@@ -557,7 +565,9 @@ Caching is also activated (from the top YAML), meaning that rendering to html wi
 
 -->
 
-## 10. Results
+## 10. Results - Thematic Accounts: encroachment in recreation areas
+All recreation areas have been mapped in different years. We decided to not take this difference in our analyses and the subsequent presentation of the accounts. Our assumption for this is that the year of mapping does not indicate that the area mapped was not a recreation area before it was mapped. 
+
 
 <!--# 
 
