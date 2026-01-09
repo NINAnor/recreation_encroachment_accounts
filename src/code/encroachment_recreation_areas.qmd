@@ -104,6 +104,9 @@ library(purrr)
 library(numform)
 library(DT)
 
+# set working directory
+setwd(here::here())
+
 # weird workarounds for cache issues
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(dplyr::lag)
@@ -278,10 +281,10 @@ In this section, we show how to import the data through API. We also prepare the
 #| code-summary: "Path setup"
 
 # Path to the project folder
-project_path <- getwd()
+project_path <- here::here()
 
 # Path to the functions folder within the project folder
-functions_path <- paste0(project_path, "/src/functions")
+functions_path <- here::here(project_path, "code/src/functions")
 ```
 
 <!--# All the data import and preparation should be done in this chapter, before the analysis chapter. As a minimum, add code for importing data, and describe or show the data structure. You may also explain certain variables, what they represent, and their distributions -->
