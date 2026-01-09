@@ -393,7 +393,7 @@ order_info <- resp_body_json(order_req)
 #| eval: true
 #| code-summary: "DT01 API download - download and read the data"
 
-# URL to dowload the data
+# URL to download the data
 down_url <- order_info$files[[1]]$downloadUrl
 
 # Create a temporary directory to store the dataset .zip and unzipped
@@ -425,9 +425,9 @@ rec_no <- st_read(gdb_file)
 
 # Clean R environment
 rm(list = setdiff(ls(), 
-                  "rec_no",
+                  c("rec_no",
                   "project_path",
-                  ))
+                  "functions_path")))
 ```
 
 #### 7.1.3 Clean and format the data for analyses
@@ -567,11 +567,10 @@ rm(list = setdiff(ls(),
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
 
 ## 9. Analyses
-The analyses primarily rely on spatial intersections between DT01 and DT02. 
+Both the analyses for ENCREC_001 and ENCREC_002 rely on spatial intersections between DT01 and DT02. 
 
-### 9.1 ENCREC_001 - Total encroachment in all recreation areas
-For ENCREC_001, we do the intersection with DT01 and DT02 as they are. 
-```{r encrec001_analyses}
+### 9.1 ENCREC_001 and ENCREC_002
+```{r encrec0012_analyses}
 #| eval: true
 #| code-summary: "ENCREC_001 - intersection"
 
@@ -585,7 +584,7 @@ rcl_32 <- st_transform(rec_cln, crs = st_crs(encroach_dt))
 st_crs(rcl_32) == st_crs(encroach_dt)
 
 # Perform spatial intersection
-encrec_001 <- st_intersection(rcl_32, encroach_dt)
+encrec <- st_intersection(rcl_32, encroach_dt)
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -593,35 +592,11 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32",
-                    "encrec_001")))
+                    "encrec")))
 
 ```
 
-### 9.2 ENCREC_002 - Total encroachment in important and very important recreation areas.
- For ENCREC_002, we first need to select the recreation areas that are considered as "important" (`viktigFriluftslivsområde`) and "very important" (`sværtViktigFriluftslivsområde`), and then intersect them with DT02. 
-```{r encrec002_analyses}
-#| eval: true
-#| code-summary: "ENCREC_002 - intersection"
 
-# Select inportant and very important recreation areas
-rcl_32_imp <- rcl_32 %>%
-                filter(områdeverdi %in% c("sværtViktigFriluftslivsområde",
-                                          "viktigFriluftslivsområde"))
-
-# Perform spatial intersection
-encrec_002 <- st_intersection(rcl_32_imp, encroach_dt)
-
-# Clean R environment
-rm(list = setdiff(ls(), 
-                  c("encroach_dt",
-                    "project_path",
-                    "functions_path",
-                    "rcl_32",
-                    "rcl_32_imp",
-                    "encrec_001",
-                    "encrec_002")))
-
-```
 <!--# 
 
 Use this header for documenting the analyses. Put code in separate code chunks, and annotate the code in between using normal text (i.e. between the chunks, and try to avoid too many hashed out comments inside the code chunks). Add subheaders as needed. 
@@ -638,7 +613,22 @@ Now we can built the accounting tables and maps based on the spatial intersectio
 All recreation areas have been mapped in different years ranging from 2010 to 2018. We decided to not take this difference in our analyses and the subsequent presentation of the accounts. This means that we consider the mapped recreation areas as homogeneous across the years. Our assumption for this is that the year of mapping does not indicate that the area mapped was not a recreation area before it was mapped. For example, we consider that recreation areas only mapped in 2025 should be part of the accounts as we assume that people would already use these areas to recreate in 2018, despite them not having been officially mapped in 2018 by municipalities. This assumption was used to *build the thematic accounts*. Nevertheless, we expect that a recreation areas mapped in 2010 might present some variations overtime and would present changes in its area in 2024. We took this possible temporal discrepancy into account in the uncertainty presented alongside the results.
 
 
+### 10.1 Accounting tables
+```{r res_acc_tables}
+#| eval: true
+#| code-summary: "Create accounting tables"
 
+# Select varaibles
+encrec_001_res <- encrec_001 %>%
+                    select(fylkesnr,
+                           kommune,
+                           )
+
+
+```
+
+
+### 10.2 Maps
 
 
 map of NO, Map per fylke
