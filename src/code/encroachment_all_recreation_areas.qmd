@@ -625,12 +625,14 @@ First we present the thematic accounting table for encroachment areas between 20
 #| eval: true
 #| code-summary: "ENCREC_001 - Create accounting table"
 
-# ENCREC_001
+## Import LAU dataset to then join the name of the municipalities
 kom_navn <- lau_no %>%
               st_drop_geometry() %>%
               select(GISCO_ID,
                      LAU_NAME)
-  
+
+## ENCREC_001 accounting table
+# Accounts for all municipalities
 encrec_001_kom <- encrec %>%
                     st_drop_geometry() %>%
                     select(fylkesnr,
@@ -644,6 +646,7 @@ encrec_001_kom <- encrec %>%
                     left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
                     relocate(c(kommune,LAU_NAME), .after = year)
 
+# Total across all municipalities
 encrec_001_tot <- encrec_001_kom %>%
                     group_by(year) %>%
                     summarise(area_m2 = sum(area_m2),
@@ -652,7 +655,7 @@ encrec_001_tot <- encrec_001_kom %>%
                     mutate(kommune = "Not Applicable",
                            LAU_NAME = "Total", .after = year)
                     
-                
+# Final accounting table                 
 encrec_001_acc <- bind_rows(encrec_001_tot, 
                             encrec_001_kom)
 
@@ -663,6 +666,7 @@ colnames(encrec_001_acc) <- c("År",
                               "Areal i dekar",
                               "Areal i km2")
 
+# Display the table dynamically
 datatable(encrec_001_acc,
           extensions = 'Buttons',
           options = list( dom = 'Bfrtip',
@@ -695,7 +699,7 @@ datatable(encrec_001_acc,
 ## Call function to add net change
 source(paste0(functions_path,"/add_net_change.R"))
 
-## ENCREC_001
+## ENCREC_001 accounting table
 # Accounts for all municipalities
 encrec_001_kom2 <- encrec %>%
                     st_drop_geometry() %>%
@@ -776,6 +780,7 @@ datatable(encrec_001_acc,
 
 
 ```
+
 ### 10.2 Maps
 
 
