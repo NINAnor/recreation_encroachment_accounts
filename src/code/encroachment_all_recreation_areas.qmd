@@ -95,7 +95,6 @@ library(anybadger)
 library(yaml)
 library(tibble)
 library(conflicted)
-library(httr)
 library(httr2)
 library(giscoR)
 library(zen4R)
@@ -468,7 +467,7 @@ rm(list = setdiff(ls(),
 
 ### 7.2. Encroachment areas - DT02
 #### 7.2.1 Download DT02 from Zenodo through an API
-The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downlodable link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
+The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downlodable *content* link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
 ```{r enc_link}
 #| eval: true
 #| code-summary: "DT02 API download"
