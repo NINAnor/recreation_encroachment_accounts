@@ -48,7 +48,7 @@ library(sf)
 
 ## Functions
 A lot of different functions have been created to make the core code more easy to read and follow. These functions can be found in .src/functions:
-- api_zenodo.R: download a zenodo dataset through an API request.
+- api_zenodo.R: download a Zenodo dataset through an API request.
 - add_net_change.R: add a net change row to an extent account table.
 
 ## Code
