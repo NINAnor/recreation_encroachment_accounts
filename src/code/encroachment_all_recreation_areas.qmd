@@ -438,7 +438,9 @@ rec_no <- st_read(gdb_file)
 
 # Clean R environment
 rm(list = setdiff(ls(), 
-                  "rec_no"))
+                  "rec_no",
+                  "project_path",
+                  ))
 ```
 
 #### 7.1.3 Clean and format the data for analyses
@@ -470,7 +472,9 @@ which(st_is_empty(rec_cln) == TRUE) %>% length()
 
 # Clean R environment
 rm(list = setdiff(ls(), 
-                  "rec_cln"))
+                  c("rec_cln",
+                  "project_path",
+                  "functions_path")))
 
 ```
 
@@ -511,8 +515,10 @@ which(st_is_empty(encroach_dt) == TRUE) %>% length()
 
 # Clean R environment
 rm(list = setdiff(ls(), 
-                  "rec_cln",
-                  "encroach_dt"))
+                  c("rec_cln",
+                  "encroach_dt",
+                  "project_path",
+                  "functions_path")))
 
 ```
 
@@ -530,16 +536,11 @@ The analyses primarily rely on spatial intersections between DT01 and DT02.
 For ENCREC_001, we do the intersection with DT01 and DT02 as they are.
 ```{r clean_rec_area}
 #| eval: true
-#| code-summary: "DT02 - clean"
+#| code-summary: "ENCREC_001 - intersection"
 
-# Check for topological and geometrical errors
-which(st_is_valid(encroach_dt) == FALSE) %>% length()
-which(st_is_empty(encroach_dt) == TRUE) %>% length()
+# Check the CRS of both DT01 and DT02
 
-# Clean R environment
-rm(list = setdiff(ls(), 
-                  "rec_cln",
-                  "encroach_dt"))
+# 
 
 ```
 
