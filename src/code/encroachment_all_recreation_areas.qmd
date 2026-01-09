@@ -534,7 +534,7 @@ The analyses primarily rely on spatial intersections between DT01 and DT02.
 
 ### 9.1 ENCREC_001 - Total encroachment in all recreation areas
 For ENCREC_001, we do the intersection with DT01 and DT02 as they are. 
-```{r clean_rec_area}
+```{r encrec001_analyses}
 #| eval: true
 #| code-summary: "ENCREC_001 - intersection"
 
@@ -547,14 +547,26 @@ rcl_32 <- st_transform(rec_cln, crs = st_crs(encroach_dt))
 # Check CRS of both datasets are the same now
 st_crs(rcl_32) == st_crs(encroach_dt)
 
-# Perform spstial intersection
+# Perform spatial intersection
 encrec_001 <- st_intersection(rcl_32, encroach_dt)
 
 ```
 
 ### 9.2 ENCREC_002 - Total encroachment in important and very important recreation areas.
- For ENCREC_002, we first need to select the recreation areas that are considered as "important" and "very important", and then intersect them with DT02.
+ For ENCREC_002, we first need to select the recreation areas that are considered as "important" (`viktigFriluftslivsområde`) and "very important" (`sværtViktigFriluftslivsområde`), and then intersect them with DT02. 
+```{r encrec002_analyses}
+#| eval: true
+#| code-summary: "ENCREC_002 - intersection"
 
+# Select inportant and very important recreation areas
+rcl_32_imp <- rcl_32 %>%
+                filter(områdeverdi %in% c("sværtViktigFriluftslivsområde",
+                                          "viktigFriluftslivsområde"))
+
+# Perform spatial intersection
+encrec_002 <- st_intersection(rcl_32_imp, encroach_dt)
+
+```
 <!--# 
 
 Use this header for documenting the analyses. Put code in separate code chunks, and annotate the code in between using normal text (i.e. between the chunks, and try to avoid too many hashed out comments inside the code chunks). Add subheaders as needed. 
