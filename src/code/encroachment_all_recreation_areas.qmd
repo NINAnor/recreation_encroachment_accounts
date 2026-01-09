@@ -100,6 +100,8 @@ library(giscoR)
 library(zen4R)
 library(jsonlite)
 library(sf)
+library(numform)
+library(DT)
 
 # weird workarounds for cache issues
 conflicts_prefer(dplyr::filter)
@@ -554,7 +556,8 @@ which(st_is_empty(lau_no) == TRUE) %>% length()
 
 # Clean R environment
 rm(list = setdiff(ls(), 
-                  c("rec_cln",
+                  c("lau_no",
+                    "rec_cln",
                     "encroach_dt",
                     "lau_no",
                     "project_path",
@@ -588,7 +591,8 @@ encrec <- st_intersection(rcl_32, encroach_dt) %>%
 
 # Clean R environment
 rm(list = setdiff(ls(), 
-                  c("encroach_dt",
+                  c("lau_no",
+                    "encroach_dt",
                     "project_path",
                     "functions_path",
                     "rcl_32",
@@ -608,26 +612,115 @@ Caching is also activated (from the top YAML), meaning that rendering to html wi
 -->
 
 ## 10. Results - Thematic Accounts: encroachment in recreation areas
-Now we can built the accounting tables and maps based on the spatial intersection we performed in the previous section. We chose to build the thematic accounts over the years 2018, 2020, 2022, 2024. Maps will be created only for the opening (2028) and closing (2024) years of the total accounting period 2018-2024.
+Now we can built the accounting tables and maps based on the spatial intersection we performed in the previous section. We chose to build the thematic accounts over the 2018-2024 period. Maps will be created only for the opening (2018) and closing (2024) years of the total accounting period 2018-2024. **Only municipalities which have mapped their recreation areas are present in these accounts.**
 
-All recreation areas have been mapped in different years ranging from 2010 to 2018. We decided to not take this difference in our analyses and the subsequent presentation of the accounts. This means that we consider the mapped recreation areas as homogeneous across the years. Our assumption for this is that the year of mapping does not indicate that the area mapped was not a recreation area before it was mapped. For example, we consider that recreation areas only mapped in 2025 should be part of the accounts as we assume that people would already use these areas to recreate in 2018, despite them not having been officially mapped in 2018 by municipalities. This assumption was used to *build the thematic accounts*. Nevertheless, we expect that a recreation areas mapped in 2010 might present some variations overtime and would present changes in its area in 2024. We took this possible temporal discrepancy into account in the uncertainty presented alongside the results.
+All recreation areas have been mapped in different years ranging from 2010 to 2018. We decided to not take this difference in our analyses and the subsequent presentation of the accounts. This means that we consider the mapped recreation areas as homogeneous across the years. Our assumption for this is that the year of mapping does not indicate that the area mapped was not a recreation area before it was mapped. For example, we consider that recreation areas only mapped in 2025 should be part of the accounts as we assume that people would already use these areas to recreate in 2018, despite them not having been officially mapped in 2018 by municipalities. This assumption was used to <u> build the thematic accounts </u>. Nevertheless, we expect that a recreation areas mapped in 2010 might present some variations overtime and would present changes in its area in 2024. We took this possible temporal discrepancy into account in the uncertainty presented alongside the results.
 
 
 ### 10.1 Accounting tables
+#### 10.1.1 Accounts non-aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
+First we present the thematic accounting table for encroachment areas between 2018 and 2024 for all recreation areas within each municipalities in Norway which mapped their recreation areas. We also present a total across all municipalities in Norway which mapped their recreation areas. This accounts are not cumulative over the years. This means that the areas recorder for each year have been built over this year only. These accounts do not really align with the System of Environmental Economic Accounting - Ecosystem Accounting as not net change can be calculated. 
+```{r res_acc_tables1}
+#| eval: true
+#| code-summary: "Create accounting tables"
+
+# ENCREC_001
+kom_navn <- lau_no %>%
+              st_drop_geometry() %>%
+              select(GISCO_ID,
+                     LAU_NAME)
+  
+encrec_001_kom <- encrec %>%
+                    st_drop_geometry() %>%
+                    select(fylkesnr,
+                           kommune,
+                           year,
+                           area_inter_m2) %>%
+                    group_by(kommune, year) %>%
+                    summarise(area_m2 = round2(sum(area_inter_m2), 2),
+                              area_dekar = round2(sum(area_inter_m2)/1000, 2),
+                              area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
+                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
+                    relocate(c(kommune,LAU_NAME), .after = year)
+
+encrec_001_tot <- encrec_001_kom %>%
+                    group_by(year) %>%
+                    summarise(area_m2 = sum(area_m2),
+                              area_dekar = sum(area_dekar),
+                              area_km2 = sum(area_km2)) %>%
+                    mutate(kommune = "NA",
+                           LAU_NAME = "Total", .after = year)
+                    
+                
+encrec_001_acc <- bind_rows(encrec_001_tot, 
+                            encrec_001_kom)
+
+colnames(encrec_001_acc) <- c("År",
+                              "Kommune nummer",
+                              "Kommune navn",
+                              "Areal i m2",
+                              "Areal i dekar",
+                              "Areal i km2")
+
+datatable(encrec_001_acc,
+          extensions = 'Buttons',
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'))) %>%
+    formatCurrency(
+    columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",")
+    
+```
+
+#### 10.1.2 Accounts aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
 ```{r res_acc_tables}
 #| eval: true
 #| code-summary: "Create accounting tables"
 
-# Select varaibles
-encrec_001 <- encrec %>%
-                select(fylkesnr,
-                       kommune,
-                       year) %>%
-                mutate(area_m2 = st_area(.))
+# ENCREC_001
+encrec_001_kom2 <- encrec %>%
+                    st_drop_geometry() %>%
+                    select(fylkesnr,
+                           kommune,
+                           year,
+                           area_inter_m2) %>%
+                    group_by(kommune, year) %>%
+                    summarise(area_m2 = round2(sum(area_inter_m2), 2),
+                              area_dekar = round2(sum(area_inter_m2)/1000, 2),
+                              area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
+                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
+                    relocate(c(kommune,LAU_NAME), .after = year)
 
+encrec_001_tot2 <- encrec_001 %>%
+                    group_by(year) %>%
+                    summarise(area_m2 = sum(area_m2),
+                              area_dekar = sum(area_dekar),
+                              area_km2 = sum(area_km2)) %>%
+                    mutate(kommune = "NA",
+                           LAU_NAME = "Total", .after = year)
+                    
+                
+encrec_001_acc2 <- bind_rows(encrec_001_tot2, 
+                            encrec_001_kom2)
 
+colnames(encrec_001_acc2) <- c("År",
+                              "Kommune nummer",
+                              "Kommune navn",
+                              "Areal i m2",
+                              "Areal i dekar",
+                              "Areal i km2")
+
+datatable(encrec_001_acc2) %>%
+    formatCurrency(
+    columns = c("Areal i m2", "Areal i dekar"),  # specify numeric columns
+    currency = "",                # no currency symbol
+    interval = 3,                 # every 3 digits
+    mark = ","                    # comma separator
+  )
 ```
-
 
 ### 10.2 Maps
 
