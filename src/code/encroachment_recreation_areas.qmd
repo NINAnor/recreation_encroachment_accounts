@@ -496,7 +496,7 @@ encroach_dt <- st_read(encroach_link)
 #### 7.2.3 Clean and format the data for analyses
 All columns are of relevance to our work but we need to clean the topological and geometrical errors if any.
 
-```{r clean_rec_area}
+```{r clean_enc}
 #| eval: true
 #| code-summary: "DT02 - clean"
 
@@ -541,7 +541,7 @@ lau_no <- gisco_get_lau(year = "2024",
 #### 7.2.2 Clean and format the data for analyses
 We select the columns of relevance to our work and clean the topological and geometrical errors if any. Note that we also need to clean the `GISCO_ID`, which is the municipality number. 
 
-```{r clean_rec_area}
+```{r clean_lau}
 #| eval: true
 #| code-summary: "DT03 - general clean and format"
 
@@ -694,7 +694,7 @@ datatable(encrec_001_acc,
     
 ```
 
-```{r res_acc_tables1}
+```{r res_acc_tables2}
 #| eval: true
 #| code-summary: "ENCREC_002 - Create accounting table"
 
