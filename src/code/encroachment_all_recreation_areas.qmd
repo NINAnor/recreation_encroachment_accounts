@@ -359,13 +359,6 @@ order_url <- cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/do
 #| code-summary: "DT01 API download - order the data"
 
 # Create the order by listing the dataset id and capabilities of relevance
-order_body <- list(metadataUuid  = dataset_uuid,
-                   projection = projection_code,
-                   format = format_code,
-                   area = area_code)
-
-
-
 order_body <- list(
   downloadAsBundle = FALSE,
   email = "sylvie.clappe@nina.no",
@@ -379,7 +372,7 @@ order_body <- list(
         )
       ),
       formats = list(
-        list(name = format_code)
+        list(name = choice_format)
       ),
       metadataUuid = dataset_uuid,
       projections = list(
@@ -435,7 +428,7 @@ gdb_file <- list.files(temp_dir, pattern = "\\.gdb$", full.names = TRUE)
 
 
 #### 7.1.2 Read DT01
-Now that the dataset has been downloaded in a temporary file, we can read it in R and clean the R environment.
+Now that the dataset has been downloaded in a temporary file, we can read it in R and clean the R environment. Once the analyses are finished, we will remove the temporary file containing the data.
 ```{r read_rec_area}
 #| eval: true
 #| code-summary: "DT01 - read the data"
@@ -531,8 +524,27 @@ The data are all clear and do not need further corrections.
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
 
 ## 9. Analyses
-The analyses primarily rely on spatial intersections between DT01 and DT02. For ENCREC_001, we do the intersection with DT01 and DT02 as they are. For ENCREC_002, we first need to select the recreation areas that are considered as "important" and "very important", and then intersect them with DT02.
+The analyses primarily rely on spatial intersections between DT01 and DT02. 
 
+### 9.1 ENCREC_001 - Total encroachment in all recreation areas
+For ENCREC_001, we do the intersection with DT01 and DT02 as they are.
+```{r clean_rec_area}
+#| eval: true
+#| code-summary: "DT02 - clean"
+
+# Check for topological and geometrical errors
+which(st_is_valid(encroach_dt) == FALSE) %>% length()
+which(st_is_empty(encroach_dt) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  "rec_cln",
+                  "encroach_dt"))
+
+```
+
+### 9.2 ENCREC_002 - Total encroachment in important and very important recreation areas.
+ For ENCREC_002, we first need to select the recreation areas that are considered as "important" and "very important", and then intersect them with DT02.
 
 <!--# 
 
