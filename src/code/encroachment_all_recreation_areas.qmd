@@ -567,9 +567,8 @@ rm(list = setdiff(ls(),
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
 
 ## 9. Analyses
-Both the analyses for ENCREC_001 and ENCREC_002 rely on spatial intersections between DT01 and DT02. 
-
 ### 9.1 ENCREC_001 and ENCREC_002
+Both the analyses for ENCREC_001 and ENCREC_002 rely on spatial intersections between DT01 and DT02. Note that we re-calculate the areas of the encroachment polygons after the intersection has been performed.
 ```{r encrec0012_analyses}
 #| eval: true
 #| code-summary: "ENCREC_001 - intersection"
@@ -584,7 +583,8 @@ rcl_32 <- st_transform(rec_cln, crs = st_crs(encroach_dt))
 st_crs(rcl_32) == st_crs(encroach_dt)
 
 # Perform spatial intersection
-encrec <- st_intersection(rcl_32, encroach_dt)
+encrec <- st_intersection(rcl_32, encroach_dt) %>%
+            mutate(area_inter_m2 = unclass(st_area(.)))
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -619,10 +619,11 @@ All recreation areas have been mapped in different years ranging from 2010 to 20
 #| code-summary: "Create accounting tables"
 
 # Select varaibles
-encrec_001_res <- encrec_001 %>%
-                    select(fylkesnr,
-                           kommune,
-                           )
+encrec_001 <- encrec %>%
+                select(fylkesnr,
+                       kommune,
+                       year) %>%
+                mutate(area_m2 = st_area(.))
 
 
 ```
