@@ -26,24 +26,34 @@ api_zenodo <- function(zenodo_url){
     #1# Extract dataset ID from Zenodo
     dt_id <- sub(".*records/([0-9]+).*", "\\1", zenodo_url)
     
-    #2# Get recorded metadata to find downloadable urls
+    #2# Link to metadata to find downloadable urls
     metadata_url <- paste0("https://zenodo.org/api/records/", dt_id)
-    metadata_resp <- GET(metadata_url)
     
-    #3# Stop the function and return error if necessary, or continue if url is correct
-    if (status_code(metadata_resp) >= 300) {
-      error_msg <- content(metadata_resp, "text", encoding = "UTF-8") %>% 
-        fromJSON()
-      return(list(Error = "An error occured, below are the server's status and message.", 
-                  Server_errors = error_msg))
+    #3# Send metadata request to the server while suppressing possible server's erros
+    metadata_resp <- request(metadata_url) %>% # create request
+                      req_headers("Accept" = "application/json") %>%
+                      req_error(.,
+                                is_error = \(resp) FALSE, # never throw R error
+                                body = .$Body) %>% # extract JSON from error response
+                      req_perform() # perform server request
+
+    
+    #4# Stop the function and return error if there is a server error detected, or continue if no error
+    if (resp_is_error(metadata_resp) == TRUE) {
+      error_msg <- rawToChar(metadata_resp$body) %>%
+                    gsub("[\r\n\t ]+", " ", .)
+        
+      return(cat("A server error occured. Here is the message and status of the error sent by the server:", error_msg, "\n"))
+      
     }else{
       
       #4# Extract the metadata
-      metada_zen <- content(metadata_resp, "text", encoding = "UTF-8") %>%
-        fromJSON()
+      metada_zen <- request(metadata_url) %>%
+                      req_headers("Accept" = "application/json") %>%
+                      req_perform()
       
       #5# Read the data
-      geojson_url <- metada_zen$files$links
+      geojson_url <- resp_body_json(metada_zen)$files[[1]]$links$self
     }
     
     return(geojson_url)
