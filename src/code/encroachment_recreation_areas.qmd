@@ -111,6 +111,10 @@ conflicts_prefer(dplyr::select)
 pull<-dplyr::pull
 
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Remove dplyr and messages
+options(dplyr.summarise.inform = FALSE)
 ```
 
 ```{r source}
@@ -272,6 +276,11 @@ Values decreasing toward zero reflect...
 ### 5.1 General uncertainties
 <!--# Describe the main reasons why you might not trust 100% the final value to represent the given ecosystem characteristic for the give ecosystem type. What aspects of this condition metric are most sensitive to subjective decitions? Is the spatial sampling sufficient? Does the choice of modeling framework affect the values? Is the metric relevant do describe ecosystem condition for the give ecosystem type?  -->
 
+Be careful: we did not add any restoration: we just have additions and not "reductions" in the extent of the encroachment. THis is a bias, it might be that the figures are smaller in reality.
+
+In cumulative accounts, we assume emcroachment add over the years but in fact some might have disappeared (restoration as mentioned above)
+
+
 ### 5.2 Reported uncertainties
 <!-- Describe the nature of the errors you (hopefully) provide alongside the point estimate for the condition metric. It is especially important to clarify if the errors are inferential (referring to the uncertainty of the point estimate) or descriptive (referreing to the data itself). Here' an example text: "What we report as uncertainties in @tbl-finalTable are inferential and refer to the uncertainty around the point estimates. It does not directly describe variation in the data itself. 
 However, the variation in the mean is defined by the spatial variation only, and quartiles are obtained by bootstrapping the set of localities within a region, and calculating the indicator for each of 9999 such samples".   -->
@@ -305,6 +314,8 @@ We download DT01 through an API from [Geonorge](https://kartkatalog.geonorge.no/
 
 ```{r import_rec_areas_api1}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 API download - base url"
 
 # base url for downloading dataset in Geonorge through API
@@ -315,15 +326,19 @@ base_url <- "https://geoapi.p.aks.miljodirektoratet.no/geonorge"
 2. **Identify the <u>dataset ID </u>**. The dataset ID is called an uuid. It can be found by going to the dataset's page on Geonorge, it is the long series of numbers and letters in the url of the page: ".../metadata/dataset_name/uuid"
 ```{r import_rec_areas_api2}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 API download - dataset ID"
 
-# dataset specific ID from Geon
+# dataset specific ID from Geonorge
 dataset_uuid <- "91e31bb7-356f-4478-bcba-d5c2de6e91bc"
 ```
 
 3. **Request the dataset's <u>capabilities</u>**. When downloading data through an API, users have to choose what is called "capabilities". These refer to the settings that should be used when downloading the data such as geographic areas, raster or vector type, format etc. We need to first build an API request to know what these capabilities are before downloading the data.
 ```{r import_rec_areas_api3}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 API download - list capabilities"
 
 # httr2:::req_perform() sends API request for dataset's capabilities
@@ -340,6 +355,8 @@ cap_all <- resp_body_json(dt_cap, simplifyVector = TRUE)
 4. **Choose the dataset's <u>capabilities</u> of relevance**. Now that we have the list of all the dataset's capabilities, we can choose those we want to download the dataset with. We are interested in three capabilities: projection, format, area and order. *Note: (i) order is the url to be used to order the dataset to the server; (ii) in the code below, the "rel" column just indicates what the link "href" refers to, meaning project, format, area, order etc. The url to use are in the "href" column; (iii) four projections can be chosen but in reality, only two are available for Norway as a country: ESPG:25833 and WGS84. Trying the others codes will lead to an error. (iv) we just read "http://rel.geonorge.no/download/area" as it has the area together withe project and format. So we don't need to read them all separately*
 ```{r import_rec_areas_api4}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 API download - choose capabilities"
 
 # Extract the capablities into a dataframe so it's easier to choose from
@@ -362,6 +379,8 @@ order_url <- cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/do
 5. **Create an <u>order</u>**. Here we create the API request to order the data from the server. In our case, the server responds with a downloadable link that we can then use. Every server has its own JSON request structure, it is important to go on the [API help page of Geonorge](https://nedlasting.geonorge.no/Help) to use the correct structure. As we use a POST API order, we need to go to the [POST API oder page](https://nedlasting.geonorge.no/Help/Api/POST-api-order) to figure it out.
 ```{r import_rec_areas_api5}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 API download - order the data"
 
 # Create the order by listing the dataset id and capabilities of relevance
@@ -405,6 +424,8 @@ order_info <- resp_body_json(order_req)
 6. **Download the data**. Now that we have the downloadable link, we just have the use it to download the dataset in R. *Note: we download the data in a temporary file which can then be deleted.*
 ```{r import_rec_areas_api6}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 API download - download and read the data"
 
 # URL to download the data
@@ -432,6 +453,8 @@ gdb_file <- list.files(temp_dir, pattern = "\\.gdb$", full.names = TRUE)
 Now that the dataset has been downloaded in a temporary file, we can read it in R and clean the R environment. Once the analyses are finished, we will remove the temporary file containing the data.
 ```{r read_rec_area}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT01 - read the data"
 
 # Read data
@@ -440,8 +463,8 @@ rec_no <- st_read(gdb_file)
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("rec_no",
-                  "project_path",
-                  "functions_path")))
+                    "project_path",
+                    "functions_path")))
 ```
 
 #### 7.1.3 Clean and format the data for analyses
@@ -449,6 +472,9 @@ We first need to select the column of relevance for our work and clean the topol
 
 ```{r clean_rec_area}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: false
 #| code-summary: "DT01 - clean and format"
 
 # Select columns of relevance
@@ -484,6 +510,8 @@ rm(list = setdiff(ls(),
 The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downlodable *content* link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
 ```{r enc_link}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT02 API download"
 
 # Call for the function that will read the data through an API
@@ -498,6 +526,8 @@ encroach_link <- api_zenodo(zenodo_url = "https://zenodo.org/records/15130992")
 Now that we have the downloadable link, we can read the data in R and clean the R environment.
 ```{r enc_read}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT02 - read"
 
 encroach_dt <- st_read(encroach_link)
@@ -509,6 +539,9 @@ All columns are of relevance to our work but we need to clean the topological an
 
 ```{r clean_enc}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: false
 #| code-summary: "DT02 - clean"
 
 # Check for topological and geometrical errors
@@ -532,6 +565,8 @@ The data are all clear and do not need further corrections.
 For DT03, the API process is much simpler as a package has been developed to read data from GISCO via an API: `giscoR`. We just nee dto use one function to cache the dataset in a temporary directory and read it in R.
 ```{r lau_down_data}
 #| eval: true
+#| warning: false
+#| message: false
 #| code-summary: "DT03 API download"
 
 # Create a temporary directory to store the cache
@@ -554,6 +589,9 @@ We select the columns of relevance to our work and clean the topological and geo
 
 ```{r clean_lau}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: false
 #| code-summary: "DT03 - general clean and format"
 
 # We select the columns of interests
@@ -586,6 +624,9 @@ rm(list = setdiff(ls(),
 Both the analyses for ENCREC_001 and ENCREC_002 rely on spatial intersections between DT01 and DT02. Note that we re-calculate the areas of the encroachment polygons after the intersection has been performed.
 ```{r encrec0012_analyses}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: false
 #| code-summary: "ENCREC_001 - intersection"
 
 # Check the CRS of both DT01 and DT02
@@ -630,11 +671,17 @@ All recreation areas have been mapped in different years ranging from 2010 to 20
 
 
 ### 10.1 Accounting tables
-#### 10.1.1 Accounts non-aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
-First we present the thematic accounting table for encroachment areas between 2018 and 2024 for all recreation areas within each municipalities in Norway which mapped their recreation areas. We also present a total across all municipalities in Norway which mapped their recreation areas. This accounts are not cumulative over the years. This means that the areas recorder for each year have been built over this year only. These accounts do not really align with the System of Environmental Economic Accounting - Ecosystem Accounting as not net change can be calculated. 
+#### 10.1.1 Thematic accounts - Area of encroachment in reacreation areas
+First we present the thematic accounting table for encroachment areas between 2018 and 2024 for all recreation areas within each municipalities in Norway which mapped their recreation areas. We also present a total across all municipalities in Norway which mapped their recreation areas. This accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. 
 ```{r res_acc_tables1}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: true
 #| code-summary: "ENCREC_001 - Create accounting table"
+
+## Call function to add change in areas 2018-2024
+source(paste0(functions_path, "/add_change.R"))
 
 ## Import LAU dataset to then join the name of the municipalities
 kom_navn <- lau_no %>%
@@ -650,32 +697,44 @@ encrec_001_kom <- encrec %>%
                            kommune,
                            year,
                            area_inter_m2) %>%
-                    group_by(kommune, year) %>%
-                    summarise(area_m2 = round2(sum(area_inter_m2), 2),
-                              area_dekar = round2(sum(area_inter_m2)/1000, 2),
-                              area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
+                    group_by(fylkesnr, kommune, year) %>%
+                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
                     left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(kommune,LAU_NAME), .after = year)
+                    relocate(c(fylkesnr, kommune, LAU_NAME), .after = year)
 
 # Total across all municipalities
 encrec_001_tot <- encrec_001_kom %>%
                     group_by(year) %>%
-                    summarise(area_m2 = sum(area_m2),
-                              area_dekar = sum(area_dekar),
-                              area_km2 = sum(area_km2)) %>%
-                    mutate(kommune = "Not Applicable",
+                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    mutate(fylkesnr = "00",
+                           kommune = "0000",
                            LAU_NAME = "Total", .after = year)
                     
-# Final accounting table                 
+# Final accounting table               
 encrec_001_acc <- bind_rows(encrec_001_tot, 
-                            encrec_001_kom)
+                             encrec_001_kom)
+
+encrec_001_acc$year <- as.character(encrec_001_acc$year)
+
+encrec_001_acc <- encrec_001_acc %>%
+                      group_split(kommune) %>% 
+                      map(~ add_change(., 
+                                           year_column = "year",
+                                           area1 = "area_dekar_cumulative")) %>% 
+                      compact() %>%
+                      bind_rows()
+
+encrec_001_acc$fylkesnr[which(encrec_001_acc$fylkesnr == "00")] <- ""
+encrec_001_acc$kommune[which(encrec_001_acc$kommune == "0000")] <- ""
 
 colnames(encrec_001_acc) <- c("År",
+                              "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
-                              "Areal i m2",
-                              "Areal i dekar",
-                              "Areal i km2")
+                              "Årlig areal i dekar",
+                              "Kumulativ areal i dekar")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -686,7 +745,9 @@ rm(list = setdiff(ls(),
                     "rcl_32",
                     "encrec",
                     "kom_navn",
+                    "add_change",
                     "encrec_001_acc")))
+
 
 # Display the table dynamically
 datatable(encrec_001_acc,
@@ -694,19 +755,21 @@ datatable(encrec_001_acc,
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 1 - Thematic extent accounts: yearly encroachment in all recreation areas over 2018-2024.")
-  )) %>%
+                                            htmltools::strong("Table 1 - Thematic extent accounts: area of encroachment in all recreation areas over 2018-2024."))) %>%
     formatCurrency(
-    columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
     dec.mark = ",")
-    
+
 ```
 
 ```{r res_acc_tables2}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: true
 #| code-summary: "ENCREC_002 - Create accounting table"
 
 ## ENCREC_002 accounting table
@@ -775,105 +838,13 @@ datatable(encrec_002_acc,
 ```
 
 #### 10.1.2 Accounts aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
-```{r res_acc_tables3}
-#| eval: true
-#| output: true
-#| code-summary: "ENCREC_001 - Create accounting tables"
 
-## Call function to add net change
-source(paste0(functions_path,"/add_net_change.R"))
-
-## ENCREC_001 accounting table
-# Accounts for all municipalities
-encrec_001_kom2 <- encrec %>%
-                    st_drop_geometry() %>%
-                    select(fylkesnr,
-                           kommune,
-                           year,
-                           area_inter_m2) %>%
-                    group_by(kommune, year) %>%
-                    summarise(area_m2 = round2(sum(area_inter_m2), 2),
-                              area_dekar = round2(sum(area_inter_m2)/1000, 2),
-                              area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
-                    mutate(cum_area_m2 = cumsum(area_m2),
-                           cum_area_dekar = cumsum(area_dekar),
-                           cum_area_km2 = cumsum(area_km2)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(kommune,LAU_NAME), .after = year)
-
-# Total across all municipalities
-encrec_001_tot2 <- encrec_001_kom2 %>%
-                    group_by(year) %>%
-                    summarise(area_m2 = sum(area_m2),
-                              area_dekar = sum(area_dekar),
-                              area_km2 = sum(area_km2)) %>%
-                    mutate(kommune = "0000",
-                           LAU_NAME = "Total",
-                           cum_area_m2 = cumsum(area_m2),
-                           cum_area_dekar = cumsum(area_dekar),
-                           cum_area_km2 = cumsum(area_km2),
-                           .after = year)
-                    
-# Final accounting table               
-encrec_001_acc2 <- bind_rows(encrec_001_tot2, 
-                             encrec_001_kom2) %>%
-                    filter(LAU_NAME %in% c("Oslo", "Total", "Bergen")) 
-
-encrec_001_acc2$year <- as.character(encrec_001_acc2$year)
-
-encrec_001_acc2 <- encrec_001_acc2 %>%
-                      group_split(kommune) %>% 
-                      map(~ add_net_change(., 
-                                           year_column = "year",
-                                           area1 = "cum_area_m2",
-                                           area2 = "cum_area_dekar",
-                                           area3 = "cum_area_km2")) %>% 
-                      compact() %>%
-                      bind_rows() %>%
-                      select(!c(area_m2, area_dekar, area_km2))
-
-encrec_001_acc2$kommune[which(encrec_001_acc2$kommune == "0000")] <- "Not Applicable"
-
-colnames(encrec_001_acc2) <- c("År",
-                              "Kommune nummer",
-                              "Kommune navn",
-                              "Areal i m2",
-                              "Areal i dekar",
-                              "Areal i km2")
-
-# Clean R environment
-rm(list = setdiff(ls(), 
-                  c("lau_no",
-                    "encroach_dt",
-                    "project_path",
-                    "functions_path",
-                    "rcl_32",
-                    "encrec",
-                    "kom_navn",
-                    "encrec_001_acc",
-                    "encrec_002_acc",
-                    "encrec_001_acc2",
-                    "add_net_change")))
-
-# Display the table dynamically
-datatable(encrec_001_acc2,
-          extensions = 'Buttons',
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
-          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 3 - Thematic extent accounts: cumulative encroachment in all recreation areas over 2018-2024.")
-  )) %>%
-    formatCurrency(
-    columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
-
-```
 
 ```{r res_acc_tables4}
 #| eval: true
+#| warning: false
+#| message: false
+#| output: true
 #| code-summary: "ENCREC_002 - Create accounting tables"
 
 ## ENCREC_002 accounting table
@@ -967,9 +938,29 @@ datatable(encrec_002_acc2,
 ```
 
 ### 10.2 Maps
+#### Total encroachment area in all recreation areas per municipality over 2018-2024
+```{r res_acc_tables4}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Map of total encroachment area in all recreation areas per municipality over 2018-2024"
 
+
+
+
+```
 
 map of NO, Map per fylke
+
+#### Total encroachment area in all recreation areas per municipality over 2018-2024
+
+#### Total encroachment area in important and very important recreation areas per municipality over 2018-2024
+
+#### Share of the total recreation area lost to encroachment per municipality over 2018-2024
+
+#### Share of the total important and very important recreation area lost to encroachment per municipality over 2018-2024
+
 
 
 <!--# 
