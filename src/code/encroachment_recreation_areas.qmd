@@ -726,8 +726,8 @@ encrec_001_acc <- encrec_001_acc %>%
                       compact() %>%
                       bind_rows()
 
-encrec_001_acc$fylkesnr[which(encrec_001_acc$fylkesnr == "00")] <- ""
-encrec_001_acc$kommune[which(encrec_001_acc$kommune == "0000")] <- ""
+encrec_001_acc$fylkesnr[which(encrec_001_acc$fylkesnr == "00")] <- NA
+encrec_001_acc$kommune[which(encrec_001_acc$kommune == "0000")] <- NA
 
 colnames(encrec_001_acc) <- c("År",
                               "Fylke nummer",
@@ -782,32 +782,44 @@ encrec_002_kom <- encrec %>%
                            kommune,
                            year,
                            area_inter_m2) %>%
-                    group_by(kommune, year) %>%
-                    summarise(area_m2 = round2(sum(area_inter_m2), 2),
-                              area_dekar = round2(sum(area_inter_m2)/1000, 2),
-                              area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
+                    group_by(fylkesnr, kommune, year) %>%
+                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
                     left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(kommune,LAU_NAME), .after = year)
+                    relocate(c(fylkesnr, kommune,LAU_NAME), .after = year)
 
 # Total across all municipalities
 encrec_002_tot <- encrec_002_kom %>%
                     group_by(year) %>%
-                    summarise(area_m2 = sum(area_m2),
-                              area_dekar = sum(area_dekar),
-                              area_km2 = sum(area_km2)) %>%
-                    mutate(kommune = "Not Applicable",
+                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    mutate(fylkesnr = "00",
+                           kommune = "0000",
                            LAU_NAME = "Total", .after = year)
                     
 # Final accounting table                 
 encrec_002_acc <- bind_rows(encrec_002_tot, 
                             encrec_002_kom)
 
+encrec_002_acc$year <- as.character(encrec_002_acc$year)
+
+encrec_002_acc <- encrec_002_acc %>%
+                      group_split(kommune) %>% 
+                      map(~ add_change(., 
+                                       year_column = "year",
+                                       area1 = "area_dekar_cumulative")) %>% 
+                      compact() %>%
+                      bind_rows()
+
+encrec_002_acc$fylkesnr[which(encrec_002_acc$fylkesnr == "00")] <- NA
+encrec_002_acc$kommune[which(encrec_002_acc$kommune == "0000")] <- NA
+
 colnames(encrec_002_acc) <- c("År",
+                              "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
-                              "Areal i m2",
-                              "Areal i dekar",
-                              "Areal i km2")
+                              "Årlig areal i dekar",
+                              "Kumulativ areal i dekar")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -818,6 +830,7 @@ rm(list = setdiff(ls(),
                     "rcl_32",
                     "encrec",
                     "kom_navn",
+                    "add_change",
                     "encrec_001_acc",
                     "encrec_002_acc")))
 
@@ -830,107 +843,7 @@ datatable(encrec_002_acc,
                                             htmltools::strong("Table 2 - Thematic extent accounts: yearly encroachment in important and very important recreation areas over 2018-2024.")
   )) %>%
     formatCurrency(
-    columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
-```
-
-#### 10.1.2 Accounts aligned with the System of Environmental Economic Accounting - Ecosystem Accounting
-
-
-```{r res_acc_tables4}
-#| eval: true
-#| warning: false
-#| message: false
-#| output: true
-#| code-summary: "ENCREC_002 - Create accounting tables"
-
-## ENCREC_002 accounting table
-# Accounts for all municipalities for important and very important recreation areas
-encrec_002_kom2 <- encrec %>%
-                    st_drop_geometry() %>%
-                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                    select(fylkesnr,
-                           kommune,
-                           year,
-                           area_inter_m2) %>%
-                    group_by(kommune, year) %>%
-                    summarise(area_m2 = round2(sum(area_inter_m2), 2),
-                              area_dekar = round2(sum(area_inter_m2)/1000, 2),
-                              area_km2 = round2(sum(area_inter_m2)/(10^6), 2)) %>%
-                    mutate(cum_area_m2 = cumsum(area_m2),
-                           cum_area_dekar = cumsum(area_dekar),
-                           cum_area_km2 = cumsum(area_km2)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(kommune,LAU_NAME), .after = year)
-
-# Total across all municipalities
-encrec_002_tot2 <- encrec_002_kom2 %>%
-                    group_by(year) %>%
-                    summarise(area_m2 = sum(area_m2),
-                              area_dekar = sum(area_dekar),
-                              area_km2 = sum(area_km2)) %>%
-                    mutate(kommune = "0000",
-                           LAU_NAME = "Total",
-                           cum_area_m2 = cumsum(area_m2),
-                           cum_area_dekar = cumsum(area_dekar),
-                           cum_area_km2 = cumsum(area_km2),
-                           .after = year)
-                    
-# Final accounting table               
-encrec_002_acc2 <- bind_rows(encrec_002_tot2, 
-                             encrec_002_kom2) %>%
-                    filter(LAU_NAME %in% c("Oslo", "Total", "Bergen")) 
-
-encrec_002_acc2$year <- as.character(encrec_002_acc2$year)
-
-encrec_002_acc2 <- encrec_002_acc2 %>%
-                      group_split(kommune) %>% 
-                      map(~ add_net_change(., 
-                                           year_column = "year",
-                                           area1 = "cum_area_m2",
-                                           area2 = "cum_area_dekar",
-                                           area3 = "cum_area_km2")) %>% 
-                      compact() %>%
-                      bind_rows() %>%
-                      select(!c(area_m2, area_dekar, area_km2))
-
-encrec_002_acc2$kommune[which(encrec_002_acc2$kommune == "0000")] <- "Not Applicable"
-
-colnames(encrec_002_acc2) <- c("År",
-                              "Kommune nummer",
-                              "Kommune navn",
-                              "Areal i m2",
-                              "Areal i dekar",
-                              "Areal i km2")
-
-# Clean R environment
-rm(list = setdiff(ls(), 
-                  c("lau_no",
-                    "encroach_dt",
-                    "project_path",
-                    "functions_path",
-                    "rcl_32",
-                    "encrec",
-                    "kom_navn",
-                    "encrec_001_acc",
-                    "encrec_002_acc",
-                    "encrec_001_acc2",
-                    "encrec_002_acc2")))
-
-# Display the table dynamically
-datatable(encrec_002_acc2,
-          extensions = 'Buttons',
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
-          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 3 - Thematic extent accounts: cumulative encroachment in in important and very important recreation areas over 2018-2024.")
-  )) %>%
-    formatCurrency(
-    columns = c("Areal i m2", "Areal i dekar", "Areal i km2"),
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
