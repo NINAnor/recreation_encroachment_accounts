@@ -49,7 +49,8 @@ library(sf)
 ## Functions
 A lot of different functions have been created to make the core code more easy to read and follow. These functions can be found in .src/functions:
 - api_zenodo.R: download a Zenodo dataset through an API request.
-- add_net_change.R: add a net change row to an extent account table.
+- add_change_encroachment_area.R: add a net change row to an extent account table for encroachment areas.
+- add_change_recreation_area.R: add a net change row to an extent account table for recreation areas.
 
 ## Code
 Five core code scripts have been created as quarto document (.qmd), one for each encroachment account or indicator that were of interest in this project. They are accessible along with its HTML version in .src/code. The quarto document has been adapted from an internal NINA quarto template from the ecRix project. It was initially created by Anders Kolstad.
