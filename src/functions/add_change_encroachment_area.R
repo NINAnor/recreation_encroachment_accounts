@@ -22,7 +22,7 @@
 #'
 #' @examples
 
-add_encroachment_area <- function(data, year_column, area1, area2 = NULL, area3 = NULL) {
+add_change_encroachment_area <- function(data, year_column, area1, area2 = NULL, area3 = NULL) {
   
   if(is.null(area2)){
     #1# Compile the  change for all accounting area metrics
