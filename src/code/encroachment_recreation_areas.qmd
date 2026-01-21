@@ -1132,8 +1132,8 @@ static_map(data1 = fylke_map,
            fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
            legend_title1 = "Fylke - Kumulativ areal (daa)", 
            legend_title2 = "Kommune - Kumulativ areal (daa)",
-           map_title1 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i fylker i 2018-2024", 
-           map_title2 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i kommuner i 2018-2024")
+           map_title1 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder \ni fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder \ni kommuner i 2018-2024")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 

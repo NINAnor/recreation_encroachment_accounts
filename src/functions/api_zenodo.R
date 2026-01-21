@@ -24,7 +24,7 @@ api_zenodo <- function(zenodo_url){
   }else{
     
     #1# Extract dataset ID from Zenodo
-    dt_id <- sub(".*records/([0-9]+).*", "\\1", zenodo_url)
+    dt_id <- basename(zenodo_url)
     
     #2# Link to metadata to find downloadable urls
     metadata_url <- paste0("https://zenodo.org/api/records/", dt_id)
