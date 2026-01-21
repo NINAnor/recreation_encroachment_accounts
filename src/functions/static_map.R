@@ -45,12 +45,11 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
                 col = "black",
                 lwd = 1,
                 fill.legend = tm_legend(title = {{legend_title1}},
-                                        orientation = "portrait",
-                                        position = tm_pos_out(pos.h = "right", pos.v = "center"))) +
+                                        orientation = "landscape",
+                                        position = c("center", "bottom"))) +
     
     
-    tm_layout(inner.margins = c(0, 0.05, 0, 0.05),
-              outer.margins = c(0.01, 0, 0.01, 0.01),
+    tm_layout(inner.margins = c(0.22, 0.05, 0.1, 0.05),
               legend.outside = TRUE,
               legend.size = 0.1,
               frame = FALSE) +
@@ -58,7 +57,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
     tm_title(text = {{map_title1}},
              size = 1,
              fontface = "bold",
-             position = tm_pos_out("center", "top")) +
+             position = c("left", "top")) +
     
     tm_options(component.autoscale = FALSE)
   
@@ -77,12 +76,11 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
                   col = "black",
                   lwd = 1,
                   fill.legend = tm_legend(title = {{legend_title1}},
-                                          orientation = "portrait",
-                                          position = tm_pos_out(pos.h = "right", pos.v = "center"))) +
+                                          orientation = "landscape",
+                                          position = c("center", "bottom"))) +
       
       
-      tm_layout(inner.margins = c(0, 0.05, 0, 0.05),
-                outer.margins = c(0.01, 0, 0.01, 0.01),
+      tm_layout(inner.margins = c(0.22, 0.05, 0.1, 0.05),
                 legend.outside = TRUE,
                 legend.size = 0.1,
                 frame = FALSE) +
@@ -90,9 +88,10 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
       tm_title(text = {{map_title1}},
                size = 1,
                fontface = "bold",
-               position = tm_pos_out("center", "top")) +
+               position = c("left", "top")) +
       
       tm_options(component.autoscale = FALSE)
+      
     # Create second map
     map2 <-
       
@@ -103,12 +102,11 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
                   col = "black",
                   lwd = 1,
                   fill.legend = tm_legend(title = {{legend_title2}},
-                                          orientation = "portrait",
-                                          position = tm_pos_out(pos.h = "right", pos.v = "center"))) +
+                                          orientation = "landscape",
+                                          position = c("center", "bottom"))) +
       
       
-      tm_layout(inner.margins = c(0, 0.05, 0, 0.05),
-                outer.margins = c(0.01, 0, 0.01, 0.01),
+      tm_layout(inner.margins = c(0.22, 0.05, 0.1, 0.05),
                 legend.outside = TRUE,
                 legend.size = 0.1,
                 frame = FALSE) +
@@ -116,7 +114,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
       tm_title(text = {{map_title2}},
                size = 1,
                fontface = "bold",
-               position = tm_pos_out("center", "top")) +
+               position = c("left", "top")) +
       
       tm_options(component.autoscale = FALSE)
     
