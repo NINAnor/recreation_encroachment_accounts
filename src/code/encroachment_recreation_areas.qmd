@@ -618,10 +618,10 @@ rm(list = setdiff(ls(),
 ```
 
 
-### 7.4 Recreation areas - DT04
+### 7.4 Naturtyper - verdsatte - DT04
 #### 7.4.1 Download DT04 for Geonorge through an API
 We use the same protocol as for DT01. This time, we created a function for it.
-```{r import_rec_areas_api1}
+```{r import_natur_api1}
 #| eval: true
 #| warning: false
 #| message: false
@@ -630,7 +630,59 @@ We use the same protocol as for DT01. This time, we created a function for it.
 source(paste0(functions_path,"/api_geonorge.R"))
 
 # Retrieve downloadable link to the data
-encroach_link <- api_zenodo(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314")
+encroach_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314")
+
+```
+
+#### 7.4.2 Read DT01
+Now that the dataset has been downloaded in a temporary file, we can read it in R and clean the R environment. Once the analyses are finished, we will remove the temporary file containing the data.
+```{r read_nature}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT04 - read the data"
+
+# Read data
+naturtyper <- st_read(gdb_file[grepl("Naturtyper", gdb_file)])
+```
+
+#### 7.4.3 Clean and format the data for analyses
+We first need to select the column of relevance for our work and clean the topological and geometrical errors if any.
+
+```{r clean_natur}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "DT04 - clean and format"
+
+# Select columns of relevance
+natur_types <- naturtyper %>%
+                mutate(year = substr(.$registreringsdato, 1, 4)) %>%
+                select(naturtype,
+                       year,
+                       kommunenummer)
+
+# Check for topological and geometrical errors
+which(st_is_valid(natur_types) == FALSE) %>% length()
+which(st_is_empty(natur_types) == TRUE) %>% length()
+
+# Correct invalid geometries
+natur_cln <- st_make_valid(natur_types)
+
+# Check correction worked
+which(st_is_valid(natur_cln) == FALSE) %>% length()
+which(st_is_empty(natur_cln) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "rec_cln",
+                    "encroach_dt",
+                    "natur_cln",
+                    "lau_no",
+                    "project_path",
+                    "functions_path")))
 
 ```
 
@@ -648,7 +700,7 @@ Both the analyses for ENCREC_001 and ENCREC_002 rely on spatial intersections be
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "ENCREC_001 - intersection"
+#| code-summary: "ENCREC_001 and 002 - intersection"
 
 # Check the CRS of both DT01 and DT02
 st_crs(rec_cln) == st_crs(encroach_dt)
