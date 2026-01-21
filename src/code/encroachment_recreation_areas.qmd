@@ -3,6 +3,7 @@ title: "Thematic accounts - encroachment in recreation areas"
 subtitle: |
   [ENCREC_001] (ENCroachments in all RECreation areas) \
   [ENCREC_002] (ENCroachments in very important (A) and important (B) RECreation areas)  
+  [ENCREC_003] (sværlig vikitig natur lost due to ENCroachments in very important (A) and important (B) RECreation areas)
 # delete the line with the second indicatorID (line 5) 
 # if it's not relevant for you.
 # In the parentheses you can add a word to distinguish multiple indicators 
@@ -617,6 +618,24 @@ rm(list = setdiff(ls(),
 ```
 
 
+### 7.4 Recreation areas - DT04
+#### 7.4.1 Download DT04 for Geonorge through an API
+We use the same protocol as for DT01. This time, we created a function for it.
+```{r import_rec_areas_api1}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT04 API download"
+# Call for the function that will read the data through an API
+source(paste0(functions_path,"/api_geonorge.R"))
+
+# Retrieve downloadable link to the data
+encroach_link <- api_zenodo(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314")
+
+```
+
+
+
 ## 8. Spatial units
 
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
@@ -1085,8 +1104,7 @@ encrec_001_map <- encrec_001_acc %>%
 
 fylke_map <- encrec_001_map %>%
               group_by(`Fylke nummer`) %>%
-              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`)) %>%
-              ungroup()
+              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
 
 ```
 
@@ -1130,10 +1148,10 @@ static_map(data1 = fylke_map,
            data2 = encrec_001_map, 
            fill_variable1 = "Kumulativ areal av inngrep i dekar", 
            fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-           legend_title1 = "Fylke - Kumulativ areal (daa)", 
-           legend_title2 = "Kommune - Kumulativ areal (daa)",
-           map_title1 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder \ni fylker i 2018-2024", 
-           map_title2 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder \ni kommuner i 2018-2024")
+           legend_title1 = "Kumulativ areal av inngrep (dekar)", 
+           legend_title2 = "Kumulativ areal av inngrep (dekar)",
+           map_title1 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
@@ -1173,8 +1191,7 @@ encrec_002_map <- encrec_002_acc %>%
 
 fylke_map <- encrec_002_map %>%
               group_by(`Fylke nummer`) %>%
-              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`)) %>%
-              ungroup()
+              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
 ```
 
 ```{r map_enc002_2}
@@ -1193,10 +1210,10 @@ interactive_map(data1 = fylke_map,
                 data2 = encrec_002_map, 
                 fill_variable1 = "Kumulativ areal av inngrep i dekar", 
                 fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-                legend_title1 = "Fylke - Kumulativ areal (daa)", 
-                legend_title2 = "Kommune - Kumulativ areal(daa)", 
-                map_title1 = "Kumulativ areal av inngrep (dekar, daa) i svært vikktig \nog viktig friluftslivonsområder i fylker", 
-                map_title2 = "Kumulativ areal av inngrep (dekar, daa) i svært vikktig \nog viktig friluftslivonsområder i kommuner")
+                legend_title1 = "Fylke - Kumulativ areal av inngrep (dekar)", 
+                legend_title2 = "Kommune - Kumulativ areal av inngrep (dekar)", 
+                map_title1 = "Kumulativ areal av inngrep (dekar) i svært vikktig \nog viktig friluftslivonsområder i fylker", 
+                map_title2 = "Kumulativ areal av inngrep (dekar) i svært vikktig \nog viktig friluftslivonsområder i kommuner")
 ```
 
 ```{r map_enc002_3}
@@ -1215,10 +1232,10 @@ static_map(data1 = fylke_map,
            data2 = encrec_001_map, 
            fill_variable1 = "Kumulativ areal av inngrep i dekar", 
            fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-           legend_title1 = "Fylke - Kumulativ areal (daa)", 
-           legend_title2 = "Kommune - Kumulativ areal (daa)",
-           map_title1 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i fylker i 2018-2024", 
-           map_title2 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i kommuner i 2018-2024")
+           legend_title1 = "Kumulativ areal av inngrep (dekar)", 
+           legend_title2 = "Kumulativ areal av inngrep (dekar)",
+           map_title1 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
 
 
 
@@ -1264,20 +1281,22 @@ encrec_001_perc_map <- encrec_001_acc %>%
                         mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
                         select("Fylke nummer",
                                "Kommune navn",
-                               "Share (%) of recreation area lost")
+                               "Share (%) of recreation area lost",
+                               "total_rec_area",
+                               "Kumulativ areal i dekar")
 
 fylke_map <- encrec_001_perc_map %>%
               group_by(`Fylke nummer`) %>%
-              summarise("Share (%) of recreation area lost" = sum(`Share (%) of recreation area lost`)) %>%
-              ungroup()
-                   
+              summarise(fylke_rec_area = sum(total_rec_area),
+                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
+                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
 ```
 
-```{r map_enc001_perc_1}
-#| eval: true
+```{r map_enc001_perc_2}
+#| eval: false
 #| warning: false
 #| message: false
-#| output: true
+#| output: false
 #| code-summary: "Interactive map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
@@ -1291,8 +1310,8 @@ interactive_map(data1 = fylke_map,
                 fill_variable2 =  "Share (%) of recreation area lost", 
                 legend_title1 = "Fylke - Kumulativ areal (daa)", 
                 legend_title2 = "Kommune - Kumulativ areal(daa)", 
-                map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
-                map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
+                map_title1 = "Prosentandel (%) av totale friluftsområder som er gått tapt i fylker", 
+                map_title2 = "Prosentandel (%) av totale friluftsområder som er gått tapt i kommuner")
 
 ```
 
@@ -1312,10 +1331,10 @@ static_map(data1 = fylke_map,
            data2 = encrec_001_perc_map, 
            fill_variable1 = "Share (%) of recreation area lost", 
            fill_variable2 =  "Share (%) of recreation area lost", 
-           legend_title1 = "Fylke - Kumulativ areal (daa)", 
-           legend_title2 = "Kommune - Kumulativ areal(daa)", 
-           map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
-           map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
+           legend_title1 = "Prosentandel (%)", 
+           legend_title2 = "Prosentandel (%)", 
+           map_title1 = "Prosentandel (%) av totale \n friluftsområder som \ner gått tapt \ni fylker", 
+           map_title2 = "Prosentandel (%) av totale \n friluftsområder som \ner gått tapt \ni kommuner")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
@@ -1359,12 +1378,15 @@ encrec_002_perc_map <- encrec_002_acc %>%
                         mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
                         select("Fylke nummer",
                                "Kommune navn",
+                               "Kumulativ areal i dekar",
+                               "total_rec_area",
                                "Share (%) of recreation area lost")
 
 fylke_map <- encrec_002_perc_map %>%
               group_by(`Fylke nummer`) %>%
-              summarise("Share (%) of recreation area lost" = sum(`Share (%) of recreation area lost`)) %>%
-              ungroup()
+              summarise(fylke_rec_area = sum(total_rec_area),
+                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
+                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
                    
 ```
 
@@ -1384,13 +1406,13 @@ interactive_map(data1 = fylke_map,
                 data2 = encrec_002_perc_map, 
                 fill_variable1 = "Share (%) of recreation area lost", 
                 fill_variable2 =  "Share (%) of recreation area lost", 
-                legend_title1 = "Fylke - Kumulativ areal (daa)", 
-                legend_title2 = "Kommune - Kumulativ areal(daa)", 
-                map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
-                map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
+                legend_title1 = "Fylke - Prosentandel (%)", 
+                legend_title2 = "Kommune -Prosentandel (%)", 
+                map_title1 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i fylker", 
+                map_title2 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i kommuner")
 ```
 
-```{r map_enc002_perc}
+```{r map_enc002_perc_3}
 #| eval: true
 #| warning: false
 #| message: false
@@ -1406,10 +1428,10 @@ static_map(data1 = fylke_map,
            data2 = encrec_002_perc_map, 
            fill_variable1 = "Share (%) of recreation area lost", 
            fill_variable2 =  "Share (%) of recreation area lost", 
-           legend_title1 = "Fylke - Kumulativ areal (daa)", 
-           legend_title2 = "Kommune - Kumulativ areal(daa)", 
-           map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
-           map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
+           legend_title1 = "Prosentandel (%)", 
+           legend_title2 = "Prosentandel (%)", 
+           map_title1 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni fylker", 
+           map_title2 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni kommuner")
 
 
 ## Clean R environment
