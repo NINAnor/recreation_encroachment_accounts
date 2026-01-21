@@ -57,9 +57,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
     tm_title(text = {{map_title1}},
              size = 1,
              fontface = "bold",
-             position = c("left", "top")) +
-    
-    tm_options(component.autoscale = FALSE)
+             position = c("left", "top")) 
   
   # Return results
   return(map1)
@@ -88,9 +86,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
       tm_title(text = {{map_title1}},
                size = 1,
                fontface = "bold",
-               position = c("left", "top")) +
-      
-      tm_options(component.autoscale = FALSE)
+               position = c("left", "top"))
       
     # Create second map
     map2 <-
@@ -114,9 +110,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
       tm_title(text = {{map_title2}},
                size = 1,
                fontface = "bold",
-               position = c("left", "top")) +
-      
-      tm_options(component.autoscale = FALSE)
+               position = c("left", "top"))
     
     # Create the map display
     map_display <- tmap_arrange(map1, map2, ncol = 2, sync = FALSE)
