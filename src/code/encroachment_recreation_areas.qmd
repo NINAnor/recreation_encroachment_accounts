@@ -599,7 +599,8 @@ We select the columns of relevance to our work and clean the topological and geo
 lau_no <- lau_no %>%
             select(GISCO_ID,
                    LAU_NAME) %>%
-            mutate(GISCO_ID = sub("NO_", "", .$GISCO_ID))
+            mutate(GISCO_ID = sub("NO_", "", .$GISCO_ID)) %>%
+            st_transform(., st_crs(encroach_dt)) # project to ESPG : 25832
 
 # Check for topological and geometrical errors
 which(st_is_valid(lau_no) == FALSE) %>% length()
@@ -962,7 +963,7 @@ datatable(encrec_003_acc,
 ```
 
 
-```{r res_acc_tables3}
+```{r res_acc_tables4}
 #| eval: true
 #| warning: false
 #| message: false
@@ -1058,12 +1059,13 @@ datatable(encrec_004_acc,
 
 ### 10.2 Maps
 #### Total encroachment area in all recreation areas per municipality over 2018-2024
-```{r map_enc001}
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc001_1}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Prepare dataset for mapping"
 
 
 ## Import LAU dataset to then join the name of the municipalities
@@ -1074,6 +1076,7 @@ kom_navn <- lau_no %>%
 ## Prepare dataset
 encrec_001_map <- encrec_001_acc %>%
                     filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                    filter(År == 2024) %>%
                     left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
                     select("Fylke nummer",
                            "Kommune navn",
@@ -1084,58 +1087,53 @@ fylke_map <- encrec_001_map %>%
               group_by(`Fylke nummer`) %>%
               summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`)) %>%
               ungroup()
-                   
-        
 
-# Set interactive mode
-tmap_mode("view")
+```
 
 
-# Create map (sf object required)
+```{r map_enc001_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
 
-encrec_001_fylke_map <- 
-  
-  tm_shape(fylke_map) +
-  
-   tm_polygons(fill = "Kumulativ areal av inngrep i dekar",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              col = "black",
-              lwd = 1,
-              fill.legend = tm_legend(title = "Fylke - Kumulativ areal av inngrep (dekar)",
-                                      orientation = "portrait")) +
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
 
-  
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_001_map, 
+                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+                legend_title1 = "Fylke - Kumulativ areal av inngrep (dekar)", 
+                legend_title2 = "Kommune - Kumulativ areal av inngrep (dekar)", 
+                map_title1 = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i fylker", 
+                map_title2 = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i kommuner")
 
-  
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-    tm_title(text = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i fylker",
-         size = 1.2,
-         position = c("center", "top"))
-  
+```
 
-encrec_001_kom_map <-   
-  
-  tm_shape(encrec_001_map) +
-  
-  tm_polygons(fill = "Kumulativ areal av inngrep i dekar",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              lwd = 0.5,
-              fill.legend = tm_legend(title = "Kommune - Kumulativ areal av inngrep (dekar)",
-                                      orientation = "portrait")) +
-    
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
+```{r map_enc001_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
 
-  
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-  tm_title(text = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i kommuner",
-         size = 1.2,
-         position = c("center", "top"))
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
 
-## Display maps
-tmap_arrange(encrec_001_fylke_map, encrec_001_kom_map, ncol = 2, sync = FALSE)
+# Run function
+static_map(data1 = fylke_map,
+           data2 = encrec_001_map, 
+           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+           legend_title1 = "Fylke - Kumulativ areal (daa)", 
+           legend_title2 = "Kommune - Kumulativ areal (daa)",
+           map_title1 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i kommuner i 2018-2024")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
@@ -1154,19 +1152,19 @@ rm(list = setdiff(ls(),
 
 ```
 
-
 #### Total encroachment area in important and very important recreation areas per municipality over 2018-2024
-```{r map_enc002}
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc002_1}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
-
+#| code-summary: "Prepare dataset for mapping"
 
 ## Prepare dataset
 encrec_002_map <- encrec_002_acc %>%
                     filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                    filter(År == 2024) %>%
                     left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
                     select("Fylke nummer",
                            "Kommune navn",
@@ -1177,55 +1175,51 @@ fylke_map <- encrec_002_map %>%
               group_by(`Fylke nummer`) %>%
               summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`)) %>%
               ungroup()
-                   
-        
+```
 
-# Set interactive mode
-tmap_mode("view")
+```{r map_enc002_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
 
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
 
-# Create map (sf object required)
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_002_map, 
+                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+                legend_title1 = "Fylke - Kumulativ areal (daa)", 
+                legend_title2 = "Kommune - Kumulativ areal(daa)", 
+                map_title1 = "Kumulativ areal av inngrep (dekar, daa) i svært vikktig \nog viktig friluftslivonsområder i fylker", 
+                map_title2 = "Kumulativ areal av inngrep (dekar, daa) i svært vikktig \nog viktig friluftslivonsområder i kommuner")
+```
 
-encrec_002_fylke_map <- 
+```{r map_enc002_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
 
-  tm_shape(fylke_map) +
-  
-   tm_polygons(fill = "Kumulativ areal av inngrep i dekar",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              col = "black",
-              lwd = 1,
-              fill.legend = tm_legend(title = "Fylke - Kumulativ areal av inngrep (dekar)",
-                                      orientation = "portrait")) +
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
 
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
+# Run function
+static_map(data1 = fylke_map,
+           data2 = encrec_001_map, 
+           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+           legend_title1 = "Fylke - Kumulativ areal (daa)", 
+           legend_title2 = "Kommune - Kumulativ areal (daa)",
+           map_title1 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar, daa) \ni friluftslivonsområder i kommuner i 2018-2024")
 
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-  tm_title(text = "Kumulativ areal av inngrep (dekar) i svært vikktig og viktig friluftslivsområder i fylker",
-         size = 1.2,
-         position = c("center", "top"))
-
-
-encrec_002_kom_map <-
-
-tm_shape(encrec_002_map) +
-  
-  tm_polygons(fill = "Kumulativ areal av inngrep i dekar",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              lwd = 0.5,
-              fill.legend = tm_legend(title = "Kommune - Kumulativ areal av inngrep (dekar)",
-                                      orientation = "portrait")) + 
-
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
-
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-  tm_title(text = "Kumulativ areal av inngrep (dekar) i svært vikktig og viktig friluftslivsområder i kommuner",
-         size = 1.2,
-         position = c("center", "top"))
-
-## Display maps
-tmap_arrange(encrec_002_fylke_map, encrec_002_kom_map, ncol = 2, sync = FALSE)
 
 
 ## Clean R environment
@@ -1245,14 +1239,14 @@ rm(list = setdiff(ls(),
                     "encrec_002_map")))
 ```
 
-
 #### Share of the total recreation area lost to encroachment per municipality over 2018-2024
-```{r map_enc001_perc}
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc001_perc_1}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Prepare data for mapping"
 
 
 ## Prepare dataset
@@ -1264,9 +1258,10 @@ rec_total_kom <- rcl_32 %>%
 
 encrec_001_perc_map <- encrec_001_acc %>%
                         filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                        filter(År == 2024) %>%
                         left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
                         left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
-                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100), 1) %>%
+                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
                         select("Fylke nummer",
                                "Kommune navn",
                                "Share (%) of recreation area lost")
@@ -1276,53 +1271,51 @@ fylke_map <- encrec_001_perc_map %>%
               summarise("Share (%) of recreation area lost" = sum(`Share (%) of recreation area lost`)) %>%
               ungroup()
                    
-        
+```
 
-# Set interactive mode
-tmap_mode("view")
+```{r map_enc001_perc_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Interactive map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
 
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
 
-# Create map (sf object required)
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_001_perc_map, 
+                fill_variable1 = "Share (%) of recreation area lost", 
+                fill_variable2 =  "Share (%) of recreation area lost", 
+                legend_title1 = "Fylke - Kumulativ areal (daa)", 
+                legend_title2 = "Kommune - Kumulativ areal(daa)", 
+                map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
+                map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
 
-encrec_001_fylke_perc <-
-  
-  tm_shape(fylke_map) +
-  
-   tm_polygons(fill = "Share (%) of recreation area lost",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              col = "black",
-              lwd = 1,
-              fill.legend = tm_legend(title = "Fylke - Share of total recreation area lost (%)",
-                                      orientation = "portrait")) +
-  
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
-  
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-    tm_title(text = "Andel (%) av totalt tapt friluftslivsområder i fylker",
-         size = 1.2,
-         position = c("center", "top"))
+```
 
+```{r map_enc001_perc_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
 
-encrec_001_fylke_perc <-
+## Static maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
 
-tm_shape(encrec_001_perc_map) +
-
-  tm_polygons(fill = "Share (%) of recreation area lost",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              lwd = 0.5,
-              fill.legend = tm_legend(title = "Kommune - Share of total recreation area lost (%)",
-                                      orientation = "portrait")) +
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
-  
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-    tm_title(text = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommunene",
-         size = 1.2,
-         position = c("center", "top"))
-
-## Display maps
-tmap_arrange(encrec_001_fylke_perc, encrec_001_kom_perc, ncol = 2, sync = FALSE)
+# Run function
+static_map(data1 = fylke_map, 
+           data2 = encrec_001_perc_map, 
+           fill_variable1 = "Share (%) of recreation area lost", 
+           fill_variable2 =  "Share (%) of recreation area lost", 
+           legend_title1 = "Fylke - Kumulativ areal (daa)", 
+           legend_title2 = "Kommune - Kumulativ areal(daa)", 
+           map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
+           map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
@@ -1337,16 +1330,17 @@ rm(list = setdiff(ls(),
                     "encrec_002_acc",
                     "encrec_003_acc",
                     "encrec_004_acc")))
+
 ```
 
 #### Share of the total important and very important recreation area lost to encroachment per municipality over 2018-2024
-```{r map_enc002_perc}
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc002_perc_1}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
-
+#| code-summary: "Prepare data for mapping"
 
 ## Prepare dataset
 rec_total_kom <- rcl_32 %>%
@@ -1359,9 +1353,10 @@ rec_total_kom <- rcl_32 %>%
 
 encrec_002_perc_map <- encrec_002_acc %>%
                         filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                        filter(År == 2024) %>%
                         left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
                         left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
-                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100), 1) %>%
+                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
                         select("Fylke nummer",
                                "Kommune navn",
                                "Share (%) of recreation area lost")
@@ -1371,53 +1366,51 @@ fylke_map <- encrec_002_perc_map %>%
               summarise("Share (%) of recreation area lost" = sum(`Share (%) of recreation area lost`)) %>%
               ungroup()
                    
-        
+```
 
-# Set interactive mode
-tmap_mode("view")
+```{r map_enc002_perc_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
 
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
 
-# Create map (sf object required)
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_002_perc_map, 
+                fill_variable1 = "Share (%) of recreation area lost", 
+                fill_variable2 =  "Share (%) of recreation area lost", 
+                legend_title1 = "Fylke - Kumulativ areal (daa)", 
+                legend_title2 = "Kommune - Kumulativ areal(daa)", 
+                map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
+                map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
+```
 
-encrec_002_fylke_perc <-
-  
-  tm_shape(fylke_map) +
-  
-   tm_polygons(fill = "Share (%) of recreation area lost",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              col = "black",
-              lwd = 1,
-              fill.legend = tm_legend(title = "Fylke - Share of total recreation area lost (%)",
-                                      orientation = "portrait")) +
-  
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
-  
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-    tm_title(text = "Andel (%) av totalt tapt friluftslivsområder i fylker",
-         size = 1.2,
-         position = c("center", "top"))
+```{r map_enc002_perc}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
 
+## Static maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
 
-encrec_002_fylke_perc <-
+# Run function
+static_map(data1 = fylke_map, 
+           data2 = encrec_002_perc_map, 
+           fill_variable1 = "Share (%) of recreation area lost", 
+           fill_variable2 =  "Share (%) of recreation area lost", 
+           legend_title1 = "Fylke - Kumulativ areal (daa)", 
+           legend_title2 = "Kommune - Kumulativ areal(daa)", 
+           map_title1 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i fylker", 
+           map_title2 = "Prosentandel (%) av totale svært friluftsområder som er gått tapt i kommuner")
 
-tm_shape(encrec_002_perc_map) +
-
-  tm_polygons(fill = "Share (%) of recreation area lost",
-              fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
-              lwd = 0.5,
-              fill.legend = tm_legend(title = "Kommune - Share of total recreation area lost (%)",
-                                      orientation = "portrait")) +
-  tm_layout(legend.outside = TRUE, legend.position = c("right", "bottom")) +
-  
-  tm_view(set_zoom_limits = c(4, 8)) +
-  
-    tm_title(text = "Prosentandel (%) av totale svært viktige og viktige friluftsområder som er gått tapt i kommunene",
-         size = 1.2,
-         position = c("center", "top"))
-
-## Display maps
-tmap_arrange(encrec_002_fylke_perc, encrec_002_kom_perc, ncol = 2, sync = FALSE)
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
@@ -1433,8 +1426,6 @@ rm(list = setdiff(ls(),
                     "encrec_003_acc",
                     "encrec_004_acc")))
 ```
-
-
 <!--# 
 
 Repeat the final results here. Typically this is a map or table of indicator values.
