@@ -6,8 +6,10 @@
 #' be needed. If the user wishes to download using another project than EPSG:25833,
 #' the code of the function should be modified to reflect this.
 
-#' @param zenodo_url the url of the Geonorge dataset. It should be entered as a
+#' @param geonorge_url the url of the Geonorge dataset. It should be entered as a
 #' character.
+#' 
+#' @param email_address the email address that should be put in the API request
 #'
 #' @return the function downloads the data into a temporary file and read the data
 #' from there. The function thus returns the path of all .gdb file that have been
@@ -17,7 +19,7 @@
 #'
 #' @examples
 
-api_geonorge <- function(geonorge_url){
+api_geonorge <- function(geonorge_url, email_address){
   
   if(is.character(geonorge_url) == FALSE){
     
@@ -52,7 +54,7 @@ api_geonorge <- function(geonorge_url){
     #5# Create the order by listing the dataset id and capabilities of relevance
     order_body <- list(
       downloadAsBundle = FALSE,
-      email = "sylvie.clappe@nina.no",
+      email = {{email_address}},
       orderLines = list(
         list(
           areas = list(
@@ -104,6 +106,7 @@ api_geonorge <- function(geonorge_url){
     
     # Use "\\.gdb$" pattern to identify the file to read
     gdb_file <- list.files(temp_dir, pattern = "\\.gdb$", full.names = TRUE)
+    
     }
     
     return(gdb_file)
