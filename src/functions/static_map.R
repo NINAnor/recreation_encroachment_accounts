@@ -23,13 +23,20 @@
 #' 
 #' @param map_title2 title of data2 map. Should be a character.
 #' 
+#' @param style_type method to create intervals, see tm_scale_intervals()
+#' for more information. Default is "quantile".
+#' 
+#' @param interval_breaks interval breaks (only used and required 
+#' when style = "fixed") see tm_scale_intervals() for more information. 
+#' Default is NULL.
+#' 
 #' @return an interactive map.
 #' 
 #' @export
 #'
 #' @examples
 
-static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NULL, legend_title1, legend_title2 = NULL, map_title1, map_title2 = NULL){
+static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NULL, legend_title1, legend_title2 = NULL, map_title1, map_title2 = NULL, style_type = "quantile", interval_breaks = NULL){
   # Set interactive mode
   tmap_mode("plot")
   
@@ -41,7 +48,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
     tm_shape(data1) +
     
     tm_polygons(fill = {{fill_variable1}},
-                fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
+                fill.scale = tm_scale_intervals(n = 5, style = {{style_type}}, breaks = {{interval_breaks}}, values = "brewer.reds"),
                 col = "black",
                 lwd = 1,
                 fill.legend = tm_legend(title = {{legend_title1}},
@@ -70,7 +77,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
       tm_shape(data1) +
       
       tm_polygons(fill = {{fill_variable1}},
-                  fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
+                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type}}, breaks = {{interval_breaks}}, values = "brewer.reds"),
                   col = "black",
                   lwd = 1,
                   fill.legend = tm_legend(title = {{legend_title1}},
@@ -94,7 +101,7 @@ static_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NUL
       tm_shape(data2) +
       
       tm_polygons(fill = {{fill_variable2}},
-                  fill.scale = tm_scale_intervals(n = 5, style = "quantile", values = "brewer.reds"),
+                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type}}, breaks = {{interval_breaks}}, values = "brewer.reds"),
                   col = "black",
                   lwd = 1,
                   fill.legend = tm_legend(title = {{legend_title2}},
