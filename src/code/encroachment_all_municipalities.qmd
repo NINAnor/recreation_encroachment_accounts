@@ -1,0 +1,1262 @@
+---
+title: "Thematic accounts - encroachment extent accounts in recreation areas"
+subtitle: |
+  [ENCACC_001] (Extent accounts of all encroachment in municipalities) \
+  [ENCACC_005] (Extent accounts of all sværlig vikitig natur lost due to encroachments in municipalities)
+# delete the line with the second indicatorID (line 5) 
+# if it's not relevant for you.
+# In the parentheses you can add a word to distinguish multiple indicators 
+# from each other, for example the ecosystem type that they cover
+indicatorID: 
+  - ENCACC_001
+  - ENCACC_002 # delete whole line if not needed
+# If you are presenting multiple indicators, and have multiple 
+# indicator IDs, then add them as a list here, and make sure you add
+# the same number of list entries, 
+# and in the same order that corresponds to the indicator IDs,  
+# to the meta data fields where the indicators differ. 
+# For example, if the indicators cover different ecosystem types, 
+# add the ecosystems as a list under 'Ecosystems', but if they are in the
+# same realm, same country etc., then you only need to write the realm and
+# country once. 
+indicatorName: 
+  - Extent accounts of all encroachment in municipalities # add more by adding another line starting '-'
+  - Extent accounts of all sværlig vikitig natur lost due to encroachments in municipalities
+  
+folderName: code # name of the folder under 'indicators/'. 
+# If it's a single indicator being reported, the folder name should be the same as the indicatorID. 
+# If there are multiple ID's then the folder name could look something like XX_YYY_ZZZ-ÅÅÅ.
+country: Norway
+continent: Europe
+# ECT: write ECT here # e.g. A2 - Chemical State characteristics
+Realm: 
+  - write realm here # e.g. Freshwater (F)
+Biome: 
+  - write biome here # e.g. F1 Rivers and streams biome
+Ecosystem: 
+  - write ecosystem here # e.g. F1.3 Freeze-thaw streams
+yearAdded: 2025 # the year when the indicator was first submitted to ecRxiv
+yearLastUpdate: 2025
+status: incomplete # options are complete, incomplete, or deprecated
+Version: "000.001" # Beta-versions are numbers incrementally with values below 0. Operational versions can be given the version numbers above 0. Use this terms similar as for software versioning,
+VersionComment: This is the first version of the thematic encroachment extent accounts in municipalities being compiled # Describe briefly how this version differs from earlier versions 
+url: https://github.com/NINAnor/recereation_encroachment_accounts
+# Leave the url as is, but replace XX_YYYY_ZZ with the name of the root folder for the current indicator(s). It should be the same as the indicatorID, but if there are more indicator IDs presented in the same folder, the folder name might be different, e.g. XX_YYYY_AAA-BBB 
+Normalised: No # Yes or no depending on whether the metric has been normliased or not.
+SpatialAggregationPathway: Describe the aggregation using the standrdaise terminology # e.g. Scale - Transform - Aggregate (length-weighted arithmetic mean) - Truncate
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+    toc-title: Contents
+    toc-depth: 3
+    smooth-scroll: true
+execute: 
+  cache: true
+author:
+  - name: Sylvie Clappe             # Enter name
+    email: sylvie.clappe@nina.no  # Enter email
+    affiliations:
+      - id: myID
+        name: Norwegian Institute for Nature Research  # Enter affiliations
+  - name: David Barton              #  Enter subsequent authors like this, or remove if not relevant
+    affiliations:
+      - ref: myID               # To reuse affiliations reference the id like this
+  - name: Reto Spielhofer             #  Enter subsequent authors like this, or remove if not relevant
+    affiliations:
+  - ref: myID 
+AuthorList: Clappe, S., Barton, D.N., Spielhofer, R.  
+date: January 22, 2026 # Enter date
+data_availability: none
+code_reproducibility: none
+open_science_badge: none
+callout-icon: false
+lightbox: true
+css: ../../../style.css
+code-links:
+      - text: Add a review
+        icon: github
+        href: https://github.com/NINAnor/ecRxiv
+hide: TRUE # Change to FALSE
+---
+
+<!--# This is a template for how to document the indicator analyses. Make sure also to not change the order, or modify, the headers, unless you really need to. This is because it easier to read if all the indicators are presented using the same layout. If there is one header where you don't have anything to write, just leave the header as is, and don't write anything below it. If you are providing code, be careful to annotate and comment on every step in the analysis. Before starting it is recommended to fill in as much as you can in the metadata file. This file will populate the initial table in your output.-->
+
+<!--# Load all you dependencies here -->
+
+```{r setup}
+#| include: false
+#| cache: false
+library(knitr)
+library(tidyverse)
+library(kableExtra)
+library(here)
+library(anybadger)
+library(yaml)
+library(tibble)
+library(conflicted)
+library(httr2)
+library(giscoR)
+library(zen4R)
+library(jsonlite)
+library(sf)
+library(purrr)
+library(numform)
+library(DT)
+library(tmap)
+
+# weird workarounds for cache issues
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::lag)
+conflicts_prefer(dplyr::select)
+pull<-dplyr::pull
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Remove dplyr and messages
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r source}
+#| echo: false
+#| cache: false
+source(here::here("_common.R"))
+```
+
+```{r working_directory}
+#| include: false
+#| cache: false
+
+# Workaround to force the working directory
+# Needs to be set after {r source} otherwise
+# {_common.R is not found}
+opts_knit$set(root.dir = here:::here())
+```
+
+
+<!--# The following parts are autogenerated. Do not edit. -->
+
+::: {layout-ncol="5"}
+
+```{r statusBadge}
+#| echo: false
+status_badge(as.character(st))
+```
+
+```{r versionBadge}
+#| echo: false
+version_badge(my_version_number = as.character(version[[1]]),
+  folder_name = folder_name)
+```
+
+```{r dataBadge}
+#| echo: false
+data_badge(as.character(badges[[1]]))
+```
+
+```{r codeBadge}
+#| echo: false
+code_badge(as.character(badges[[2]]))
+```
+
+```{r openScienceBadge}
+#| echo: false
+open_science_badge(as.character(badges[[3]]))
+```
+::: 
+ 
+
+> **Recommended citation**: `r paste(auth, " ", year, ". ", name, " (ID(s): ", folder_name, ") ", "v. ", version, ". ", url, sep="")`
+
+
+
+::: {.callout-tip collapse="true"}
+## Metadata
+```{r tbl-meta2}
+#| tbl-cap: 'Indicator metadata'
+#| echo: false
+#| warning: false
+meta |>
+  dplyr::filter(Variable %in% c(
+    "Indicator ID",
+    "Indicator Name",
+    "Continent",
+    "Country",
+    "Ecosystem Condition Typology Class", 
+    "Realm",
+    "Biome",
+    "Ecosystem",
+    "Year added", 
+    "Last update",
+    "Version",
+    "Version comment",
+    "Normalised",
+    "Spatial aggregation pathway")) |>   
+  kable()
+
+```
+:::
+
+::: {.callout-tip collapse="true"}
+
+## Log
+
+<!--# Update this logg with short messages for each update -->
+- 22 January 2026 - Analyses completed
+- XXX - First draft version
+:::
+
+
+<hr />
+
+<!--# Document you work below.  -->
+
+## 1. Summary
+
+<!--# 
+With a maximum of 300 words, describe the indicator in general terms as you would to a non-expert. Think of this as a kind of common language summary. Follow the four numbers sub-headers below. under point 2, it is possible under  include a bullet point list of the specific steps in the workflow. 
+ -->
+
+1. **Background and rationale**:
+<!-- What does the metric represent? Why is this relevant for describing ecosystem condition in this ecosystem?
+What are the main anthropogenic impact factors? -->
+2. **Methods**:
+<!-- What kind of data is used? How is the data customized (modified, estimated, integrated) to fit its purpose as an indicator? -->
+3. **Interpretation**:
+<!-- Add a very short description of how the indicator values should be interpreted. Here's an example for a bumblebee indicator: An indicator value of 1 signifies an intact bumblebee community. Values decreasing toward zero reflect negative ecological change, specifically the decline of species expected to be present. This metric does not account for potentially positive changes, such as increases in species' abundance or the arrival of new species. Tip: Add text on the line directly following the subheader, and don't introduce blank lines. This way the whole paragraph renders as a block quote. -->
+An indicator value of 1 signifies ...
+Values decreasing toward zero reflect...
+
+4. **Results and development needs**:
+<!-- Briefly, what does the indicator say about the ecosystem condition. What is the current status of  the metric (can it be used or is it still in development), and what immediate tasks remain to improve the indicator or to make the indicator operational -->
+
+
+
+## 2. About the underlying data
+
+<!--# Give a general introduction the datasets you have used, and provide more specific details in the sub-chapters.  -->
+
+### 2.1 Spatial and temporal resolution and extent
+
+<!--# Describe the temporal and spatial resolution and extent of the data used -->
+
+### 2.2 Sampling design
+
+<!-- How was the data sampled? Describe potential sampling biases -->
+
+### 2.3 Original units
+
+<!--# What are the original units for the most relevant  variables in the data-->
+
+
+### 2.3 Instructions for citing, using and accessing data
+
+<!--# Is the data openly available? If not, how can one access it? What are the key references to the datasets?   -->
+
+### 2.4 Additional comments about the dataset
+
+<!--# Optional. Text here -->
+
+## 3. Indicator properties
+
+### 3.1 Collinearities with other indicators
+
+<!--# Describe known collinearities with other metrics (indicators or variables) that could become problematic if they were also included in the same Ecosystem Condition Assessment as the indicator described here. -->
+
+
+### 3.2 Impact factors
+
+<!--# Describe the main natural and anthropogenic factors that affecst the metric -->
+
+### 3.3 Spatial aggregation
+
+<!-- Describe in word the same aggregation pathway presented in the top yaml (the metadata). If you have scaled against the reference value, it is especially important to know if you did any avergaing or summations etc. beforehand. An example text for a rather simple case could be: "The variable is scaled at the initial polygon level and the point estimate is a area-weighted arithmetic mean of all polygins. There is no transformation, and truncation is not needed as the indicator becomes naturally bound between 0 and 1".  -->
+
+
+## 5. Uncertainties
+### 5.1 General uncertainties
+<!--# Describe the main reasons why you might not trust 100% the final value to represent the given ecosystem characteristic for the give ecosystem type. What aspects of this condition metric are most sensitive to subjective decitions? Is the spatial sampling sufficient? Does the choice of modeling framework affect the values? Is the metric relevant do describe ecosystem condition for the give ecosystem type?  -->
+
+Be careful: we did not add any restoration: we just have additions and not "reductions" in the extent of the encroachment. THis is a bias, it might be that the figures are smaller in reality.
+
+In cumulative accounts, we assume emcroachment add over the years but in fact some might have disappeared (restoration as mentioned above)
+
+
+### 5.2 Reported uncertainties
+<!-- Describe the nature of the errors you (hopefully) provide alongside the point estimate for the condition metric. It is especially important to clarify if the errors are inferential (referring to the uncertainty of the point estimate) or descriptive (referreing to the data itself). Here' an example text: "What we report as uncertainties in @tbl-finalTable are inferential and refer to the uncertainty around the point estimates. It does not directly describe variation in the data itself. 
+However, the variation in the mean is defined by the spatial variation only, and quartiles are obtained by bootstrapping the set of localities within a region, and calculating the indicator for each of 9999 such samples".   -->
+
+
+
+## 6. References
+
+<!--# You can add references manually or use a citation manager and add intext citations as with crossreferencing and hyperlinks. See https://quarto.org/docs/authoring/footnotes-and-citations.html -->
+
+## 7. Import and prepare datasets
+In this section, we show how to import the data through API. We also prepare them  for analyses. We first set up the path that will be used during th eproject. Users can change it to match their own path.
+```{r path_setup1}
+#| eval: true
+#| code-summary: "Path setup"
+
+# Path to the project folder
+project_path <- here::here()
+
+# Path to the functions folder within the project folder
+functions_path <- here::here(project_path, "src/functions")
+```
+
+<!--# All the data import and preparation should be done in this chapter, before the analysis chapter. As a minimum, add code for importing data, and describe or show the data structure. You may also explain certain variables, what they represent, and their distributions -->
+
+### 7.1. Encroachment areas - DT01
+#### 7.1.1 Download DT01 from Zenodo through an API
+The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downloadable *content* link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
+```{r enc_link}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT01 API download"
+
+# Call for the function that will read the data through an API
+source(paste0(functions_path,"/api_zenodo.R"))
+
+# Retrieve downloadable link to the data
+encroach_link <- api_zenodo(zenodo_url = "https://zenodo.org/records/15130992")
+
+```
+
+#### 7.1.2 Read DT01
+Now that we have the downloadable link, we can read the data in R and clean the R environment.
+```{r enc_read}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT01 - read"
+
+encroach_dt <- st_read(encroach_link)
+
+```
+
+#### 7.1.3 Clean and format the data for analyses
+All columns are of relevance to our work but we need to clean the topological and geometrical errors if any.
+
+```{r clean_enc}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "DT01 - clean"
+
+# Check for topological and geometrical errors
+which(st_is_valid(encroach_dt) == FALSE) %>% length()
+which(st_is_empty(encroach_dt) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("encroach_dt",
+                    "project_path",
+                    "functions_path")))
+
+```
+
+The data are all clear and do not need further corrections.
+
+
+### 7.2 Map of municipalities in Norway - DT02
+#### 7.2.1 Download & read DT02 from GISCO through an API
+For DT03, the API process is much simpler as a package has been developed to read data from GISCO via an API: `giscoR`. We just need to use one function to cache the dataset in a temporary directory and read it in R.
+```{r lau_down_data}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT02 API download"
+
+# Create a temporary directory to store the cache
+temp_dir <- tempdir()
+
+# Download the dataset
+lau_no <- gisco_get_lau(year = "2024",
+                        epsg = "3035",
+                        cache = TRUE,
+                        update_cache = TRUE,
+                        cache_dir = temp_dir,
+                        verbose = FALSE,
+                        country = "NO",
+                        gisco_id = NULL)
+
+```
+
+#### 7.2.2 Clean and format the data for analyses
+We select the columns of relevance to our work and clean the topological and geometrical errors if any. Note that we also need to clean the `GISCO_ID`, which is the municipality number. 
+
+```{r clean_lau}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "DT02 - general clean and format"
+
+# We select the columns of interests
+lau_no <- lau_no %>%
+            select(GISCO_ID,
+                   LAU_NAME) %>%
+            mutate(GISCO_ID = sub("NO_", "", .$GISCO_ID)) %>%
+            st_transform(., st_crs(encroach_dt)) # project to ESPG : 25832
+
+# Check for topological and geometrical errors
+which(st_is_valid(lau_no) == FALSE) %>% length()
+which(st_is_empty(lau_no) == TRUE) %>% length()
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "lau_no",
+                    "project_path",
+                    "functions_path")))
+```
+
+
+### 7.3 Naturtyper - verdsatte - DT03
+#### 7.3.1 Download DT03 for Geonorge through an API
+Downloading datasets from Geornorge using an API is a bit subtle and we created a function for it.
+```{r import_natur_api1}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT03 API download"
+# Call for the function that will read the data through an API
+source(paste0(functions_path,"/api_geonorge.R"))
+
+# Retrieve and download the data
+encroach_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314",
+                              email_address = "sylvie.clappe@nina.no")
+
+```
+
+#### 7.3.2 Read DT03
+Now that the dataset has been downloaded in a temporary file, we can read it in R and clean the R environment. Once the analyses are finished, we will remove the temporary file containing the data.
+```{r read_nature}
+#| eval: true
+#| warning: false
+#| message: false
+#| code-summary: "DT03 - read the data"
+
+# Read data
+naturtyper <- st_read(encroach_link[grepl("Naturtyper", encroach_link)])
+```
+
+#### 7.3.3 Clean and format the data for analyses
+We first need to select the column of relevance for our work and clean the topological and geometrical errors if any. The two major issues we have with these data are the spatial and temporal coverages. Spatial coverage because the data do not cover the entire country of Norway. This means that it's not because we don't record one a nature type as occurring that it is indeed not occurring, it might just not have been sampled yet. Also, the nature types have been recorded only once for a wide temporal coverage: from 1905 to 2025. Given that our encroachment data cover 2017-2024, we decided to keep only the data that have been recorded in 2015 or after. We consider that a record in 2025 doesn't mean that the type was not present before. We also assume that nature types are relatively stable and have not change since 2015. We also removed all nature types whose year of report was not stated. This made us keep 72% of the original dataset, which is still very good for analyses.
+
+```{r clean_natur}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "DT03 - clean and format"
+
+# Select columns of relevance
+natur_types <- naturtyper %>%
+                mutate(year_natur_recorded = substr(.$registreringsdato, 1, 4)) %>%
+                select(naturtype,
+                       year_natur_recorded,
+                       kommunenummer)
+
+# Check for topological and geometrical errors
+which(st_is_valid(natur_types) == FALSE) %>% length()
+which(st_is_empty(natur_types) == TRUE) %>% length()
+
+# Correct invalid geometries
+natur_cln <- st_make_valid(natur_types)
+
+# Check correction worked
+which(st_is_valid(natur_cln) == FALSE) %>% length()
+which(st_is_empty(natur_cln) == TRUE) %>% length()
+
+# Remove nature types that have been recorded before 2015
+natur_cln <- natur_cln %>%
+              filter(year_natur_recorded > 2014) %>%
+              filter(!is.na(year_natur_recorded))
+  
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "natur_cln",
+                    "lau_no",
+                    "project_path",
+                    "functions_path")))
+
+```
+
+## 8. Spatial units
+
+<!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
+
+## 9. Analyses
+### 9.1 ENCACC_001
+To compile ENCACC_001, we need to perfomr a spatial intersections between DT01 and DT02. Note that we re-calculate the areas of the encroachment polygons after the intersection has been performed.
+```{r encrec001234_analyses}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "ENCACC_001 - intersection"
+
+# Check the CRS of both DT01 and DT02
+st_crs(lau_no) == st_crs(encroach_dt)
+
+# Perform spatial intersection
+komenc <- st_intersection(lau_no, encroach_dt) %>%
+            mutate(area_inter_m2 = unclass(st_area(.)), .after = area)
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "natur_cln",
+                    "project_path",
+                    "functions_path",
+                    "komenc")))
+
+```
+### 9.2 ENCACC_002
+For ENCACC_005, we need a spatial intersection between DT04 and `komenc` as we are interested in the nature types that have been lost due to encroachment within municipalities. Here we have to note though that the only 4,2% of the "særlig viktig natur" occur in the encroachment of municipaplities.
+
+```{r encrec0056_analyses}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "ENCACC_002 - intersection"
+
+# Check the CRS of both encrec and DT04
+st_crs(komenc) == st_crs(natur_cln)
+
+# Re-project natur_cln into ESPG : 25832
+natur_32 <- st_transform(natur_cln, crs = st_crs(komenc))
+
+# Check CRS of both datasets are the same now
+st_crs(natur_32) == st_crs(komenc)
+
+# Perform spatial intersection
+encnatur <- komenc %>%
+              select(GISCO_ID,
+                     LAU_NAME,
+                     id,
+                     year,
+                     area_inter_m2) %>%
+              rename(area_enc = area_inter_m2,
+                     year_enc = year) %>%
+              st_intersection(., natur_32) %>%
+              mutate(area_naturtyper_m2 = unclass(st_area(.)))
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "natur_32",
+                    "komenc",
+                    "encnatur")))
+
+```
+
+<!--# 
+
+Use this header for documenting the analyses. Put code in separate code chunks, and annotate the code in between using normal text (i.e. between the chunks, and try to avoid too many hashed out comments inside the code chunks). Add subheaders as needed. 
+
+Code folding is activated, meaning the code will be hidden by default in the html (one can click to expand it).
+
+Caching is also activated (from the top YAML), meaning that rendering to html will be quicker the second time you do it. This will create a folder inside you project folder (called INDICATORID_cache). Sometimes caching created problems because some operations are not rerun when they should be rerun. Try deleting the cash folder and try again.
+
+-->
+
+## 10. Results - Thematic Extent Accounts: encroachment in municipalities
+Now we can built the accounting tables and maps based on the spatial intersection we performed in the previous section. We chose to build the thematic accounts over the 2018-2024 period. Maps will be created only for the closing (2024) year of the total accounting period 2018-2024.
+
+### 10.1 Accounting tables
+#### 10.1.1 ENCACC_001: Extent accounts of encroachment in municipalities
+Here we present the extent accounts table for encroachment areas between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway.
+
+*Note: the function calculating the change compiles it as area_closing_year - area_opening_year. This is because we expect an increase in encroachment so we want to show how we gain in built-in areas.*
+```{r res_acc_tables1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "ENCACC_001 - Create accounting table"
+
+## Call function to add change in areas 2018-2024
+source(paste0(functions_path, "/add_fylke.R"))
+
+## ENCACC_001 accounting table
+# Accounts for all municipalities
+encacc_001_kom <- komenc %>%
+                    st_drop_geometry() %>%
+                    select(GISCO_ID,
+                           year,
+                           area_inter_m2) %>%
+                    mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
+                    group_by(fylke, GISCO_ID, year) %>%
+                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    mutate(indicator_id = "ENCACC_001", .before = "fylke")
+
+# Total across all municipalities
+encacc_001_tot <- encacc_001_kom %>%
+                    group_by(year) %>%
+                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    mutate(indicator_id = "ENCACC_001",
+                           fylkesnr = "00",
+                           kommune = "0000",
+                           LAU_NAME = "Norway", .before = year)
+
+                     
+
+# Add change to all tables
+encacc_001_kom$year <- as.character(encacc_001_kom$year)
+
+encacc_001_kom <- encacc_001_kom %>%
+                      group_split(GISCO_ID) %>% 
+                      map(~ add_change_encroachment_area(., 
+                                                         year_column = "year",
+                                                         area1 = "area_dekar_cumulative")) %>% 
+                      compact() %>%
+                      bind_rows()
+
+encacc_001_tot$year <- as.character(encacc_001_tot$year)
+
+encacc_001_tot <- encacc_001_tot %>%
+                      add_change_encroachment_area(., 
+                                                   year_column = "year",
+                                                   area1 = "area_dekar_cumulative") %>% 
+                      compact() %>%
+                      bind_rows()
+
+                    
+# Final accounting table               
+encacc_001_acc <- bind_rows(encacc_001_kom,
+                            encacc_001_tot)
+
+encacc_001_acc$fylkesnr[which(encrec_001_acc$fylkesnr == "00")] <- NA
+encacc_001_acc$kommune[which(encrec_001_acc$kommune == "0000")] <- NA
+
+colnames(encacc_001_acc) <- c("Indikatorens navn",
+                               "Fylke nummer",
+                               "Kommune nummer",
+                               "Kommune navn",
+                               "Regnskapsår",
+                               "Årlig areal i dekar",
+                               "Kumulativ areal i dekar")
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "encacc_001_acc")))
+
+
+# Display the table dynamically
+datatable(encacc_001_acc,
+          extensions = 'Buttons',
+          filter = list(position = 'top', clear = TRUE), 
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Table 1 - Thematic extent accounts: area of all encroachment in municipalities over 2018-2024."))) %>%
+    formatCurrency(
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",")
+
+```
+
+#### 10.1.2 ENCACC_002: Extent accounts of encroachments in all sværlig vikitig natur lost due to encroachments in municipalities
+Here we present the extent accounts table for "sværlig vikitig natur" lost to encroachment between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway.
+
+As the loss of the nature types did not happen homogeneously within municipalities, these accounts only present both the total area lost by nature types over the 2018-2024 period. This is to avoid confusion and present the bigger picture, instead of having different years for different municipalities and nature types. We also present a total across all municipalities in Norway which mapped their recreation areas.
+
+
+```{r res_acc_tables3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "ENCACC_002 - Create accounting table"
+
+## ENCACC_002 accounting table
+# Accounts for all municipalities
+encacc_002_kom <- encnatur %>%
+                    st_drop_geometry() %>%
+                    select(GISCO_ID,
+                           LAU_NAME,
+                           area_naturtyper_m2 ) %>%
+                    mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
+                    group_by(fylke, GISCO_ID, LAU_NAME) %>%
+                    summarise(total_loss_dekar = round2(sum(area_naturtyper_m2)/1000, 2)) %>%
+                    mutate(indicator_id = "ENCACC_002", .before = "fylke") %>%
+                    mutate(accounting_period = "2018-2024", .before = "total_loss_dekar")
+
+
+# Total across all municipalities
+encacc_002_tot <- encacc_002_kom %>%
+                    group_by(indicator_id, accounting_period) %>%
+                    summarise(total_loss_dekar = sum(total_loss_dekar)) %>%
+                    mutate(fylke = "00",
+                           GISCO_ID = "0000",
+                           LAU_NAME = "Norway", .before = accounting_period)
+
+
+
+# Final accounting table               
+encacc_002_acc <- bind_rows(encacc_002_kom,
+                            encacc_002_tot)
+
+encacc_002_acc$fylke[which(encacc_002_acc$fylke == "00")] <- NA
+encacc_002_acc$GISCO_ID[which(encacc_002_acc$GISCO_ID == "0000")] <- NA
+
+colnames(encacc_002_acc) <- c("Indikatorens navn",
+                              "Fylke nummer",
+                              "Kommune nummer",
+                              "Kommune navn",
+                              "Regnskapsår",
+                              "Areal særlig viktige naturtyper gått tapt (dekar)")
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
+
+
+# Display the table dynamically
+datatable(encacc_002_acc,
+          extensions = 'Buttons',
+          filter = list(position = 'top', clear = TRUE), 
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Table 1 - Thematic extent accounts: area of særlig viktige natur lost due to all encroachments in municipalities over 2018-2024."))) %>%
+    formatCurrency(
+    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",")
+
+```
+
+
+### 10.2 Maps
+#### 10.2.1 ENCREC_001: Map of total encroachment area in all recreation areas over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc001_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare dataset for mapping"
+
+
+## Import LAU dataset to then join the name of the municipalities
+kom_navn <- lau_no %>%
+              select(GISCO_ID,
+                     LAU_NAME)
+
+## Prepare dataset
+encrec_001_map <- encrec_001_acc %>%
+                    filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                    filter(År == 2024) %>%
+                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+                    select("Fylke nummer",
+                           "Kommune navn",
+                           "Kumulativ areal i dekar") %>%
+                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar")
+
+fylke_map <- encrec_001_map %>%
+              group_by(`Fylke nummer`) %>%
+              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
+
+```
+
+
+```{r map_enc001_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
+
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_001_map, 
+                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+                legend_title1 = "Fylke - Kumulativ areal av inngrep (dekar)", 
+                legend_title2 = "Kommune - Kumulativ areal av inngrep (dekar)", 
+                map_title1 = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i fylker", 
+                map_title2 = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i kommuner")
+
+```
+
+```{r map_enc001_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = fylke_map,
+           data2 = encrec_001_map, 
+           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+           legend_title1 = "Kumulativ areal av inngrep (dekar)", 
+           legend_title2 = "Kumulativ areal av inngrep (dekar)",
+           map_title1 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "encrec_0021_acc",
+                    "encrec_0034_acc",
+                    "encrec_0056_acc")))
+
+```
+
+#### 10.2.2 ENCREC_002: Map of total encroachment area in important and very important recreation areas over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc002_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare dataset for mapping"
+
+## Prepare dataset
+encrec_002_map <- encrec_002_acc %>%
+                    filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                    filter(År == 2024) %>%
+                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+                    select("Fylke nummer",
+                           "Kommune navn",
+                           "Kumulativ areal i dekar") %>%
+                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar")
+
+fylke_map <- encrec_002_map %>%
+              group_by(`Fylke nummer`) %>%
+              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
+```
+
+```{r map_enc002_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
+
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_002_map, 
+                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+                legend_title1 = "Fylke - Kumulativ areal av inngrep (dekar)", 
+                legend_title2 = "Kommune - Kumulativ areal av inngrep (dekar)", 
+                map_title1 = "Kumulativ areal av inngrep (dekar) i svært vikktig \nog viktig friluftslivonsområder i fylker", 
+                map_title2 = "Kumulativ areal av inngrep (dekar) i svært vikktig \nog viktig friluftslivonsområder i kommuner")
+```
+
+```{r map_enc002_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
+
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = fylke_map,
+           data2 = encrec_002_map, 
+           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
+           legend_title1 = "Kumulativ areal av inngrep (dekar)", 
+           legend_title2 = "Kumulativ areal av inngrep (dekar)",
+           map_title1 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
+           map_title2 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
+
+
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "encrec_0021_acc",
+                    "encrec_0034_acc",
+                    "encrec_0056_acc")))
+```
+
+#### 10.2.3 Map of the share of the total recreation area lost to encroachment over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc001_perc_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare data for mapping"
+
+
+## Prepare dataset
+rec_total_kom <- rcl_32 %>%
+                  mutate(area_dekar = round2(unclass(st_area(.))/1000), 2) %>%
+                  st_drop_geometry() %>%
+                  group_by(fylkesnr, kommune) %>%
+                  summarise(total_rec_area = sum(area_dekar))
+
+encrec_001_perc_map <- encrec_001_acc %>%
+                        filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                        filter(År == 2024) %>%
+                        left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+                        left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
+                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
+                        select("Fylke nummer",
+                               "Kommune navn",
+                               "Share (%) of recreation area lost",
+                               "total_rec_area",
+                               "Kumulativ areal i dekar")
+
+fylke_map <- encrec_001_perc_map %>%
+              group_by(`Fylke nummer`) %>%
+              summarise(fylke_rec_area = sum(total_rec_area),
+                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
+                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
+```
+
+```{r map_enc001_perc_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
+
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_001_perc_map, 
+                fill_variable1 = "Share (%) of recreation area lost", 
+                fill_variable2 =  "Share (%) of recreation area lost", 
+                legend_title1 = "Fylke - Kumulativ areal (daa)", 
+                legend_title2 = "Kommune - Kumulativ areal(daa)", 
+                map_title1 = "Prosentandel (%) av totale friluftsområder som er gått tapt i fylker", 
+                map_title2 = "Prosentandel (%) av totale friluftsområder som er gått tapt i kommuner")
+
+```
+
+```{r map_enc001_perc_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
+
+## Static maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = fylke_map, 
+           data2 = encrec_001_perc_map, 
+           fill_variable1 = "Share (%) of recreation area lost", 
+           fill_variable2 =  "Share (%) of recreation area lost", 
+           legend_title1 = "Prosentandel (%)", 
+           legend_title2 = "Prosentandel (%)", 
+           map_title1 = "Prosentandel (%) av totale \n friluftsområder som \ner gått tapt \ni fylker", 
+           map_title2 = "Prosentandel (%) av totale \n friluftsområder som \ner gått tapt \ni kommuner")
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "encrec_0021_acc",
+                    "encrec_0034_acc",
+                    "encrec_0056_acc")))
+
+```
+
+#### 10.2.4 Map of the share of the total important and very important recreation area lost to encroachment over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc002_perc_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare data for mapping"
+
+## Prepare dataset
+rec_total_kom <- rcl_32 %>%
+                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                              "sværtViktigFriluftslivsområde")) %>%
+                  mutate(area_dekar = round2(unclass(st_area(.))/1000), 2) %>%
+                  st_drop_geometry() %>%
+                  group_by(fylkesnr, kommune) %>%
+                  summarise(total_rec_area = sum(area_dekar))
+
+encrec_002_perc_map <- encrec_002_acc %>%
+                        filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
+                        filter(År == 2024) %>%
+                        left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+                        left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
+                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
+                        select("Fylke nummer",
+                               "Kommune navn",
+                               "Kumulativ areal i dekar",
+                               "total_rec_area",
+                               "Share (%) of recreation area lost")
+
+fylke_map <- encrec_002_perc_map %>%
+              group_by(`Fylke nummer`) %>%
+              summarise(fylke_rec_area = sum(total_rec_area),
+                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
+                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
+                   
+```
+
+```{r map_enc002_perc_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
+
+# Run function
+interactive_map(data1 = fylke_map, 
+                data2 = encrec_002_perc_map, 
+                fill_variable1 = "Share (%) of recreation area lost", 
+                fill_variable2 =  "Share (%) of recreation area lost", 
+                legend_title1 = "Fylke - Prosentandel (%)", 
+                legend_title2 = "Kommune -Prosentandel (%)", 
+                map_title1 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i fylker", 
+                map_title2 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i kommuner")
+```
+
+```{r map_enc002_perc_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
+
+## Static maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = fylke_map, 
+           data2 = encrec_002_perc_map, 
+           fill_variable1 = "Share (%) of recreation area lost", 
+           fill_variable2 =  "Share (%) of recreation area lost", 
+           legend_title1 = "Prosentandel (%)", 
+           legend_title2 = "Prosentandel (%)", 
+           map_title1 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni fylker", 
+           map_title2 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni kommuner")
+
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "encrec_0021_acc",
+                    "encrec_0034_acc",
+                    "encrec_0056_acc")))
+```
+
+#### 10.2.4 ENCREC_006 map of total "sæarlig viktig natur" due to encroachment in important and very important recreation areas over 2018-2024
+
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. As very few municipalities have "særlig viktig natur" in their encroachemnts of recreation areas, we do not provide summary statistics at Fylke Level
+```{r map_enc006_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare dataset for mapping"
+
+## Import LAU dataset to then join the name of the municipalities
+kom_navn <- lau_no %>%
+              select(GISCO_ID,
+                     LAU_NAME)
+
+## Prepare dataset
+encrec_006_map <- encrec_0056_acc %>%
+                    filter(`Indikatorens navn` == "ENCREC_006") %>%
+                    filter(!`Kommune navn` == "Total") %>%
+                    group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
+                    summarise("Areal særlig viktige naturtyper gått tapt (dekar)" = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`)) %>%
+                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+                    select("Fylke nummer",
+                           "Kommune navn",
+                           "Areal særlig viktige naturtyper gått tapt (dekar)")
+
+```
+
+
+```{r map_enc006_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: 'Interactive map of total "sæarlig viktig natur" in important and very important recreation areas per municipality and fylke over 2018-2024'
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
+
+# Run function
+interactive_map(data1 = encrec_006_map, 
+                fill_variable1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
+                legend_title1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
+                map_title1 = "Areal særlig viktige naturtyper gått tapt (dekar) i svært viktige og viktige friluftsområder i kommuner over 2018-2024",
+                style_type = "fixed",
+                interval_breaks = c(0, 2, 15, 30, 50, 225))
+
+```
+
+```{r map_enc006_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: 'Static map of total "sæarlig viktig natur" in important and very important recreation areas per municipality and fylke over 2018-2024'
+
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = encrec_006_map, 
+           fill_variable1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
+           legend_title1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
+           map_title1 = "Areal særlig viktige naturtyper \ngått tapt (dekar) i svært \nviktige og viktige \nfriluftsområder i \nkommuner \nover 2018-\n2024",
+           style_type = "fixed",
+           interval_breaks = c(0, 2, 15, 30, 50, 225))
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "encrec_0021_acc",
+                    "encrec_0034_acc",
+                    "encrec_0056_acc")))
+
+```
+
+
+<!--# 
+
+Repeat the final results here. Typically this is a map or table of indicator values.
+
+This is typically where people will harvest data from, so make sure to include all relevant output here, but don't clutter this section with too much output either.
+
+-->
+
+## 11. Export file
+
+<!--# 
+
+Optional: Display the code (don't execute it) or the workflow for exporting the indicator values to file. Ideally the indicator values are exported as a georeferenced shape or raster file with indicators values, reference values and errors. You can also chose to export the raw (un-normalised or unscaled variable) as a separate product. You should not save large sptaial output data on GitHub. You can use eval=FALSE to avoid code from being executed (example below - delete if not relevant) 
+
+-->
+
+```{r export}
+#| eval: false
+```
+
+<!-- You can leave this last part as it is, unless you have a good reason to alter it. -->
+
+::: {.callout-tip collapse="true"}
+## Session Info
+
+This information is mainly aimed at developers that need to recreate the R environment that produced the html.
+Important note: this information is about the R session that was running when the html was rendered, and if some of the code chunks were not evaluated when the html was rendered, they may have been executed in a different environment.  
+
+```{r sessionInfo}
+#| echo: false
+sessionInfo()
+```
+
+:::
