@@ -968,6 +968,8 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_32",
                     "encrec",
+                    "kom_navn",
+                    "add_change_encroachment_area",
                     "encrec_001_acc",
                     "encrec_002_acc")))
 
@@ -988,15 +990,15 @@ datatable(encrec_002_acc,
 ```
 
 
-#### 10.1.3 ENCREC_003: Extent accounts of all recreation areas
-Here we present the extent accounts table for the total area of mapped recreation areas between 2018 and 2024 for all recreation areas within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. 
+#### 10.1.3 ENCREC_003 and ENCREC_004: Extent accounts of encroachments in recreation areas
+Here we present the extent accounts table for the total area of area of mapped recreation areas between 2018 and 2024 for all recreation areas within each municipality in Norway. We compile the extent of these area in all recreation areas (ENCREC_003), but also only in recreation areas classified as important and very important (ENCREC_004). These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. 
 *Note: the function calculating the change compiles it as area_opening_year - area_closing_year, as aligned with the System of Economic Environmental Accounting - Ecosystem Accounting Framework.*
 ```{r res_acc_tables3}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "ENCREC_003 - Create accounting table"
+#| code-summary: "ENCREC_003 and ENCREC_004 - Create accounting table"
 
 ## Call function to add change in areas 2018-2024
 source(paste0(functions_path, "/add_change_recreation_area.R"))
@@ -1013,9 +1015,17 @@ rec_area_total <- rcl_32 %>%
                     st_drop_geometry() %>%
                     group_by(kommune) %>%
                     summarise(total_area_kom_dekar = round2(sum(area_m2)/1000, 2))
+
+recAB_area_total <- rcl_32 %>%
+                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                              "sværtViktigFriluftslivsområde")) %>%
+                      mutate(area_m2 = unclass(st_area(.))) %>%
+                      st_drop_geometry() %>%
+                      group_by(kommune) %>%
+                      summarise(total_area_kom_dekar = round2(sum(area_m2)/1000, 2))
             
 
-## ENCREC_003 accounting table
+## ENCREC_003 and 004 accounting tables
 # Accounts for all municipalities
 encrec_003_kom <- encrec %>%
                     st_drop_geometry() %>%
@@ -1031,24 +1041,57 @@ encrec_003_kom <- encrec %>%
                            area_dekar_cumulative = total_area_kom_dekar - enc_dekar_cumulative) %>%
                     select(!c(enc_dekar_yearly, enc_dekar_cumulative, total_area_kom_dekar)) %>%
                     left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(fylkesnr, kommune, LAU_NAME), .after = year)
+                    relocate(c(LAU_NAME), .after = "kommune") %>%
+                    mutate(indicator_id = "ENCREC_003", .before = "fylkesnr")
+
+encrec_004_kom <- encrec %>%
+                    st_drop_geometry() %>%
+                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                              "sværtViktigFriluftslivsområde")) %>%
+                    select(fylkesnr,
+                           kommune,
+                           year,
+                           area_inter_m2) %>%
+                    group_by(fylkesnr, kommune, year) %>%
+                    summarise(enc_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
+                    mutate(enc_dekar_cumulative = round2(cumsum(enc_dekar_yearly), 2)) %>%
+                    left_join(., recAB_area_total, by = "kommune") %>%
+                    mutate(area_dekar_yearly = total_area_kom_dekar - enc_dekar_yearly,
+                           area_dekar_cumulative = total_area_kom_dekar - enc_dekar_cumulative) %>%
+                    select(!c(enc_dekar_yearly, enc_dekar_cumulative, total_area_kom_dekar)) %>%
+                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
+                    relocate(c(LAU_NAME), .after = "kommune") %>%
+                    mutate(indicator_id = "ENCREC_004", .before = "fylkesnr")
+
 
 # Total across all municipalities
 encrec_003_tot <- encrec_003_kom %>%
                     group_by(year) %>%
                     summarise(area_dekar_yearly = sum(area_dekar_yearly),
                               area_dekar_cumulative = round2(sum(area_dekar_cumulative), 2)) %>%
-                    mutate(fylkesnr = "00",
+                    mutate(indicator_id = "ENCREC_003",
+                           fylkesnr = "00",
                            kommune = "0000",
-                           LAU_NAME = "Total", .after = year)
+                           LAU_NAME = "Total", .before = year)
+
+encrec_004_tot <- encrec_004_kom %>%
+                    group_by(year) %>%
+                    summarise(area_dekar_yearly = sum(area_dekar_yearly),
+                              area_dekar_cumulative = round2(sum(area_dekar_cumulative), 2)) %>%
+                    mutate(indicator_id = "ENCREC_004",
+                           fylkesnr = "00",
+                           kommune = "0000",
+                           LAU_NAME = "Total", .before = year)
                     
 # Final accounting table               
-encrec_003_acc <- bind_rows(encrec_003_tot, 
-                            encrec_003_kom)
+encrec_0034_acc <- bind_rows(encrec_003_kom,
+                             encrec_003_tot,
+                             encrec_004_kom,
+                             encrec_004_tot)
 
-encrec_003_acc$year <- as.character(encrec_003_acc$year)
+encrec_0034_acc$year <- as.character(encrec_0034_acc$year)
 
-encrec_003_acc <- encrec_003_acc %>%
+encrec_0034_acc <- encrec_0034_acc %>%
                       group_split(kommune) %>% 
                       map(~ add_change_recreation_area(., 
                                                        year_column = "year",
@@ -1056,13 +1099,14 @@ encrec_003_acc <- encrec_003_acc %>%
                       compact() %>%
                       bind_rows()
 
-encrec_003_acc$fylkesnr[which(encrec_003_acc$fylkesnr == "00")] <- NA
-encrec_003_acc$kommune[which(encrec_003_acc$kommune == "0000")] <- NA
+encrec_0034_acc$fylkesnr[which(encrec_0034_acc$fylkesnr == "00")] <- NA
+encrec_0034_acc$kommune[which(encrec_0034_acc$kommune == "0000")] <- NA
 
-colnames(encrec_003_acc) <- c("År",
+colnames(encrec_0034_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
+                              "Regnskapsår",
                               "Årlig areal i dekar",
                               "Kumulativ areal i dekar")
 
@@ -1079,110 +1123,17 @@ rm(list = setdiff(ls(),
                     "rec_area_total",
                     "encrec_001_acc",
                     "encrec_002_acc",
-                    "encrec_003_acc")))
+                    "encrec_0034_acc")))
 
 
 # Display the table dynamically
-datatable(encrec_003_acc,
+datatable(encrec_0034_acc,
           extensions = 'Buttons',
+          filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 3 - Thematic extent accounts: total area of all mapped recreation areas over 2018-2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
-
-```
-
-#### 10.1.4 ENCREC_004: Extent accounts of very important (A) and important (B) recreation areas
-Here we present the extent accounts table for the total area of mapped recreation areas between 2018 and 2024 for recreation areas classified as important and very important only, within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. 
-
-```{r res_acc_tables4}
-#| eval: true
-#| warning: false
-#| message: false
-#| output: true
-#| code-summary: "ENCREC_004 - Create accounting table"
-
-
-## ENCREC_004 accounting table
-# Accounts for all municipalities
-encrec_004_kom <- encrec %>%
-                    st_drop_geometry() %>%
-                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                    select(fylkesnr,
-                           kommune,
-                           year,
-                           area_inter_m2) %>%
-                    group_by(fylkesnr, kommune, year) %>%
-                    summarise(enc_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
-                    mutate(enc_dekar_cumulative = round2(cumsum(enc_dekar_yearly), 2)) %>%
-                    left_join(., rec_area_total, by = "kommune") %>%
-                    mutate(area_dekar_yearly = total_area_kom_dekar - enc_dekar_yearly,
-                           area_dekar_cumulative = total_area_kom_dekar - enc_dekar_cumulative) %>%
-                    select(!c(enc_dekar_yearly, enc_dekar_cumulative, total_area_kom_dekar)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(fylkesnr, kommune, LAU_NAME), .after = year)
-
-# Total across all municipalities
-encrec_004_tot <- encrec_004_kom %>%
-                    group_by(year) %>%
-                    summarise(area_dekar_yearly = sum(area_dekar_yearly),
-                              area_dekar_cumulative = round2(sum(area_dekar_cumulative), 2)) %>%
-                    mutate(fylkesnr = "00",
-                           kommune = "0000",
-                           LAU_NAME = "Total", .after = year)
-                    
-# Final accounting table               
-encrec_004_acc <- bind_rows(encrec_004_tot, 
-                            encrec_004_kom)
-
-encrec_004_acc$year <- as.character(encrec_004_acc$year)
-
-encrec_004_acc <- encrec_004_acc %>%
-                      group_split(kommune) %>% 
-                      map(~ add_change_recreation_area(., 
-                                                       year_column = "year",
-                                                       area1 = "area_dekar_cumulative")) %>% 
-                      compact() %>%
-                      bind_rows()
-
-encrec_004_acc$fylkesnr[which(encrec_004_acc$fylkesnr == "00")] <- NA
-encrec_004_acc$kommune[which(encrec_004_acc$kommune == "0000")] <- NA
-
-colnames(encrec_004_acc) <- c("År",
-                              "Fylke nummer",
-                              "Kommune nummer",
-                              "Kommune navn",
-                              "Årlig areal i dekar",
-                              "Kumulativ areal i dekar")
-
-# Clean R environment
-rm(list = setdiff(ls(), 
-                  c("lau_no",
-                    "encroach_dt",
-                    "project_path",
-                    "functions_path",
-                    "rcl_32",
-                    "encrec",
-                    "encrec_001_acc",
-                    "encrec_002_acc",
-                    "encrec_003_acc",
-                    "encrec_004_acc")))
-
-
-# Display the table dynamically
-datatable(encrec_004_acc,
-          extensions = 'Buttons',
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
-          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 4 - Arealregnskap av sværlig vikitig natur som går tapt på grunn av inngrep i alle friluftslivområder (ENCREC_005) eller i viktige og svært viktige friluftslivområder (ENCREC_006) over 2018-2024."))) %>%
+                                            htmltools::strong("Table 2 - Arealregnskap av inngrep i alle friluftslivområder (ENCREC_003) eller i viktige og svært viktige friluftslivområder (ENCREC_004) over 2018-2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -1203,7 +1154,7 @@ Here we present the extent accounts table for the total area of "særlig viktig 
 #| code-summary: "ENCREC_005 and 006 - Create accounting table"
 
 
-## ENCREC_005 and 006 accounting table
+## ENCREC_005 and 006 accounting tables
 # Accounts for all municipalities
 encrec_005_kom <- encnatur %>%
                     st_drop_geometry() %>%
@@ -1255,10 +1206,10 @@ encrec_006_tot <- encrec_006_kom %>%
                     mutate(accounting_period = "2018-2024", .before = "total_nature_loss_dekar")
                     
 # Final accounting table               
-encrec_0056_acc <- bind_rows(encrec_005_tot, 
-                             encrec_005_kom,
-                             encrec_006_tot,
-                             encrec_006_kom)
+encrec_0056_acc <- bind_rows(encrec_005_kom,
+                             encrec_005_tot,
+                             encrec_006_kom, 
+                             encrec_006_tot)
 
 encrec_0056_acc$fylkesnr[which(encrec_0056_acc$fylkesnr == "00")] <- NA
 encrec_0056_acc$kommune[which(encrec_0056_acc$kommune == "0000")] <- NA
@@ -1277,6 +1228,7 @@ rm(list = setdiff(ls(),
                     "encroach_dt",
                     "project_path",
                     "functions_path",
+                    "kom_navn",
                     "rcl_32",
                     "encrec",
                     "encrec_001_acc",
