@@ -1,16 +1,23 @@
 ---
-title: "Thematic accounts - encroachment in recreation areas"
+title: "Thematic accounts - encroachment extent accounts in recreation areas"
 subtitle: |
-  [ENCREC_001] (ENCroachments in all RECreation areas) \
-  [ENCREC_002] (ENCroachments in very important (A) and important (B) RECreation areas)  
-  [ENCREC_003] (sværlig vikitig natur lost due to ENCroachments in very important (A) and important (B) RECreation areas)
+  [ENCREC_001] (Extent accounts of encroachment in all recreation areas) \
+  [ENCREC_002] (Extent accounts of encroachment in very important (A) and important (B) recreation areas)  
+  [ENCREC_003] (Extent accounts of all recreation areas)
+  [ENCREC_004] (Extent accounts of very important (A) and important (B) recreation areas)
+  [ENCREC_005] (Extent accounts of sværlig vikitig natur lost due to encroachments in all recreation areas)
+  [ENCREC_006] (Extent accounts of sværlig vikitig natur lost due to encroachments in very important (A) and important (B) recreation areas)
 # delete the line with the second indicatorID (line 5) 
 # if it's not relevant for you.
 # In the parentheses you can add a word to distinguish multiple indicators 
 # from each other, for example the ecosystem type that they cover
 indicatorID: 
   - ENCREC_001
-  - ENCREC_002 # delete whole line if not needed
+  - ENCREC_002
+  - ENCREC_003
+  - ENCREC_004
+  - ENCREC_005
+  - ENCREC_006 # delete whole line if not needed
 # If you are presenting multiple indicators, and have multiple 
 # indicator IDs, then add them as a list here, and make sure you add
 # the same number of list entries, 
@@ -21,8 +28,12 @@ indicatorID:
 # same realm, same country etc., then you only need to write the realm and
 # country once. 
 indicatorName: 
-  - ENCroachments in all RECreation areas # add more by adding another line starting '-'
-  - ENCroachments in very important (A) and important (B) RECreation areas
+  - Extent accounts of encroachment in all recreation areas # add more by adding another line starting '-'
+  - Extent accounts of encroachment in very important (A) and important (B) recreation areas
+  - Extent accounts of all recreation areas
+  - Extent accounts of very important (A) and important (B) recreation areas
+  - Extent accounts of sværlig vikitig natur lost due to encroachments in all recreation areas
+  - Extent accounts of sværlig vikitig natur lost due to encroachments in very important (A) and important (B) recreation areas
 folderName: code # name of the folder under 'indicators/'. 
 # If it's a single indicator being reported, the folder name should be the same as the indicatorID. 
 # If there are multiple ID's then the folder name could look something like XX_YYY_ZZZ-ÅÅÅ.
@@ -630,7 +641,8 @@ We use the same protocol as for DT01. This time, we created a function for it.
 source(paste0(functions_path,"/api_geonorge.R"))
 
 # Retrieve downloadable link to the data
-encroach_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314")
+encroach_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314",
+                              email_address = "sylvie.clappe@nina.no")
 
 ```
 
@@ -643,7 +655,7 @@ Now that the dataset has been downloaded in a temporary file, we can read it in 
 #| code-summary: "DT04 - read the data"
 
 # Read data
-naturtyper <- st_read(gdb_file[grepl("Naturtyper", gdb_file)])
+naturtyper <- st_read(encroach_link[grepl("Naturtyper", encroach_link)])
 ```
 
 #### 7.4.3 Clean and format the data for analyses
@@ -658,9 +670,9 @@ We first need to select the column of relevance for our work and clean the topol
 
 # Select columns of relevance
 natur_types <- naturtyper %>%
-                mutate(year = substr(.$registreringsdato, 1, 4)) %>%
+                mutate(year_natur_recorded = substr(.$registreringsdato, 1, 4)) %>%
                 select(naturtype,
-                       year,
+                       year_natur_recorded,
                        kommunenummer)
 
 # Check for topological and geometrical errors
@@ -719,13 +731,58 @@ encrec <- st_intersection(rcl_32, encroach_dt) %>%
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_cln",
                     "project_path",
                     "functions_path",
                     "rcl_32",
                     "encrec")))
 
 ```
+### 9.2 ENCREC_003
+For ENCRREC_003, we need a spatial intersection between DT04 and `encrec` as we are interested in the nature types that have been lost due to encrochament within recreation areas. Here we have to note though that the only 2% of the "særlig viktig natur" occur in the encroachment of outdoor recreation areas.
 
+```{r encrec0012_analyses}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "ENCREC_003 - intersection"
+
+# Check the CRS of both encrec and DT04
+st_crs(encrec) == st_crs(natur_cln)
+
+# Re-project natur_cln into ESPG : 25832
+natur_32 <- st_transform(natur_cln, crs = st_crs(encrec))
+
+# Check CRS of both datasets are the same now
+st_crs(natur_32) == st_crs(encrec)
+
+# Perform spatial intersection
+encnatur <- encrec %>%
+              select(fylkesnr,
+                     kommune,
+                     kartleggingsår,
+                     områdeverdi,
+                     id,
+                     year,
+                     area_inter_m2) %>%
+              rename(area_encrec = area_inter_m2,
+                     year_encrec = year) %>%
+              st_intersection(., natur_32) %>%
+              mutate(area_naturtyper_m2 = unclass(st_area(.)))
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_32",
+                    "natur_32",
+                    "encrec",
+                    "encnatur")))
+
+```
 
 <!--# 
 
