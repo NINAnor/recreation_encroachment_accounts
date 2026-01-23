@@ -430,7 +430,7 @@ Downloading datasets from Geornorge using an API is a bit subtle and we created 
 source(paste0(functions_path,"/api_geonorge.R"))
 
 # Retrieve and download the data
-encroach_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314",
+natur_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314",
                               email_address = "sylvie.clappe@nina.no")
 
 ```
@@ -444,7 +444,7 @@ Now that the dataset has been downloaded in a temporary file, we can read it in 
 #| code-summary: "DT03 - read the data"
 
 # Read data
-naturtyper <- st_read(encroach_link[grepl("Naturtyper", encroach_link)])
+naturtyper <- st_read(natur_link[grepl("Naturtyper", natur_link)])
 ```
 
 #### 7.3.3 Clean and format the data for analyses
@@ -592,6 +592,10 @@ Here we present the extent accounts table for encroachment areas between 2018 an
 #| code-summary: "ENCACC_001 - Create accounting table"
 
 ## Call function to add change in areas 2018-2024
+source(paste0(functions_path, "/add_change_encroachment_area.R"))
+
+
+## Call function to add fylke
 source(paste0(functions_path, "/add_fylke.R"))
 
 ## ENCACC_001 accounting table
@@ -600,9 +604,10 @@ encacc_001_kom <- komenc %>%
                     st_drop_geometry() %>%
                     select(GISCO_ID,
                            year,
+                           LAU_NAME,
                            area_inter_m2) %>%
                     mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
-                    group_by(fylke, GISCO_ID, year) %>%
+                    group_by(fylke, GISCO_ID, LAU_NAME, year) %>%
                     summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
                     mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
                     mutate(indicator_id = "ENCACC_001", .before = "fylke")
@@ -613,8 +618,8 @@ encacc_001_tot <- encacc_001_kom %>%
                     summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
                     mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
                     mutate(indicator_id = "ENCACC_001",
-                           fylkesnr = "00",
-                           kommune = "0000",
+                           fylke = "00",
+                           GISCO_ID = "0000",
                            LAU_NAME = "Norway", .before = year)
 
                      
@@ -644,8 +649,8 @@ encacc_001_tot <- encacc_001_tot %>%
 encacc_001_acc <- bind_rows(encacc_001_kom,
                             encacc_001_tot)
 
-encacc_001_acc$fylkesnr[which(encrec_001_acc$fylkesnr == "00")] <- NA
-encacc_001_acc$kommune[which(encrec_001_acc$kommune == "0000")] <- NA
+encacc_001_acc$fylke[which(encacc_001_acc$fylke == "00")] <- NA
+encacc_001_acc$GISCO_ID[which(encacc_001_acc$GISCO_ID == "0000")] <- NA
 
 colnames(encacc_001_acc) <- c("Indikatorens navn",
                                "Fylke nummer",
@@ -659,9 +664,10 @@ colnames(encacc_001_acc) <- c("Indikatorens navn",
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -699,6 +705,10 @@ As the loss of the nature types did not happen homogeneously within municipaliti
 #| output: true
 #| code-summary: "ENCACC_002 - Create accounting table"
 
+
+## Call function to add fylke
+source(paste0(functions_path, "/add_fylke.R"))
+
 ## ENCACC_002 accounting table
 # Accounts for all municipalities
 encacc_002_kom <- encnatur %>%
@@ -734,19 +744,19 @@ colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
-                              "Regnskapsår",
+                              "Regnskapsperiode",
                               "Areal særlig viktige naturtyper gått tapt (dekar)")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
-                    "kom_navn",
                     "add_change_encroachment_area",
                     "encacc_001_acc",
                     "encacc_002_acc")))
@@ -771,7 +781,7 @@ datatable(encacc_002_acc,
 
 
 ### 10.2 Maps
-#### 10.2.1 ENCREC_001: Map of total encroachment area in all recreation areas over 2018-2024
+#### 10.2.1 ENCACC_001: Map of the total encroachment area in municipalities over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc001_1}
 #| eval: true
@@ -780,35 +790,34 @@ We first prepare the dataset for mapping then map it both using an interactive a
 #| output: true
 #| code-summary: "Prepare dataset for mapping"
 
-
 ## Import LAU dataset to then join the name of the municipalities
 kom_navn <- lau_no %>%
-              select(GISCO_ID,
-                     LAU_NAME)
+              select(GISCO_ID)
 
 ## Prepare dataset
-encrec_001_map <- encrec_001_acc %>%
-                    filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
-                    filter(År == 2024) %>%
-                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+encacc_001_map <- encacc_001_acc %>%
+                    filter(!c(`Kommune navn` == "Norway" | Regnskapsår == "Change 2018-2024")) %>%
+                    filter(Regnskapsår == 2024) %>%
+                    left_join(., kom_navn, join_by( `Kommune nummer` == "GISCO_ID")) %>%
                     select("Fylke nummer",
                            "Kommune navn",
-                           "Kumulativ areal i dekar") %>%
-                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar")
+                           "Kumulativ areal i dekar",
+                           "geometry") %>%
+                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar") %>%
+                    st_as_sf()
 
-fylke_map <- encrec_001_map %>%
+fylke_map <- encacc_001_map %>%
               group_by(`Fylke nummer`) %>%
               summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
 
 ```
-
 
 ```{r map_enc001_2}
 #| eval: false
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Interactive map of total encroachment area in municipality and fylke over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -816,13 +825,13 @@ source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
 interactive_map(data1 = fylke_map, 
-                data2 = encrec_001_map, 
+                data2 = encacc_001_map, 
                 fill_variable1 = "Kumulativ areal av inngrep i dekar", 
                 fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-                legend_title1 = "Fylke - Kumulativ areal av inngrep (dekar)", 
-                legend_title2 = "Kommune - Kumulativ areal av inngrep (dekar)", 
-                map_title1 = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i fylker", 
-                map_title2 = "Kumulativ areal av inngrep (dekar) i friluftslivonsområder i kommuner")
+                legend_title1 = "Fylke - Areal av inngrep (dekar)", 
+                legend_title2 = "Kommune - Areal av inngrep (dekar)", 
+                map_title1 = "Totalt areal av inngrep (dekar) i fylker over 2018-2024", 
+                map_title2 = "Totalt areal av inngrep (dekar) i kommuner over 2018-2024")
 
 ```
 
@@ -831,7 +840,7 @@ interactive_map(data1 = fylke_map,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Static map of total encroachment area in municipality and fylke over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
@@ -839,116 +848,54 @@ source(paste0(functions_path, "/static_map.R"))
 
 # Run function
 static_map(data1 = fylke_map,
-           data2 = encrec_001_map, 
+           data2 = encacc_001_map, 
            fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-           legend_title1 = "Kumulativ areal av inngrep (dekar)", 
-           legend_title2 = "Kumulativ areal av inngrep (dekar)",
-           map_title1 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
-           map_title2 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
+           fill_variable2 =  "Kumulativ areal av inngrep i dekar",  
+                legend_title1 = "Fylke - Areal av inngrep (dekar)", 
+                legend_title2 = "Kommune - Areal av inngrep (dekar)", 
+                map_title1 = "Totalt areal av inngrep (dekar) i fylker over 2018-2024", 
+                map_title2 = "Totalt areal av inngrep (dekar) i kommuner over 2018-2024")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
-                    "kom_navn",
-                    "encrec_0021_acc",
-                    "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
 
 ```
 
-#### 10.2.2 ENCREC_002: Map of total encroachment area in important and very important recreation areas over 2018-2024
-We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
-```{r map_enc002_1}
+```{r map_enc001_4}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Prepare dataset for mapping"
-
-## Prepare dataset
-encrec_002_map <- encrec_002_acc %>%
-                    filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
-                    filter(År == 2024) %>%
-                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
-                    select("Fylke nummer",
-                           "Kommune navn",
-                           "Kumulativ areal i dekar") %>%
-                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar")
-
-fylke_map <- encrec_002_map %>%
-              group_by(`Fylke nummer`) %>%
-              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
-```
-
-```{r map_enc002_2}
-#| eval: false
-#| warning: false
-#| message: false
-#| output: false
-#| code-summary: "Interactive map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
-
-## Interactive maps -- disabled as too heavy to render in html
-# Call for the function to do interactive mapping
-source(paste0(functions_path, "/interactive_map.R"))
-
-# Run function
-interactive_map(data1 = fylke_map, 
-                data2 = encrec_002_map, 
-                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-                legend_title1 = "Fylke - Kumulativ areal av inngrep (dekar)", 
-                legend_title2 = "Kommune - Kumulativ areal av inngrep (dekar)", 
-                map_title1 = "Kumulativ areal av inngrep (dekar) i svært vikktig \nog viktig friluftslivonsområder i fylker", 
-                map_title2 = "Kumulativ areal av inngrep (dekar) i svært vikktig \nog viktig friluftslivonsområder i kommuner")
-```
-
-```{r map_enc002_3}
-#| eval: true
-#| warning: false
-#| message: false
-#| output: true
-#| code-summary: "Static map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
-
-## Static maps
-# Call for the function to do static mapping
-source(paste0(functions_path, "/static_map.R"))
-
-# Run function
-static_map(data1 = fylke_map,
-           data2 = encrec_002_map, 
-           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-           legend_title1 = "Kumulativ areal av inngrep (dekar)", 
-           legend_title2 = "Kumulativ areal av inngrep (dekar)",
-           map_title1 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
-           map_title2 = "Kumulativ areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
-
-
+#| code-summary: "Clean R environment"
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
-                    "kom_navn",
-                    "encrec_0021_acc",
-                    "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
+
 ```
 
-#### 10.2.3 Map of the share of the total recreation area lost to encroachment over 2018-2024
-We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+#### 10.2.2 ENCACC_001: Share of the total encroachment area in municipalities over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. 
+
 ```{r map_enc001_perc_1}
 #| eval: true
 #| warning: false
@@ -956,31 +903,42 @@ We first prepare the dataset for mapping then map it both using an interactive a
 #| output: true
 #| code-summary: "Prepare data for mapping"
 
+## Call function to add fylke
+source(paste0(functions_path, "/add_fylke.R"))
+
+## Import LAU dataset to then join the name of the municipalities
+kom_navn <- lau_no %>%
+              select(GISCO_ID) %>%
+              mutate(area_kom = round2(unclass(st_area(.))/1000, 2))
+
+
+## Calculate toral area per fylke
+fylke_total_area <- kom_navn %>%
+                      st_drop_geometry() %>%
+                      mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
+                      group_by(fylke) %>%
+                      summarise(area_fylke = sum(area_kom)) 
+
 
 ## Prepare dataset
-rec_total_kom <- rcl_32 %>%
-                  mutate(area_dekar = round2(unclass(st_area(.))/1000), 2) %>%
-                  st_drop_geometry() %>%
-                  group_by(fylkesnr, kommune) %>%
-                  summarise(total_rec_area = sum(area_dekar))
+encacc_001_perc_map <- encacc_001_acc %>%
+                          filter(!c(`Kommune navn` == "Norway" | Regnskapsår == "Change 2018-2024")) %>%
+                          filter(Regnskapsår == 2024) %>%
+                          left_join(., kom_navn, join_by( `Kommune nummer` == "GISCO_ID")) %>%
+                          select("Fylke nummer",
+                                 "Kommune navn",
+                                 "Kumulativ areal i dekar",
+                                 "area_kom",
+                                 "geometry") %>%
+                          mutate(share = round2(`Kumulativ areal i dekar`/area_kom * 100, 2)) %>%
+                          st_as_sf()
 
-encrec_001_perc_map <- encrec_001_acc %>%
-                        filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
-                        filter(År == 2024) %>%
-                        left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
-                        left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
-                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
-                        select("Fylke nummer",
-                               "Kommune navn",
-                               "Share (%) of recreation area lost",
-                               "total_rec_area",
-                               "Kumulativ areal i dekar")
-
-fylke_map <- encrec_001_perc_map %>%
+fylke_map <- encacc_001_perc_map %>%
               group_by(`Fylke nummer`) %>%
-              summarise(fylke_rec_area = sum(total_rec_area),
-                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
-                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
+              summarise("Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`)) %>%
+              left_join(., fylke_total_area, join_by( "Fylke nummer" == "fylke")) %>%
+              mutate(share = round2(`Kumulativ areal i dekar`/area_fylke * 100, 2))
+
 ```
 
 ```{r map_enc001_perc_2}
@@ -988,7 +946,7 @@ fylke_map <- encrec_001_perc_map %>%
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of the share of recreation area lost to encroachments in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Interactive map of the share of encroachments in municipalities and fylkes over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -996,13 +954,13 @@ source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
 interactive_map(data1 = fylke_map, 
-                data2 = encrec_001_perc_map, 
-                fill_variable1 = "Share (%) of recreation area lost", 
-                fill_variable2 =  "Share (%) of recreation area lost", 
-                legend_title1 = "Fylke - Kumulativ areal (daa)", 
-                legend_title2 = "Kommune - Kumulativ areal(daa)", 
-                map_title1 = "Prosentandel (%) av totale friluftsområder som er gått tapt i fylker", 
-                map_title2 = "Prosentandel (%) av totale friluftsområder som er gått tapt i kommuner")
+                data2 = encacc_001_perc_map, 
+                fill_variable1 = "share", 
+                fill_variable2 =  "share", 
+                legend_title1 = "Fylke - Prosentandel (%) ", 
+                legend_title2 = "Kommune - Prosentandel (%) ", 
+                map_title1 = "Prosentandel (%) av totalt inngrep i fylker", 
+                map_title2 = "Prosentandel (%) av totalt inngrep i kommuner")
 
 ```
 
@@ -1019,212 +977,148 @@ source(paste0(functions_path, "/static_map.R"))
 
 # Run function
 static_map(data1 = fylke_map, 
-           data2 = encrec_001_perc_map, 
-           fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Share (%) of recreation area lost", 
-           legend_title1 = "Prosentandel (%)", 
-           legend_title2 = "Prosentandel (%)", 
-           map_title1 = "Prosentandel (%) av totale \n friluftsområder som \ner gått tapt \ni fylker", 
-           map_title2 = "Prosentandel (%) av totale \n friluftsområder som \ner gått tapt \ni kommuner")
+           data2 = encacc_001_perc_map, 
+           fill_variable1 = "share", 
+           fill_variable2 =  "share", 
+           legend_title1 = "Fylke - Prosentandel (%) ", 
+           legend_title2 = "Kommune - Prosentandel (%) ", 
+           map_title1 = "Prosentandel (%) av totalt inngrep i fylker", 
+           map_title2 = "Prosentandel (%) av totalt inngrep i kommuner")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
                     "kom_navn",
-                    "encrec_0021_acc",
-                    "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
 
 ```
 
-#### 10.2.4 Map of the share of the total important and very important recreation area lost to encroachment over 2018-2024
-We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
-```{r map_enc002_perc_1}
+```{r map_enc001_perc_4}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Prepare data for mapping"
-
-## Prepare dataset
-rec_total_kom <- rcl_32 %>%
-                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                  mutate(area_dekar = round2(unclass(st_area(.))/1000), 2) %>%
-                  st_drop_geometry() %>%
-                  group_by(fylkesnr, kommune) %>%
-                  summarise(total_rec_area = sum(area_dekar))
-
-encrec_002_perc_map <- encrec_002_acc %>%
-                        filter(!c(`Kommune navn` == "Total" | År == "Change 2018-2024")) %>%
-                        filter(År == 2024) %>%
-                        left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
-                        left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
-                        mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
-                        select("Fylke nummer",
-                               "Kommune navn",
-                               "Kumulativ areal i dekar",
-                               "total_rec_area",
-                               "Share (%) of recreation area lost")
-
-fylke_map <- encrec_002_perc_map %>%
-              group_by(`Fylke nummer`) %>%
-              summarise(fylke_rec_area = sum(total_rec_area),
-                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
-                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
-                   
-```
-
-```{r map_enc002_perc_2}
-#| eval: false
-#| warning: false
-#| message: false
-#| output: false
-#| code-summary: "Interactive map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
-
-## Interactive maps -- disabled as too heavy to render in html
-# Call for the function to do interactive mapping
-source(paste0(functions_path, "/interactive_map.R"))
-
-# Run function
-interactive_map(data1 = fylke_map, 
-                data2 = encrec_002_perc_map, 
-                fill_variable1 = "Share (%) of recreation area lost", 
-                fill_variable2 =  "Share (%) of recreation area lost", 
-                legend_title1 = "Fylke - Prosentandel (%)", 
-                legend_title2 = "Kommune -Prosentandel (%)", 
-                map_title1 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i fylker", 
-                map_title2 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i kommuner")
-```
-
-```{r map_enc002_perc_3}
-#| eval: true
-#| warning: false
-#| message: false
-#| output: true
-#| code-summary: "Static map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
-
-## Static maps -- disabled as too heavy to render in html
-# Call for the function to do interactive mapping
-source(paste0(functions_path, "/static_map.R"))
-
-# Run function
-static_map(data1 = fylke_map, 
-           data2 = encrec_002_perc_map, 
-           fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Share (%) of recreation area lost", 
-           legend_title1 = "Prosentandel (%)", 
-           legend_title2 = "Prosentandel (%)", 
-           map_title1 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni fylker", 
-           map_title2 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni kommuner")
-
+#| code-summary: "Clean R environment"
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
                     "kom_navn",
-                    "encrec_0021_acc",
-                    "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
+
 ```
 
-#### 10.2.4 ENCREC_006 map of total "sæarlig viktig natur" due to encroachment in important and very important recreation areas over 2018-2024
-
-We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. As very few municipalities have "særlig viktig natur" in their encroachemnts of recreation areas, we do not provide summary statistics at Fylke Level
-```{r map_enc006_1}
+#### 10.2.3 ENCACC: Map of the total area of "sæarlig viktig natur" lost due to encroachment in municipalities over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. As few municipalities have "særlig viktig natur" in their encroachments, we do not provide summary statistics at Fylke Level.
+```{r map_enc002_1}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
 #| code-summary: "Prepare dataset for mapping"
 
-## Import LAU dataset to then join the name of the municipalities
-kom_navn <- lau_no %>%
-              select(GISCO_ID,
-                     LAU_NAME)
-
 ## Prepare dataset
-encrec_006_map <- encrec_0056_acc %>%
-                    filter(`Indikatorens navn` == "ENCREC_006") %>%
-                    filter(!`Kommune navn` == "Total") %>%
-                    group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
-                    summarise("Areal særlig viktige naturtyper gått tapt (dekar)" = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`)) %>%
-                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+encacc_002_map <- encacc_002_acc %>%
+                    filter(!c(`Kommune navn` == "Norway" | Regnskapsperiode == "Change 2018-2024")) %>%
+                    left_join(kom_navn, ., join_by("GISCO_ID" == `Kommune nummer`)) %>%
                     select("Fylke nummer",
                            "Kommune navn",
-                           "Areal særlig viktige naturtyper gått tapt (dekar)")
+                           "Areal særlig viktige naturtyper gått tapt (dekar)",
+                           "geometry") %>%
+                    st_as_sf()
 
 ```
 
-
-```{r map_enc006_2}
+```{r map_enc002_2}
 #| eval: false
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: 'Interactive map of total "sæarlig viktig natur" in important and very important recreation areas per municipality and fylke over 2018-2024'
+#| code-summary: "Interactive map of total area of ''særlig viktig natur'' lost due to encroachment in municipality and fylke over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
 source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
-interactive_map(data1 = encrec_006_map, 
+interactive_map(data1 = encacc_002_map, 
                 fill_variable1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
-                legend_title1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
-                map_title1 = "Areal særlig viktige naturtyper gått tapt (dekar) i svært viktige og viktige friluftsområder i kommuner over 2018-2024",
-                style_type = "fixed",
-                interval_breaks = c(0, 2, 15, 30, 50, 225))
-
+                legend_title1 = "Kommune - Areal av inngrep (dekar)", 
+                map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på inngrep i kommuner")
 ```
 
-```{r map_enc006_3}
+```{r map_enc002_3}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: 'Static map of total "sæarlig viktig natur" in important and very important recreation areas per municipality and fylke over 2018-2024'
+#| code-summary: "Static map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = encrec_006_map, 
+static_map(data1 = encacc_002_map,
            fill_variable1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
-           legend_title1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
-           map_title1 = "Areal særlig viktige naturtyper \ngått tapt (dekar) i svært \nviktige og viktige \nfriluftsområder i \nkommuner \nover 2018-\n2024",
-           style_type = "fixed",
-           interval_breaks = c(0, 2, 15, 30, 50, 225))
+           legend_title1 = "Kommune - Areal av inngrep (dekar)", 
+           map_title1 = "Totalt areal av ''særlig viktig natur''  (dekar) som er gått tapt på inngrep i kommuner")
+
+
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_32",
                     "project_path",
                     "functions_path",
-                    "rcl_32",
+                    "komenc",
                     "encrec",
                     "encnatur",
-                    "kom_navn",
-                    "encrec_0021_acc",
-                    "encrec_0034_acc",
-                    "encrec_0056_acc")))
-
+                    "kon_navn",
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
 ```
 
+
+```{r map_enc004_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Clean R environment"
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "natur_32",
+                    "project_path",
+                    "functions_path",
+                    "komenc",
+                    "encrec",
+                    "encnatur",
+                    "kon_navn",
+                    "encacc_001_acc",
+                    "encacc_002_acc")))
+```
 
 <!--# 
 
