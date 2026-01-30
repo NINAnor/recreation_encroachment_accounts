@@ -475,9 +475,13 @@ natur_cln <- st_make_valid(natur_types)
 which(st_is_valid(natur_cln) == FALSE) %>% length()
 which(st_is_empty(natur_cln) == TRUE) %>% length()
 
+# Clean typos in years
+natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2102"] <- "2012"
+natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2913"] <- "2013"
+
 # Remove nature types that have been recorded before 2015
 natur_cln <- natur_cln %>%
-              filter(year_natur_recorded > 2014) %>%
+              filter(year_natur_recorded > 2016) %>%
               filter(!is.na(year_natur_recorded))
   
 
@@ -565,6 +569,52 @@ rm(list = setdiff(ls(),
                     "encnatur")))
 
 ```
+### Uncertainty analyses
+There are different sources of uncertainty associated with our results (see 5.1 General uncertainties). We could report **qualitatively** some of these uncertainties and we chose to design a color-coded uncertainty indicator to make the interpretation of the results from the municipalities easier. It also have to be noted that, despite having a quantitative uncertainty for DT01, this uncertainty was quantified at national level and does not apply at municipal level. That is why we could not quantify the uncertainty linked to DT01. We however developed an application that will help in quantify the uncertainty in the prediction of encroachment at municipal level. You want to help? Jut go [here](**<LINK>**)! Description on how this qualitative indicator can be compiled is available in section 5.2 Reported uncertainties.
+
+First we attributed a colored-uncertainty to all sources of uncertainty. In te case of ENCACC_001, we just have one source: DT01 prediction. For ENCACC_002, we have two sources of uncertainties: DT01 prediction, and temporal discrepancy between DT01 and DT03. Although we restricted the temporal coverage of DT03 to match the temporal coverage of DT01, an encroachment detected in 2024 on a ''særlig viktig natur'' polygon from 2017 is likely to be more uncertain that if detected on a ''særlig viktig natur'' dating from 2024.
+```{r enc001_uncertainty}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Step 1 - attribute colored-uncertainty to all sources of uncertainties per municipalities"
+
+# Load necessary functions
+
+# Uncertainty ENCACCC_001
+unc_001 <- komenc %>%
+            st_drop_geometry() %>%
+            group_by(GISCO_ID, year) %>%
+            summarise(n_poly = n()) %>%
+            select(!n_poly) %>%
+            ungroup() %>%
+            mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source1 = TRUE, yrsource1 = "year")}))
+
+
+# Uncertainty ENCACCC_002
+unc_002 <- encnatur %>%
+            st_drop_geometry() %>%
+            group_by(GISCO_ID, year_enc, year_natur_recorded) %>%
+            summarise(n_poly = n()) %>%
+            select(!n_poly) %>%
+            ungroup() %>%
+            mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[1],
+                   uncertainty_source4 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[2])
+
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "natur_32",
+                    "komenc",
+                    "encnatur")))
+
+```
+
 
 <!--# 
 
@@ -660,6 +710,14 @@ colnames(encacc_001_acc) <- c("Indikatorens navn",
                                "Årlig areal i dekar",
                                "Kumulativ areal i dekar")
 
+
+max_kom <- encacc_001_acc %>%
+            filter(Regnskapsår == "2024") %>%
+            #filter(Regnskapsår == "Change 2018-2024") %>%
+            filter(!`Kommune navn` == "Norway") %>%
+            arrange(desc(.$`Kumulativ areal i dekar`)) %>%
+            filter(`Kumulativ areal i dekar`>1000)
+
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
@@ -715,9 +773,10 @@ encacc_002_kom <- encnatur %>%
                     st_drop_geometry() %>%
                     select(GISCO_ID,
                            LAU_NAME,
+                           naturtype,
                            area_naturtyper_m2 ) %>%
                     mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
-                    group_by(fylke, GISCO_ID, LAU_NAME) %>%
+                    group_by(fylke, GISCO_ID, LAU_NAME, naturtype) %>%
                     summarise(total_loss_dekar = round2(sum(area_naturtyper_m2)/1000, 2)) %>%
                     mutate(indicator_id = "ENCACC_002", .before = "fylke") %>%
                     mutate(accounting_period = "2018-2024", .before = "total_loss_dekar")
@@ -744,6 +803,7 @@ colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
+                              "Særlig viktig naturtype",
                               "Regnskapsperiode",
                               "Areal særlig viktige naturtyper gått tapt (dekar)")
 
@@ -769,7 +829,7 @@ datatable(encacc_002_acc,
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 1 - Thematic extent accounts: area of særlig viktige natur lost due to all encroachments in municipalities over 2018-2024."))) %>%
+                                            htmltools::strong("Table 2 - Thematic extent accounts: area of særlig viktige natur lost due to all encroachments in municipalities over 2018-2024."))) %>%
     formatCurrency(
     columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
     currency = "",                
