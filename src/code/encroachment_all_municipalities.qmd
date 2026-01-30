@@ -583,24 +583,24 @@ First we attributed a colored-uncertainty to all sources of uncertainty. In te c
 # Load necessary functions
 
 # Uncertainty ENCACCC_001
-unc_001 <- komenc %>%
-            st_drop_geometry() %>%
-            group_by(GISCO_ID, year) %>%
-            summarise(n_poly = n()) %>%
-            select(!n_poly) %>%
-            ungroup() %>%
-            mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source1 = TRUE, yrsource1 = "year")}))
+unc_001_idv <- komenc %>%
+                st_drop_geometry() %>%
+                group_by(GISCO_ID, year) %>%
+                summarise(n_poly = n()) %>%
+                select(!n_poly) %>%
+                ungroup() %>%
+                mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source1 = TRUE, yrsource1 = "year")}))
 
 
 # Uncertainty ENCACCC_002
-unc_002 <- encnatur %>%
-            st_drop_geometry() %>%
-            group_by(GISCO_ID, year_enc, year_natur_recorded) %>%
-            summarise(n_poly = n()) %>%
-            select(!n_poly) %>%
-            ungroup() %>%
-            mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[1],
-                   uncertainty_source4 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[2])
+unc_002_idv <- encnatur %>%
+                st_drop_geometry() %>%
+                group_by(GISCO_ID, year_enc, year_natur_recorded) %>%
+                summarise(n_poly = n()) %>%
+                select(!n_poly) %>%
+                ungroup() %>%
+                mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[1],
+                       uncertainty_source4 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[2])
 
 
 # Clean R environment
@@ -611,7 +611,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "natur_32",
                     "komenc",
-                    "encnatur")))
+                    "encnatur",
+                    "unc_001_idv",
+                    "unc_002_idv")))
 
 ```
 
