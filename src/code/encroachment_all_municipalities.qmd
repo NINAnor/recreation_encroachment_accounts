@@ -569,11 +569,11 @@ rm(list = setdiff(ls(),
                     "encnatur")))
 
 ```
-### Uncertainty analyses
-There are different sources of uncertainty associated with our results (see 5.1 General uncertainties). We could report **qualitatively** some of these uncertainties and we chose to design a color-coded uncertainty indicator to make the interpretation of the results from the municipalities easier. It also have to be noted that, despite having a quantitative uncertainty for DT01, this uncertainty was quantified at national level and does not apply at municipal level. That is why we could not quantify the uncertainty linked to DT01. We however developed an application that will help in quantify the uncertainty in the prediction of encroachment at municipal level. You want to help? Jut go [here](**<LINK>**)! Description on how this qualitative indicator can be compiled is available in section 5.2 Reported uncertainties.
+### 9.3 Uncertainty analyses
+There are different sources of uncertainty associated with our results (see 5.1 General uncertainties). We could report **qualitatively** some of these uncertainties and we chose to design a color-coded uncertainty indicator to make the interpretation of the results from the municipalities easier. It also have to be noted that, despite having a quantitative uncertainty for DT01, this uncertainty was quantified at national level and does not apply at municipal level. That is why we could not quantify the uncertainty linked to DT01. We however developed an application that will help in quantify the uncertainty in the prediction of encroachment at municipal level. You want to help? Just go [here](**<LINK>**)! Description on how this qualitative indicator can be compiled is available in section 5.2 Reported uncertainties.
 
 First we attributed a colored-uncertainty to all sources of uncertainty. In te case of ENCACC_001, we just have one source: DT01 prediction. For ENCACC_002, we have two sources of uncertainties: DT01 prediction, and temporal discrepancy between DT01 and DT03. Although we restricted the temporal coverage of DT03 to match the temporal coverage of DT01, an encroachment detected in 2024 on a ''særlig viktig natur'' polygon from 2017 is likely to be more uncertain that if detected on a ''særlig viktig natur'' dating from 2024.
-```{r enc001_uncertainty}
+```{r encacc_uncertainty_1}
 #| eval: true
 #| warning: false
 #| message: false
@@ -581,6 +581,7 @@ First we attributed a colored-uncertainty to all sources of uncertainty. In te c
 #| code-summary: "Step 1 - attribute colored-uncertainty to all sources of uncertainties per municipalities"
 
 # Load necessary functions
+source(paste0(functions_path,"/add_uncertainty_individual.R"))
 
 # Uncertainty ENCACCC_001
 unc_001_idv <- komenc %>%
@@ -617,6 +618,46 @@ rm(list = setdiff(ls(),
 
 ```
 
+The second step is to attribute ONE "global" color-based uncertainty to each municipality for each accounting year and change between 2018 and 2024. For this we need to create a vector of all the color-based uncertainties per municipality per year. After that we look at the frequency of each of the colors and we take the two most predominant. In case of ties, we take the three most predominant. In case the four color-based uncertainty were all equal in their frequency, we decided to classify the "global" uncertainty as "Orange". To see the "global" color-based uncertainty we assign with each combination of two or three predominant colors of uncertainty, you can refer to our NINA rapport <REPORT NUMBER>. For this we first need to create a vector where we concatenate all the individual color-based uncertainties, and then create a function to produce the "global" uncertainty. As we haven't calculated all the metrics yet: cumulative areas and change area, we only summarise and concatenate all the color uncertainties for each municipality for each year. When we will calculate our metrics, we will then compile the final uncertainty going with each metric. We wrote a function to concatenate all the colored-uncertainty into one column per municipality per accounting year. *Note: the "accounting year" is the year of encroachment as we are compiling encroachment extent accounts. Only the area of accounting is changing among the accounts*.
+
+
+```{r encacc_uncertainty_2}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Pre-Step 2 - concatenate colored uncertainty from Step 1"
+
+# Call function to concatenate
+source(paste0(functions_path,"/concatenate_individual_uncertainty.R"))
+
+# Concatenate individual colored-uncertainties
+unc_001_sum <- concatenate_fn(unc_001_idv,
+                              col_column_names = "uncertainty_source1", 
+                              kom_num = "GISCO_ID",
+                              accounting_year = "year")
+
+unc_002_sum <- concatenate_fn(unc_002_idv,
+                              col_column_names = c("uncertainty_source1", 
+                                                   "uncertainty_source4"),
+                              kom_num = "GISCO_ID",
+                              accounting_year = "year_enc")
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "natur_32",
+                    "komenc",
+                    "encnatur",
+                    "unc_001_idv",
+                    "unc_002_idv",
+                    "unc_001_sum",
+                    "unc_002_sum")))
+
+```
 
 <!--# 
 
@@ -662,7 +703,8 @@ encacc_001_kom <- komenc %>%
                     group_by(fylke, GISCO_ID, LAU_NAME, year) %>%
                     summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
                     mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
-                    mutate(indicator_id = "ENCACC_001", .before = "fylke")
+                    mutate(indicator_id = "ENCACC_001", .before = "fylke") 
+                    
 
 # Total across all municipalities
 encacc_001_tot <- encacc_001_kom %>%
@@ -672,7 +714,8 @@ encacc_001_tot <- encacc_001_kom %>%
                     mutate(indicator_id = "ENCACC_001",
                            fylke = "00",
                            GISCO_ID = "0000",
-                           LAU_NAME = "Norway", .before = year)
+                           LAU_NAME = "Norway", .before = year) %>%
+                    mutate(uncertainty_concat_full = "Yellow") # add uncertainty
 
                      
 
