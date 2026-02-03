@@ -8,9 +8,6 @@
 #' "yellow" for "rather certain", "orange" for "rather uncertain", and "red" for
 #' "quite uncertain".
 #' 
-#' Applying this function requires to only select the source(s) of uncertainty that
-#' need(s) to be included.
-
 #' @param data the dataframe to which the uncertainty column needs to be appended.
 #' 
 #' @param source1 this sources is the uncertainty of prediction of encroachment.
