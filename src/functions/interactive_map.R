@@ -1,7 +1,8 @@
 #' Create a interactive map
 #'
 #' This function creates either one single interactive map or two interactive
-#' maps displayed side-by-side. This function uses tmap version 4.
+#' maps displayed side-by-side. The second map is designed to be a categorical map,
+#' while the first is for a continuous map. This function uses tmap version 4.
 
 #' @param data1 sf object of the data that should be mapped.
 #' 
@@ -23,12 +24,16 @@
 #' 
 #' @param map_title2 title of data2 map. Should be a character.
 #' 
-#' @param style_type method to create intervals, see tm_scale_intervals()
+#' @param style_type_map1 method to create intervals for map 1, see tm_scale_intervals()
 #' for more information. Default is "quantile".
 #' 
-#' @param interval_breaks interval breaks (only used and required 
+#' @param interval_breaks_map1 interval breaks for map 1 (only used and required 
 #' when style = "fixed") see tm_scale_intervals() for more information. 
 #' Default is NULL.
+#' 
+#' @param color_values_map1 is the color vector for map 1. Default is "brewer.reds".
+#' 
+#' @param color_values_map1 is the color vector for map 2. Default is "brewer.reds".
 #' 
 #' @return an interactive map.
 #' 
@@ -36,7 +41,7 @@
 #'
 #' @examples
 
-interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NULL, legend_title1, legend_title2 = NULL, map_title1, map_title2 = NULL, style_type_map1 = "quantile", style_type_map2 = "quantile", interval_breaks_map1 = NULL, interval_breaks_map1 = NULL, color_values_map1 = "brewer.reds", color_values_map2 = "brewer.reds" ){
+interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NULL, legend_title1, legend_title2 = NULL, map_title1, map_title2 = NULL, style_type_map1 = "quantile", interval_breaks_map1 = NULL, color_values_map1 = "brewer.reds", color_values_map2 = "brewer.reds" ){
   # Set interactive mode
   tmap_mode("view")
   
@@ -97,7 +102,7 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
       tm_shape(data2) +
       
       tm_polygons(fill = {{fill_variable2}},
-                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type_map2}}, breaks = {{interval_breaks_map2}}, values = {{color_values_map2}}),
+                  fill.scale = tm_scale_categorical(values = {{color_values_map1}},
                   lwd = 0.5,
                   fill.legend = tm_legend(title = {{legend_title2}},
                                           orientation = "portrait")) +
@@ -121,6 +126,8 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
 }
 
 
-
+tm_shape(data2) +
+  
+  tm_polygons(fill = {{fill_variable2}})
 
 
