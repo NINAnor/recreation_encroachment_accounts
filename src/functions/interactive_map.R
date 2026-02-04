@@ -36,7 +36,7 @@
 #'
 #' @examples
 
-interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NULL, legend_title1, legend_title2 = NULL, map_title1, map_title2 = NULL, style_type = "quantile", interval_breaks = NULL){
+interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 = NULL, legend_title1, legend_title2 = NULL, map_title1, map_title2 = NULL, style_type_map1 = "quantile", style_type_map2 = "quantile", interval_breaks_map1 = NULL, interval_breaks_map1 = NULL, color_values_map1 = "brewer.reds", color_values_map2 = "brewer.reds" ){
   # Set interactive mode
   tmap_mode("view")
   
@@ -48,7 +48,7 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
     tm_shape(data1) +
     
     tm_polygons(fill = {{fill_variable1}},
-                fill.scale = tm_scale_intervals(n = 5, style = {{style_type}}, breaks = {{interval_breaks}}, values = "brewer.reds"),
+                fill.scale = tm_scale_intervals(n = 5, style = {{style_type_map1}}, breaks = {{interval_breaks_map1}}, values = {{color_values_map1}}),
                 col = "black",
                 lwd = 1,
                 fill.legend = tm_legend(title = {{legend_title1}},
@@ -75,7 +75,7 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
       tm_shape(data1) +
       
       tm_polygons(fill = {{fill_variable1}},
-                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type}}, breaks = {{interval_breaks}}, values = "brewer.reds"),
+                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type_map1}}, breaks = {{interval_breaks_map1}}, values = {{color_values_map1}}),
                   col = "black",
                   lwd = 1,
                   fill.legend = tm_legend(title = {{legend_title1}},
@@ -97,7 +97,7 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
       tm_shape(data2) +
       
       tm_polygons(fill = {{fill_variable2}},
-                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type}}, breaks = {{interval_breaks}}, values = "brewer.reds"),
+                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type_map2}}, breaks = {{interval_breaks_map2}}, values = {{color_values_map2}}),
                   lwd = 0.5,
                   fill.legend = tm_legend(title = {{legend_title2}},
                                           orientation = "portrait")) +
