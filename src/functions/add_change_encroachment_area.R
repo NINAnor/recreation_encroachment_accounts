@@ -30,7 +30,7 @@ add_change_encroachment_area <- function(data, year_column, area1, area2 = NULL,
     
     #2# Create an  change row and bind it to the other rows
     new_row <- data[1,] %>% # take the first row of data and edit it with mutate
-      mutate({{year_column}} := "Change 2018-2024",
+      mutate({{year_column}} := paste("Change ", last(data[[year_column]]), "-", first(data[[year_column]]), sep = ""),
              {{area1}} := change_1,
              across(where(is.numeric) & -{{area1}} & -{{year_column}}, 
                     ~ NA_real_))
@@ -48,7 +48,7 @@ add_change_encroachment_area <- function(data, year_column, area1, area2 = NULL,
     
     #2# Create an  change row and bind it to the other rows
     new_row <- data[1,] %>% # take the first row of data and edit it with mutate
-      mutate({{year_column}} := "Change 2018-2024",
+      mutate({{year_column}} := paste("Change ", last(data[[year_column]]), "-", first(data[[year_column]]), sep = "")
              {{area1}} := change_1,
              {{area2}} := change_2,
              across(where(is.numeric) & -{{area1}} & -{{area2}} & -{{year_column}}, 
@@ -67,7 +67,7 @@ add_change_encroachment_area <- function(data, year_column, area1, area2 = NULL,
   
   #2# Create an  change row and bind it to the other rows
   new_row <- data[1,] %>% # take the first row of data and edit it with mutate
-                mutate({{year_column}} := "Change 2018-2024",
+                mutate({{year_column}} := paste("Change ", last(data[[year_column]]), "-", first(data[[year_column]]), sep = ""),
                        {{area1}} := change_1,
                        {{area2}} := change_2,
                        {{area3}} := change_3,
