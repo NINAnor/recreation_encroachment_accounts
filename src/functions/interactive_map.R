@@ -103,7 +103,7 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
       tm_shape(data2) +
       
       tm_polygons(fill = {{fill_variable2}},
-                  fill.scale = tm_scale_categorical(values = {{color_values_map1}}),
+                  fill.scale = tm_scale_categorical(values = {{color_values_map2}}),
                   lwd = 0.5,
                   fill.legend = tm_legend(title = {{legend_title2}},
                                           orientation = "portrait")) +
