@@ -676,6 +676,8 @@ Now we can built the accounting tables and maps based on the spatial intersectio
 #### 10.1.1 ENCACC_001: Extent accounts of encroachment in municipalities
 Here we present the extent accounts table for encroachment areas between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway. We added the uncertainty as color-based indicators presented in 5.2 Reported uncertainties.
 
+*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities*
+
 *Note: the function calculating the change compiles it as area_closing_year - area_opening_year. This is because we expect an increase in encroachment so we want to show how we gain in built-in areas.*
 
 *Note: We consider the uncertainty of the change in area between the opening and closing accounting years, the same as the cumulative uncertainty for the closing accounting year. This is because when we calculate a change we refer to all the accounting period as the cumulative area for the last accounting year is calculated based on all the accounting years. In our code, add_change_encroachment_area() automatically duplicate the uncertainty of the last accounting year for the change in area.*
@@ -709,11 +711,12 @@ encacc_001_kom <- komenc %>%
                            LAU_NAME,
                            area_inter_m2) %>%
                     mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
+                    complete(nesting(fylke, GISCO_ID, LAU_NAME), year = 2018:2024, fill = list(area_inter_m2 = 0)) %>%
                     group_by(fylke, GISCO_ID, LAU_NAME, year) %>%
                     summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
                     mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
                     mutate(indicator_id = "ENCACC_001", .before = "fylke") 
-                    
+
 # Add uncertainties to encacc_001_kom
 encacc_001_kom_un <- encacc_001_kom %>%
                       left_join(., unc_001_sum, by = c("GISCO_ID", "year")) %>%
@@ -722,7 +725,7 @@ encacc_001_kom_un <- encacc_001_kom %>%
                                              kom_num = "GISCO_ID", 
                                              accounting_year = "year") %>%
                       select(!unc_concat_full)
-                      
+
 
 # Total across all municipalities
 encacc_001_tot <- encacc_001_kom %>%
@@ -790,11 +793,12 @@ colnames(encacc_001_acc) <- c("Indikatorens navn",
 
 
 max_kom <- encacc_001_acc %>%
+            as.data.frame() %>%
             filter(Regnskapsår == "2024") %>%
             #filter(Regnskapsår == "Change 2018-2024") %>%
             filter(!`Kommune navn` == "Norway") %>%
             arrange(desc(.$`Kumulativ areal i dekar`)) %>%
-            filter(`Kumulativ areal i dekar`>1000)
+            filter(`Kumulativ areal i dekar`< 35)
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -965,13 +969,20 @@ encacc_001_map <- encacc_001_acc %>%
                     select("Fylke nummer",
                            "Kommune navn",
                            "Kumulativ areal i dekar",
+                           "Usikkerhet for kumulativ areal",
                            "geometry") %>%
                     rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar") %>%
                     st_as_sf()
 
-fylke_map <- encacc_001_map %>%
-              group_by(`Fylke nummer`) %>%
-              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
+## Replace labels of uncertainty
+encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Green")]<- "Quite certain"
+
+encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Yellow")]<- "Rather certain"
+
+encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Orange")]<- "Rather uncertain"
+
+encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Red")]<- "Quite uncertain"
+
 
 ```
 
@@ -987,14 +998,18 @@ fylke_map <- encacc_001_map %>%
 source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
-interactive_map(data1 = fylke_map, 
+interactive_map(data1 = encacc_001_map, 
                 data2 = encacc_001_map, 
                 fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-                legend_title1 = "Fylke - Areal av inngrep (dekar)", 
-                legend_title2 = "Kommune - Areal av inngrep (dekar)", 
-                map_title1 = "Totalt areal av inngrep (dekar) i fylker over 2018-2024", 
-                map_title2 = "Totalt areal av inngrep (dekar) i kommuner over 2018-2024")
+                fill_variable2 = "Usikkerhet for kumulativ areal", 
+                legend_title1 = "Totalt areal av nedbygging (dekar)", 
+                legend_title2 = "Usikkerhet",
+                color_values_map2 = c("Quite certain" = "#94F4B6",
+                                      "Rather certain" = "#FFF085", 
+                                      "Rather uncertain" = "#FFC68A",
+                                      "Quite uncertain" = "#FF8A8A"),
+                map_title1 = "Totalt areal av nedbygging (dekar) i fylker over 2018-2024", 
+                map_title2 = "Usikkerhet knyttet til det totale arealet av nedbygging over 2018-2024")
 
 ```
 
@@ -1010,14 +1025,18 @@ interactive_map(data1 = fylke_map,
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = fylke_map,
-           data2 = encacc_001_map, 
-           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-           fill_variable2 =  "Kumulativ areal av inngrep i dekar",  
-                legend_title1 = "Fylke - Areal av inngrep (dekar)", 
-                legend_title2 = "Kommune - Areal av inngrep (dekar)", 
-                map_title1 = "Totalt areal av inngrep (dekar) i fylker over 2018-2024", 
-                map_title2 = "Totalt areal av inngrep (dekar) i kommuner over 2018-2024")
+static_map(data1 = encacc_001_map, 
+                data2 = encacc_001_map, 
+                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+                fill_variable2 = "Usikkerhet for kumulativ areal", 
+                legend_title1 = "Totalt areal av nedbygging (dekar)", 
+                legend_title2 = "Usikkerhet",
+                color_values_map2 = c("Quite certain" = "#94F4B6",
+                                      "Rather certain" = "#FFF085", 
+                                      "Rather uncertain" = "#FFC68A",
+                                      "Quite uncertain" = "#FF8A8A"),
+                map_title1 = "Totalt areal av nedbygging (dekar) i fylker over 2018-2024", 
+                map_title2 = "Usikkerhet til det totale arealet av nedbygging over 2018-2024")
 
 ## Clean R environment
 rm(list = setdiff(ls(), 
