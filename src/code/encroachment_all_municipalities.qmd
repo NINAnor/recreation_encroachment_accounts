@@ -674,9 +674,12 @@ Now we can built the accounting tables and maps based on the spatial intersectio
 
 ### 10.1 Accounting tables
 #### 10.1.1 ENCACC_001: Extent accounts of encroachment in municipalities
-Here we present the extent accounts table for encroachment areas between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway.
+Here we present the extent accounts table for encroachment areas between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway. We added the uncertainty as color-based indicators presented in 5.2 Reported uncertainties.
 
 *Note: the function calculating the change compiles it as area_closing_year - area_opening_year. This is because we expect an increase in encroachment so we want to show how we gain in built-in areas.*
+
+*Note: We consider the uncertainty of the change in area between the opening and closing accounting years, the same as the cumulative uncertainty for the closing accounting year. This is because when we calculate a change we refer to all the accounting period as the cumulative area for the last accounting year is calculated based on all the accounting years. In our code, add_change_encroachment_area() automatically duplicate the uncertainty of the last accounting year for the change in area.*
+
 ```{r res_acc_tables1}
 #| eval: true
 #| warning: false
@@ -690,6 +693,12 @@ source(paste0(functions_path, "/add_change_encroachment_area.R"))
 
 ## Call function to add fylke
 source(paste0(functions_path, "/add_fylke.R"))
+
+## Call function to compile individual uncertainty
+source(paste0(functions_path,"/add_uncertainty_individual.R"))
+
+## Call function to compile global uncertainty
+source(paste0(functions_path, "/add_uncertainty_global.R"))
 
 ## ENCACC_001 accounting table
 # Accounts for all municipalities
@@ -705,6 +714,15 @@ encacc_001_kom <- komenc %>%
                     mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
                     mutate(indicator_id = "ENCACC_001", .before = "fylke") 
                     
+# Add uncertainties to encacc_001_kom
+encacc_001_kom_un <- encacc_001_kom %>%
+                      left_join(., unc_001_sum, by = c("GISCO_ID", "year")) %>%
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "unc_concat_full", 
+                                             kom_num = "GISCO_ID", 
+                                             accounting_year = "year") %>%
+                      select(!unc_concat_full)
+                      
 
 # Total across all municipalities
 encacc_001_tot <- encacc_001_kom %>%
@@ -714,15 +732,25 @@ encacc_001_tot <- encacc_001_kom %>%
                     mutate(indicator_id = "ENCACC_001",
                            fylke = "00",
                            GISCO_ID = "0000",
-                           LAU_NAME = "Norway", .before = year) %>%
-                    mutate(uncertainty_concat_full = "Yellow") # add uncertainty
+                           LAU_NAME = "Norway", .before = year)
 
-                     
+# Add uncertainty to encacc_001_tot
+
+encacc_001_tot_un <-encacc_001_tot  %>%
+                      mutate(uncertainty_source1 = apply(., 
+                                                         1, 
+                                                         function(x){add_uncertainty_individual(data = x, source1 = TRUE, yrsource1 = "year")})) %>%
+                      
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "uncertainty_source1", 
+                                             kom_num = "GISCO_ID", 
+                                             accounting_year = "year") %>%
+                      select(!uncertainty_source1)
 
 # Add change to all tables
-encacc_001_kom$year <- as.character(encacc_001_kom$year)
+encacc_001_kom_un$year <- as.character(encacc_001_kom_un$year)
 
-encacc_001_kom <- encacc_001_kom %>%
+encacc_001_kom_un <- encacc_001_kom_un %>%
                       group_split(GISCO_ID) %>% 
                       map(~ add_change_encroachment_area(., 
                                                          year_column = "year",
@@ -730,30 +758,35 @@ encacc_001_kom <- encacc_001_kom %>%
                       compact() %>%
                       bind_rows()
 
-encacc_001_tot$year <- as.character(encacc_001_tot$year)
+encacc_001_tot_un$year <- as.character(encacc_001_tot_un$year)
 
-encacc_001_tot <- encacc_001_tot %>%
+encacc_001_tot_un <- encacc_001_tot_un %>%
                       add_change_encroachment_area(., 
                                                    year_column = "year",
                                                    area1 = "area_dekar_cumulative") %>% 
                       compact() %>%
                       bind_rows()
 
-                    
+# Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
+encacc_001_kom_un[which(encacc_001_kom_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+encacc_001_tot_un[which(encacc_001_tot_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+
 # Final accounting table               
-encacc_001_acc <- bind_rows(encacc_001_kom,
-                            encacc_001_tot)
+encacc_001_acc <- bind_rows(encacc_001_kom_un,
+                            encacc_001_tot_un)
 
 encacc_001_acc$fylke[which(encacc_001_acc$fylke == "00")] <- NA
 encacc_001_acc$GISCO_ID[which(encacc_001_acc$GISCO_ID == "0000")] <- NA
 
 colnames(encacc_001_acc) <- c("Indikatorens navn",
-                               "Fylke nummer",
-                               "Kommune nummer",
-                               "Kommune navn",
-                               "Regnskapsår",
-                               "Årlig areal i dekar",
-                               "Kumulativ areal i dekar")
+                              "Fylke nummer",
+                              "Kommune nummer",
+                              "Kommune navn",
+                              "Regnskapsår",
+                              "Årlig areal i dekar",
+                              "Kumulativ areal i dekar",
+                              "Usikkerhet for årlig areal",
+                              "Usikkerhet for kumulativ areal")
 
 
 max_kom <- encacc_001_acc %>%
@@ -775,7 +808,11 @@ rm(list = setdiff(ls(),
                     "encnatur",
                     "kom_navn",
                     "add_change_encroachment_area",
-                    "encacc_001_acc")))
+                    "encacc_001_acc",
+                    "unc_001_idv",
+                    "unc_002_idv",
+                    "unc_001_sum",
+                    "unc_002_sum")))
 
 
 # Display the table dynamically
@@ -783,7 +820,10 @@ datatable(encacc_001_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                          columnDefs = list(list(targets = c(which(colnames(encacc_001_acc) == "Usikkerhet for årlig areal"),
+                                                             which(colnames(encacc_001_acc) == "Usikkerhet for kumulativ areal")),
+                                                 visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Table 1 - Thematic extent accounts: area of all encroachment in municipalities over 2018-2024."))) %>%
     formatCurrency(
@@ -791,7 +831,25 @@ datatable(encacc_001_acc,
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",")
+    dec.mark = ",") %>%
+  ## Example: color Årlig areal i dekar by var1
+  formatStyle(
+    "Årlig areal i dekar",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
+    ),
+    valueColumns = "Usikkerhet for årlig areal"           # column used for the intervals
+  ) %>%
+  ## Example: color Kumulativ areal i dekar by var2
+  formatStyle(
+    "Kumulativ areal i dekar",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
+    ),
+    valueColumns = "Usikkerhet for kumulativ areal"           # column used for the intervals
+  )
 
 ```
 
