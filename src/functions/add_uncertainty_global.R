@@ -68,7 +68,9 @@ add_uncertainty_global <- function(data, uncertainty_col_name, kom_num, accounti
   
     # Append the two uncertainty columns to data
     global_df <- data_split %>%
-                  mutate(global_cumulative_uncertainty = col_global$global_cumulative_uncertainty)
+                  select(!unc_yearly_sep) %>%
+                  mutate(global_yearly_uncertainty = unc_yearly$global_yearly_uncertainty,
+                         global_cumulative_uncertainty = col_global$global_cumulative_uncertainty)
     
     # Return result
     return(global_df)
