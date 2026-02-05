@@ -41,46 +41,46 @@ global_fn <- function(df, row, uncertainty_column){
   }else if(isTRUE(length(which(col_gr$importance_perc >= 0.49)== TRUE) == 1)){
     
     global_unc <- col_gr$color[which(col_gr$importance_perc >= 0.49)] %>%
-      as.character()
+                    as.character()
     
   }else if(isTRUE(length(which(col_gr$importance_perc >= 0.49)== TRUE) == 2)){
     
     main_col <- col_gr$color[which(col_gr$importance_perc >= 0.49)] %>%
-      as.character()
+                  as.character()
     
-    if(isTRUE(main_col == c("Green", "Yellow")) |  isTRUE(main_col == c("Green", "Orange"))){ # Only two options as the rows are ordered so my colors will always appear in alphabetic order
+    if(isTRUE(all.equal(main_col, c("Green", "Yellow"))) |  isTRUE(all.equal(main_col, c("Green", "Orange")))){ # Only two options as the rows are ordered so my colors will always appear in alphabetic order
       
       global_unc <- "Yellow"
       
-    }else if(isTRUE(main_col == c("Green", "Red")) |  isTRUE(main_col == c("Orange", "Yellow"))){
+    }else if(isTRUE(all.equal(main_col, c("Green", "Red"))) |  isTRUE(all.equal(main_col, c("Orange", "Yellow")))){
       
       global_unc <- "Orange"
       
-    }else if(isTRUE(main_col == c("Red", "Yellow")) |  isTRUE(main_col == c("Orange", "Red"))){
+    }else if(isTRUE(all.equal(main_col, c("Red", "Yellow"))) |  isTRUE(all.equal(main_col, c("Orange", "Red")))){
       
       global_unc <- "Red"
     }
     
     
-  }else if(isTRUE(length(which(col_gr$importance_perc >= 0.29 && col_gr$importance_perc < 0.49) == TRUE) == 3)){
+  }else if(isTRUE(length(which(col_gr$importance_perc >= 0.29 & col_gr$importance_perc < 0.49) == TRUE) == 3)){
     
     main_col <- col_gr$color[which(col_gr$importance_perc >= 0.29)] %>%
       as.character()
     
-    if(isTRUE(main_col == c("Green", "Orange", "Yellow"))){ # Only two options as the rows are ordered so my colors will always appear in alphabetic order
+    if(isTRUE(all.equal(main_col, c("Green", "Orange", "Yellow")))){ # Only two options as the rows are ordered so my colors will always appear in alphabetic order
       
       global_unc <- "Yellow"
       
-    }else if(isTRUE(main_col == c("Green", "Red", "Yellow")) |  isTRUE(main_col == c("Green", "Orange", "Red"))){
+    }else if(isTRUE(all.equal(main_col, c("Green", "Red", "Yellow"))) |  isTRUE(all.equal(main_col, c("Green", "Orange", "Red")))){
       
       global_unc <- "Orange"
       
-    }else if(isTRUE(main_col == c("Orange", "Red", "Yellow"))){
+    }else if(isTRUE(all.equal(main_col, c("Orange", "Red", "Yellow")))){
       
       global_unc <- "Red"
     }
     
-  }else if(isTRUE(length(which(col_gr$importance_perc >= 0.20 && col_gr$importance_perc < 0.29) == TRUE) == 4)){
+  }else if(isTRUE(length(which(col_gr$importance_perc >= 0.20 & col_gr$importance_perc < 0.29) == TRUE) == 4)){
     
     global_unc <- "Orange"
     
