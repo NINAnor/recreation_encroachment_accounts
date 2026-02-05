@@ -901,6 +901,9 @@ source(paste0(functions_path,"/add_uncertainty_individual.R"))
 ## Call function to compile global uncertainty
 source(paste0(functions_path, "/add_uncertainty_global.R"))
 
+# Call function to concatenate
+source(paste0(functions_path,"/concatenate_individual_uncertainty.R"))
+
 ## ENCACC_002 accounting table
 # Accounts for all municipalities
 encacc_002_kom <- encnatur %>%
@@ -916,14 +919,15 @@ encacc_002_kom <- encnatur %>%
                     mutate(indicator_id = "ENCACC_002", .before = "fylke") %>%
                     mutate(accounting_period = "2018-2024", .before = "total_loss_dekar")
 
-# Add uncertainty
+# Add uncertainties to encacc_002_kom
 encacc_002_kom_un <- encacc_002_kom %>%
                       left_join(., unc_002_sum, by = c("GISCO_ID", "naturtype"))  %>%
                       add_uncertainty_global(., 
                                              uncertainty_col_name = "unc_concat_full", 
                                              kom_num = "GISCO_ID", 
                                              habitat_accounting = "naturtype") %>%
-                      select(!unc_concat_full)
+                      select(!unc_concat_full) %>%
+                      rename(global_period_uncertainty = global_habitat_uncertainty)
   
 
 # Total across all municipalities
@@ -932,16 +936,40 @@ encacc_002_tot <- encacc_002_kom %>%
                     summarise(total_loss_dekar = sum(total_loss_dekar)) %>%
                     mutate(fylke = "00",
                            GISCO_ID = "0000",
-                           LAU_NAME = "Norway", .before = accounting_period)
+                           LAU_NAME = "Norway", .before = accounting_period) 
 
+# Add uncertainties to encacc_002_tot
+encacc_002_tot_un <-  unc_002_idv %>%
+                        mutate(national = "0000",
+                               accounting_period = "2018-2024") %>%
+                        concatenate_fn(.,
+                              col_column_names = c("uncertainty_source1", 
+                                                   "uncertainty_source4"),
+                              kom_num = "national",
+                              habitat_col = "accounting_period") %>%
+                        mutate(add_uncertainty_global(., 
+                                                      kom_num = "national",
+                                                      uncertainty_col_name = "unc_concat_full",
+                                                      accounting_year = "accounting_period")) %>%
+                      ungroup() %>%
+
+                      select(!c(unc_concat_full, 
+                                global_cumulative_uncertainty,
+                                national,
+                                accounting_period)) %>%
+  
+                      cbind(encacc_002_tot, .) %>%
+                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
+                      rename(global_period_uncertainty = global_yearly_uncertainty)
 
 
 # Final accounting table               
-encacc_002_acc <- bind_rows(encacc_002_kom,
-                            encacc_002_tot)
+encacc_002_acc <- bind_rows(encacc_002_kom_un,
+                            encacc_002_tot_un)
 
 encacc_002_acc$fylke[which(encacc_002_acc$fylke == "00")] <- NA
 encacc_002_acc$GISCO_ID[which(encacc_002_acc$GISCO_ID == "0000")] <- NA
+
 
 colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
@@ -949,7 +977,9 @@ colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Kommune navn",
                               "Særlig viktig naturtype",
                               "Regnskapsperiode",
-                              "Areal særlig viktige naturtyper gått tapt (dekar)")
+                              "Areal særlig viktige naturtyper gått tapt (dekar)",
+                              "Usikkerhet for areal i regnskapsperiode")
+
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -961,8 +991,13 @@ rm(list = setdiff(ls(),
                     "komenc",
                     "encrec",
                     "encnatur",
+                    "kom_navn",
                     "add_change_encroachment_area",
                     "encacc_001_acc",
+                    "unc_001_idv",
+                    "unc_002_idv",
+                    "unc_001_sum",
+                    "unc_002_sum",
                     "encacc_002_acc")))
 
 
@@ -971,15 +1006,26 @@ datatable(encacc_002_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                          columnDefs = list(list(targets = c(which(colnames(encacc_001_acc) == "Usikkerhet for areal i regnskapsperiode")),
+                                                 visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 2 - Thematic extent accounts: area of særlig viktige natur lost due to all encroachments in municipalities over 2018-2024."))) %>%
+                                            htmltools::strong("Tabel 2 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",")
+    dec.mark = ",") %>%
+  ## Example: color Årlig areal i dekar by var1
+  formatStyle(
+    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
+    ),
+    valueColumns = "Usikkerhet for areal i regnskapsperiode"           # column used for the intervals
+  )
 
 ```
 
