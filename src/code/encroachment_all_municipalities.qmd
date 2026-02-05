@@ -1275,26 +1275,31 @@ kom_navn <- lau_no %>%
               select(GISCO_ID)
 
 ## Prepare dataset
-encacc_001_map <- encacc_001_acc %>%
-                    filter(!c(`Kommune navn` == "Norway" | Regnskapsår == "Change 2018-2024")) %>%
-                    filter(Regnskapsår == 2024) %>%
-                    left_join(., kom_navn, join_by( `Kommune nummer` == "GISCO_ID")) %>%
-                    select("Fylke nummer",
-                           "Kommune navn",
-                           "Kumulativ areal i dekar",
-                           "Usikkerhet for kumulativ areal",
-                           "geometry") %>%
-                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar") %>%
-                    st_as_sf()
+# Municipalities
+encacc_001_map_mun <- encacc_001_acc %>%
+                        filter(!c(`Kommune navn` == "Norway" | Regnskapsår == "Change 2018-2024")) %>%
+                        filter(Regnskapsår == 2024) %>%
+                        left_join(., kom_navn, join_by( `Kommune nummer` == "GISCO_ID")) %>%
+                        select("Fylke nummer",
+                               "Kommune navn",
+                               "Kumulativ areal i dekar",
+                               "Usikkerhet for kumulativ areal",
+                               "geometry") %>%
+                        rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar") %>%
+                        st_as_sf()
 
-## Replace labels of uncertainty
-encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Green")]<- "Quite certain"
+# Fylke
 
-encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Yellow")]<- "Rather certain"
+################################
 
-encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Orange")]<- "Rather uncertain"
+# Replace labels of uncertainty
+encacc_001_map_mun$`Usikkerhet for kumulativ areal`[which(encacc_001_map_mun$`Usikkerhet for kumulativ areal` == "Green")]<- "Quite certain"
 
-encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet for kumulativ areal` == "Red")]<- "Quite uncertain"
+encacc_001_map_mun$`Usikkerhet for kumulativ areal`[which(encacc_001_map_mun$`Usikkerhet for kumulativ areal` == "Yellow")]<- "Rather certain"
+
+encacc_001_map_mun$`Usikkerhet for kumulativ areal`[which(encacc_001_map_mun$`Usikkerhet for kumulativ areal` == "Orange")]<- "Rather uncertain"
+
+encacc_001_map_mun$`Usikkerhet for kumulativ areal`[which(encacc_001_map_mun$`Usikkerhet for kumulativ areal` == "Red")]<- "Quite uncertain"
 
 
 ```
@@ -1304,7 +1309,7 @@ encacc_001_map$`Usikkerhet for kumulativ areal`[which(encacc_001_map$`Usikkerhet
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of total encroachment area in municipality and fylke over 2018-2024"
+#| code-summary: "Interactive map of total encroachment area in municipality over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -1313,7 +1318,7 @@ source(paste0(functions_path, "/interactive_map.R"))
 # Run function
 interactive_map(data1 = encacc_001_map, 
                 data2 = encacc_001_map, 
-                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+                fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
                 fill_variable2 = "Usikkerhet for kumulativ areal", 
                 legend_title1 = "Totalt areal av nedbygging (dekar)", 
                 legend_title2 = "Usikkerhet",
@@ -1331,7 +1336,7 @@ interactive_map(data1 = encacc_001_map,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of total encroachment area in municipality and fylke over 2018-2024"
+#| code-summary: "Static map of total encroachment area in municipality over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
