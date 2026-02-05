@@ -220,6 +220,7 @@ With a maximum of 300 words, describe the indicator in general terms as you woul
  -->
 
 1. **Background and rationale**:
+
 <!-- What does the metric represent? Why is this relevant for describing ecosystem condition in this ecosystem?
 What are the main anthropogenic impact factors? -->
 2. **Methods**:
@@ -502,7 +503,10 @@ rm(list = setdiff(ls(),
 
 ## 9. Analyses
 ### 9.1 ENCACC_001
-To compile ENCACC_001, we need to perfomr a spatial intersections between DT01 and DT02. Note that we re-calculate the areas of the encroachment polygons after the intersection has been performed.
+To compile ENCACC_001, we need to perform a spatial intersections between DT01 and DT02. Note that we re-calculate the areas of the encroachment polygons after the intersection has been performed.
+
+*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities*
+
 ```{r encrec001234_analyses}
 #| eval: true
 #| warning: false
@@ -514,8 +518,15 @@ To compile ENCACC_001, we need to perfomr a spatial intersections between DT01 a
 st_crs(lau_no) == st_crs(encroach_dt)
 
 # Perform spatial intersection
-komenc <- st_intersection(lau_no, encroach_dt) %>%
-            mutate(area_inter_m2 = unclass(st_area(.)), .after = area)
+komenc_raw <- st_intersection(lau_no, encroach_dt) %>%
+                mutate(area_inter_m2 = unclass(st_area(.)), .after = area)
+
+# Add missing years for accounting. Set the area as 0 for the missing year.
+komenc <- komenc_raw %>%
+            st_drop_geometry() %>%
+            complete(nesting(GISCO_ID, LAU_NAME), year = 2018:2024, fill = list(id = "NA",
+                                                                                area = 0,
+                                                                                area_inter_m2 = 0))
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -524,6 +535,7 @@ rm(list = setdiff(ls(),
                     "natur_cln",
                     "project_path",
                     "functions_path",
+                    "komenc_raw",
                     "komenc")))
 
 ```
@@ -538,25 +550,35 @@ For ENCACC_005, we need a spatial intersection between DT04 and `komenc` as we a
 #| code-summary: "ENCACC_002 - intersection"
 
 # Check the CRS of both encrec and DT04
-st_crs(komenc) == st_crs(natur_cln)
+st_crs(komenc_raw) == st_crs(natur_cln)
 
 # Re-project natur_cln into ESPG : 25832
-natur_32 <- st_transform(natur_cln, crs = st_crs(komenc))
+natur_32 <- st_transform(natur_cln, crs = st_crs(komenc_raw))
 
 # Check CRS of both datasets are the same now
-st_crs(natur_32) == st_crs(komenc)
+st_crs(natur_32) == st_crs(komenc_raw)
 
 # Perform spatial intersection
-encnatur <- komenc %>%
-              select(GISCO_ID,
-                     LAU_NAME,
-                     id,
-                     year,
-                     area_inter_m2) %>%
-              rename(area_enc = area_inter_m2,
-                     year_enc = year) %>%
-              st_intersection(., natur_32) %>%
-              mutate(area_naturtyper_m2 = unclass(st_area(.)))
+encnatur_raw <- komenc_raw %>%
+                  select(GISCO_ID,
+                         LAU_NAME,
+                         id,
+                         year,
+                         area_inter_m2) %>%
+                  rename(area_enc = area_inter_m2,
+                         year_enc = year) %>%
+                  st_intersection(., natur_32) %>%
+                  mutate(area_naturtyper_m2 = unclass(st_area(.)))
+
+# Add missing years for accounting reporting
+encnatur <- encnatur_raw %>%
+            st_drop_geometry() %>%
+            select(!c(kommunenummer, area_enc, id)) %>%
+            complete(nesting(GISCO_ID, LAU_NAME, naturtype), 
+                     year_enc = 2018:2024,
+                     fill = list(area = 0,
+                                 area_naturtyper_m2 = 0)) %>%
+            mutate(year_natur_recorded = coalesce(as.integer(year_natur_recorded), year_enc))
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -566,7 +588,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "natur_32",
                     "komenc",
-                    "encnatur")))
+                    "encnatur",
+                    "encnatur_raw",
+                    "komenc_raw")))
 
 ```
 ### 9.3 Uncertainty analyses
@@ -596,12 +620,12 @@ unc_001_idv <- komenc %>%
 # Uncertainty ENCACCC_002
 unc_002_idv <- encnatur %>%
                 st_drop_geometry() %>%
-                group_by(GISCO_ID, year_enc, year_natur_recorded) %>%
+                group_by(GISCO_ID, year_enc, year_natur_recorded, naturtype) %>%
                 summarise(n_poly = n()) %>%
                 select(!n_poly) %>%
                 ungroup() %>%
-                mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[1],
-                       uncertainty_source4 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))})[2])
+                mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))[1]}),
+                       uncertainty_source4 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source4 = TRUE, yrsource4 = c("year_enc", "year_natur_recorded"))[2]}))
 
 
 # Clean R environment
@@ -641,7 +665,7 @@ unc_002_sum <- concatenate_fn(unc_002_idv,
                               col_column_names = c("uncertainty_source1", 
                                                    "uncertainty_source4"),
                               kom_num = "GISCO_ID",
-                              accounting_year = "year_enc")
+                              habitat_col = "naturtype")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -676,8 +700,6 @@ Now we can built the accounting tables and maps based on the spatial intersectio
 #### 10.1.1 ENCACC_001: Extent accounts of encroachment in municipalities
 Here we present the extent accounts table for encroachment areas between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway. We added the uncertainty as color-based indicators presented in 5.2 Reported uncertainties.
 
-*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities*
-
 *Note: the function calculating the change compiles it as area_closing_year - area_opening_year. This is because we expect an increase in encroachment so we want to show how we gain in built-in areas.*
 
 *Note: We consider the uncertainty of the change in area between the opening and closing accounting years, the same as the cumulative uncertainty for the closing accounting year. This is because when we calculate a change we refer to all the accounting period as the cumulative area for the last accounting year is calculated based on all the accounting years. In our code, add_change_encroachment_area() automatically duplicate the uncertainty of the last accounting year for the change in area.*
@@ -711,7 +733,6 @@ encacc_001_kom <- komenc %>%
                            LAU_NAME,
                            area_inter_m2) %>%
                     mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
-                    complete(nesting(fylke, GISCO_ID, LAU_NAME), year = 2018:2024, fill = list(area_inter_m2 = 0)) %>%
                     group_by(fylke, GISCO_ID, LAU_NAME, year) %>%
                     summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
                     mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
@@ -874,6 +895,12 @@ As the loss of the nature types did not happen homogeneously within municipaliti
 ## Call function to add fylke
 source(paste0(functions_path, "/add_fylke.R"))
 
+## Call function to compile individual uncertainty
+source(paste0(functions_path,"/add_uncertainty_individual.R"))
+
+## Call function to compile global uncertainty
+source(paste0(functions_path, "/add_uncertainty_global.R"))
+
 ## ENCACC_002 accounting table
 # Accounts for all municipalities
 encacc_002_kom <- encnatur %>%
@@ -881,13 +908,23 @@ encacc_002_kom <- encnatur %>%
                     select(GISCO_ID,
                            LAU_NAME,
                            naturtype,
-                           area_naturtyper_m2 ) %>%
+                           year_enc,
+                           area_naturtyper_m2) %>%
                     mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
                     group_by(fylke, GISCO_ID, LAU_NAME, naturtype) %>%
                     summarise(total_loss_dekar = round2(sum(area_naturtyper_m2)/1000, 2)) %>%
                     mutate(indicator_id = "ENCACC_002", .before = "fylke") %>%
                     mutate(accounting_period = "2018-2024", .before = "total_loss_dekar")
 
+# Add uncertainty
+encacc_002_kom_un <- encacc_002_kom %>%
+                      left_join(., unc_002_sum, by = c("GISCO_ID", "naturtype"))  %>%
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "unc_concat_full", 
+                                             kom_num = "GISCO_ID", 
+                                             habitat_accounting = "naturtype") %>%
+                      select(!unc_concat_full)
+  
 
 # Total across all municipalities
 encacc_002_tot <- encacc_002_kom %>%

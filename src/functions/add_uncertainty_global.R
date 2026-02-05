@@ -67,7 +67,7 @@ add_uncertainty_global <- function(data, uncertainty_col_name, kom_num, accounti
       
       # Apply function to data_split to have yearly uncertainty
       unc_yearly <- data_split %>%
-                      mutate(global_habitat_uncertainty = map_chr(row_number(), 
+                      mutate(global_yearly_uncertainty = map_chr(row_number(), 
                                                                   ~ global_fn(df = data_split, row = .x, uncertainty_column = "unc_yearly_sep")))
       
       
@@ -86,8 +86,8 @@ add_uncertainty_global <- function(data, uncertainty_col_name, kom_num, accounti
       
       # Apply function to col_cum to have cumulative uncertainty
       col_global <- col_cum %>%
-                      mutate(global_habitat_uncertainty = map_chr(row_number(), 
-                                                                  ~ global_fn(df = data_split, row = .x, uncertainty_column = "unc_acc_sep")))
+                      mutate(global_cumulative_uncertainty = map_chr(row_number(), 
+                                                                  ~ global_fn(df = col_cum, row = .x, uncertainty_column = "unc_acc_sep")))
       
       # Append the two uncertainty columns to data
       global_df <- data_split %>%
