@@ -928,9 +928,8 @@ encacc_002_kom_un <- encacc_002_kom %>%
                                              habitat_accounting = "naturtype") %>%
                       select(!unc_concat_full) %>%
                       rename(global_period_uncertainty = global_habitat_uncertainty)
-  
 
-# Total across all municipalities
+# National total across all municipalities
 encacc_002_tot <- encacc_002_kom %>%
                     group_by(indicator_id, accounting_period) %>%
                     summarise(total_loss_dekar = sum(total_loss_dekar)) %>%
@@ -1177,12 +1176,14 @@ kom_navn <- lau_no %>%
               mutate(area_kom = round2(unclass(st_area(.))/1000, 2))
 
 
-## Calculate toral area per fylke
-fylke_total_area <- kom_navn %>%
+## Calculate total area per fylke
+fylke_total_area <- encacc_001_acc %>%
+                      left_join(., kom_navn, join_by(`Kommune nummer` == "GISCO_ID")) %>%
                       st_drop_geometry() %>%
-                      mutate(fylke = apply(., 1, function(row) {add_fylke(kommune_nummer = row["GISCO_ID"])}), .before = GISCO_ID) %>%
-                      group_by(fylke) %>%
-                      summarise(area_fylke = sum(area_kom)) 
+                      select(`Fylke nummer`, area_kom) %>%
+                      group_by(`Fylke nummer`) %>%
+                      summarise(area_fylke = sum(area_kom))
+ 
 
 
 ## Prepare dataset
