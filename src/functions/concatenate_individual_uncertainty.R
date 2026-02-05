@@ -11,7 +11,7 @@
 #' @param col_column_names names of the columns containing each individual
 #' color-based uncertainty. This should be a vector of character.
 #' 
-#' @param kom_num name of the column containing the municipality number. This should
+#' @param kom_num name of the column containing the municipality or fylke number. This should
 #' not be a character.
 #' 
 #' @param accounting_year name of the column containing the years of accounting.
