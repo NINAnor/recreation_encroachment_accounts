@@ -33,13 +33,10 @@ add_fylke <- function(data, kommune_nummer = NULL, fylke_nummer = NULL){
   
   if(is_null(kommune_nummer) == TRUE){
     
-    fylke_num <- data[[fylke_nummer]]
-    
-    # Make fylke_nummer a df
-    fylke_nummer <- as.data.frame(fylke_num)
+    fylke_num <- data[[fylke_nummer]] 
     
     # Join
-    fylke_name <- left_join(fylke_num, fylke_df, join_by(fylke_num == "fylke_number")) %>%
+    fylke_name <- left_join(as.data.frame(fylke_num), fylke_df, join_by(fylke_num == "fylke_number")) %>%
                     select(!fylke_num)
     
     # Return the column with the name
