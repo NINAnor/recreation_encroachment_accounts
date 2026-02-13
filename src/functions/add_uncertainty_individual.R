@@ -14,38 +14,21 @@
 #' Its value is only TRUE or FALSE, default is FALSE.
 #' 
 #' @param source2 this sources is the uncertainty of temporal discrepancy between
-#' the year of mapping of outdoor recreation areas and the year of detection of an 
-#' encroachment. Its value is only TRUE or FALSE, default is FALSE.
-#' 
-#' @param source3 this sources is the uncertainty of temporal discrepancy between
-#' the year of mapping of outdoor recreation areas and the year of mapping of a
-#' ''særlig viktig natur''. Its value is only TRUE or FALSE, default is FALSE.
-#' 
-#' @param source4 this sources is the uncertainty of temporal discrepancy between
-#' the year of detection of an encroachment and the year of mapping of a ''særlig
-#' viktig natur''. Its value is only TRUE or FALSE, default is FALSE.
+#' the year of detection of encroachment data and the the year of mapping of
+#' another dataset (e.g., recreation areas, søærlig vkiting naturtyper).
 #' 
 #' @param yrsource1 this is the name of the column containing the years of detection
 #' of the encroachment polygons.
 #' 
-#' @param yrsource2 this is a vector with the names of the name of the columns
-#' containing the years of mapping of outdoor recreation areas and the detection year
-#' of the encroachment.
-#' 
-#' @param yrsource3 this is a vector with the names of the name of the columns
-#' containing the years of mapping of outdoor recreation areas and the mapping year
-#' of ''særlig viktig natur''.
-#' 
-#' @param yrsource4 this is a vector with the names of the name of the columns
-#' containing the detection year of encroachment and the mapping year of
-#'''særlig viktig natur''.
+#' @param yrsource2 this is a vector with the names of the name of the column
+#' containing the years of mapping of the second dataset.
 #'
 #' @return a vector of character containing the colored-uncertainty.
 #' @export
 #'
 #' @examples
 
-add_uncertainty_individual <- function(data, source1 = FALSE, source2 = FALSE, source3 = FALSE, source4 = FALSE, yrsource1, yrsource2, yrsource3, yrsource4) {
+add_uncertainty_individual <- function(data, source1 = FALSE, source2 = FALSE,  yrsource1, yrsource2) {
   
   # Only Source 1
  if(source1 == TRUE){
@@ -65,42 +48,80 @@ add_uncertainty_individual <- function(data, source1 = FALSE, source2 = FALSE, s
    return(uncertainty_source1)
  }
   
-  # Sources 1 and 4
-  if(source4 == TRUE){
+  # Sources 1 and 2
+  if(source2 == TRUE){
     
-    yr1 <- as.numeric(data[[yrsource4[1]]])
-    yr4 <- as.numeric(data[[yrsource4[2]]])
-    diff_yr4 <- abs(yr1 - yr4)
+    yr1 <- as.numeric(data[[yrsource1]])
+    yr2 <- as.numeric(data[[yrsource2]])
+    diff_yr <- abs(yr1 - yr2)
     
-    if(isTRUE(yr1 == 2023)){
+    if(isTRUE(yr1 == 2023) && isTRUE(diff_yr <= 3)){
       
       uncertainty_source1 <- "Green"
       
-    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024))){
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr <= 3)){
       
       uncertainty_source1 <- "Yellow"
       
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr <= 3)){
+      
+      uncertainty_source1 <- "Yellow"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr <= 3)){
+      
+      uncertainty_source1 <- "Orange"
+      
+    }else if(isTRUE(yr1 == 2023) && isTRUE(diff_yr > 3 && diff_yr <= 6)){
+      
+      uncertainty_source1 <- "Yellow"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 3 && diff_yr <= 6)){
+      
+      uncertainty_source1 <- "Yellow"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 3 && diff_yr <= 6)){
+      
+      uncertainty_source1 <- "Orange"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 3 && diff_yr <= 6)){
+      
+      uncertainty_source1 <- "Red"
+      
+    }else if(isTRUE(yr1 == 2023) && isTRUE(diff_yr > 6 && diff_yr <= 8)){
+      
+      uncertainty_source1 <- "Yellow"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 6 && diff_yr <= 8)){
+      
+      uncertainty_source1 <- "Orange"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 6 && diff_yr <= 8)){
+      
+      uncertainty_source1 <- "Orange"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 6 && diff_yr <= 8)){
+      
+      uncertainty_source1 <- "Red"
+      
+    }else if(isTRUE(yr1 == 2023) && isTRUE(diff_yr > 8)){
+      
+      uncertainty_source1 <- "Orange"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 8)){
+      
+      uncertainty_source1 <- "Orange"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 8)){
+      
+      uncertainty_source1 <- "Red"
+      
+    }else if(isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024)) && isTRUE(diff_yr > 8)){
+      
+      uncertainty_source1 <- "Red"
+      
     }
     
-    if(isTRUE(diff_yr4 <= 2)){
-      
-      uncertainty_source4 <- "Green"
-      
-    }else if(isTRUE(diff_yr4 > 2 && diff_yr4 <= 4)){
-      
-      uncertainty_source4 <- "Yellow"
-      
-    }else if(isTRUE(diff_yr4 > 4 && diff_yr4 <= 6)){
-      
-      uncertainty_source4 <- "Orange"
-      
-    }else if(isTRUE(diff_yr4 > 6)){
-      
-      uncertainty_source4 <- "Red"
-      
-    }
-    
-    return(c(uncertainty_source1, uncertainty_source4))
+    return(c(uncertainty_source1))
   }
   
 
