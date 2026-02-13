@@ -1665,14 +1665,52 @@ We first prepare the dataset for mapping then map it both using an interactive a
 #| code-summary: "Prepare dataset for mapping"
 
 ## Prepare dataset
-encacc_002_map <- encacc_002_acc %>%
-                    filter(!c(`Kommune navn` == "Norway" | Regnskapsperiode == "Change 2018-2024")) %>%
-                    left_join(kom_navn, ., join_by("GISCO_ID" == `Kommune nummer`)) %>%
-                    select("Fylke nummer",
-                           "Kommune navn",
-                           "Areal særlig viktige naturtyper gått tapt (dekar)",
-                           "geometry") %>%
-                    st_as_sf()
+encacc_002_map_mun <- encacc_002_acc %>%
+                        filter(!c(`Kommune navn` == "Norge" | Regnskapsperiode == "Change 2018-2024")) %>%
+                        select("Fylke nummer",
+                               "Kommune nummer",
+                               "Kommune navn",
+                               "Særlig viktig naturtype",
+                               "Areal særlig viktige naturtyper gått tapt (dekar)",
+                               "Usikkerhet for areal i regnskapsperiode") %>%
+                        group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`, `Usikkerhet for areal i regnskapsperiode`) %>%
+                        summarise("Totalt areal særlig viktige naturtyper gått tapt (dekar)" = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`)) %>%
+                        ungroup() %>%
+                        left_join(., kom_navn, join_by(`Kommune nummer` == "GISCO_ID")) %>%
+                        select(!area_kom) %>%
+                        st_as_sf()
+
+encacc_002_map_fy <- encacc_002_fy_acc %>%
+                        filter(!c(`Fylke navn` == "Norge" | Regnskapsperiode == "Change 2018-2024")) %>%
+                        select("Fylke nummer",
+                               "Fylke navn",
+                               "Særlig viktig naturtype",
+                               "Areal særlig viktige naturtyper gått tapt (dekar)",
+                               "Usikkerhet for areal i regnskapsperiode") %>%
+                        group_by(`Fylke nummer`, `Fylke navn`, `Usikkerhet for areal i regnskapsperiode`) %>%
+                        summarise("Totalt areal særlig viktige naturtyper gått tapt (dekar)" = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`)) %>%
+                        ungroup() %>%
+                        left_join(., fylke_geo, join_by(`Fylke nummer` == "fylke")) %>%
+                        st_as_sf()
+
+
+# Replace labels of uncertainty
+encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode` == "Green")]<- "Quite certain"
+
+encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode` == "Yellow")]<- "Rather certain"
+
+encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode` == "Orange")]<- "Rather uncertain"
+
+encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_mun$`Usikkerhet for areal i regnskapsperiode` == "Red")]<- "Quite uncertain"
+
+
+encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode` == "Green")]<- "Quite certain"
+
+encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode` == "Yellow")]<- "Rather certain"
+
+encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode` == "Orange")]<- "Rather uncertain"
+
+encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode`[which(encacc_002_map_fy$`Usikkerhet for areal i regnskapsperiode` == "Red")]<- "Quite uncertain"
 
 ```
 
@@ -1681,17 +1719,27 @@ encacc_002_map <- encacc_002_acc %>%
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of total area of ''særlig viktig natur'' lost due to encroachment in municipality and fylke over 2018-2024"
+#| code-summary: "Interactive map of total area of ''særlig viktig natur'' lost due to encroachment in municipality over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
 source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
-interactive_map(data1 = encacc_002_map, 
-                fill_variable1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
-                legend_title1 = "Kommune - Areal av inngrep (dekar)", 
-                map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på inngrep i kommuner")
+interactive_map(data1 = encacc_002_map_mun, 
+                data2 = encacc_002_map_mun, 
+                fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+                fill_variable2 =  "Usikkerhet for areal i regnskapsperiode", 
+                legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
+                legend_title2 = "Usikkerhet",
+                style_type_map1 = "fixed",
+                interval_breaks_map1 = c(0, 1, 5, 15, 30, 100, 400),
+                color_values_map2 = c("Quite certain" = "#94F4B6",
+                                      "Rather certain" = "#FFF085", 
+                                      "Rather uncertain" = "#FFC68A",
+                                      "Quite uncertain" = "#FF8A8A"),
+                map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på nedbygging i kommuner over 2018-2024",
+                map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
 ```
 
 ```{r map_enc002_3}
@@ -1699,37 +1747,59 @@ interactive_map(data1 = encacc_002_map,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of total encroachment area in important and very important recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Static map of map of total area of ''særlig viktig natur'' lost due to encroachment in municipality over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = encacc_002_map,
-           fill_variable1 = "Areal særlig viktige naturtyper gått tapt (dekar)", 
-           legend_title1 = "Kommune - Areal av inngrep (dekar)", 
-           map_title1 = "Totalt areal av ''særlig viktig natur''  (dekar) som er gått tapt på inngrep i kommuner")
+static_map(data1 = encacc_002_map_mun, 
+           data2 = encacc_002_map_mun, 
+           fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+           fill_variable2 =  "Usikkerhet for areal i regnskapsperiode", 
+           legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
+           legend_title2 = "Usikkerhet",
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 1, 5, 15, 30, 100, 400),
+           color_values_map2 = c("Quite certain" = "#94F4B6",
+                                 "Rather certain" = "#FFF085", 
+                                 "Rather uncertain" = "#FFC68A",
+                                 "Quite uncertain" = "#FF8A8A"),
+           map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på nedbygging i kommuner over 2018-2024",
+           map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
 
+```
+```{r map_enc002_4}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of map of total area of ''særlig viktig natur'' lost due to encroachment in fylke over 2018-2024"
 
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
 
-## Clean R environment
-rm(list = setdiff(ls(), 
-                  c("lau_no",
-                    "encroach_dt",
-                    "natur_32",
-                    "project_path",
-                    "functions_path",
-                    "komenc",
-                    "encrec",
-                    "encnatur",
-                    "kon_navn",
-                    "encacc_001_acc",
-                    "encacc_002_acc")))
+# Run function
+static_map(data1 = encacc_002_map_fy, 
+           data2 = encacc_002_map_fy, 
+           fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+           fill_variable2 =  "Usikkerhet for areal i regnskapsperiode", 
+           legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
+           legend_title2 = "Usikkerhet",
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 100, 300, 500, 1000),
+           color_values_map2 = c("Quite certain" = "#94F4B6",
+                                 "Rather certain" = "#FFF085", 
+                                 "Rather uncertain" = "#FFC68A",
+                                 "Quite uncertain" = "#FF8A8A"),
+           map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på nedbygging i fylker over 2018-2024",
+           map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
+
 ```
 
-
-```{r map_enc004_3}
+```{r map_enc002_5}
 #| eval: true
 #| warning: false
 #| message: false
@@ -1746,9 +1816,27 @@ rm(list = setdiff(ls(),
                     "komenc",
                     "encrec",
                     "encnatur",
-                    "kon_navn",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_fylke",
+                    "add_uncertainty_individual",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
                     "encacc_001_acc",
-                    "encacc_002_acc")))
+                    "encacc_001_fy_acc",
+                    "encacc_002_acc",
+                    "encacc_002_fy_acc",
+                    "unc_001_idv",
+                    "unc_002_idv",
+                    "unc_001_sum",
+                    "unc_002_sum",
+                    "fylke_geo",
+                    "encacc_001_map_mun",
+                    "encacc_001_map_fy",
+                    "encacc_001_perc_map_mun",
+                    "encacc_001_perc_map_fy",
+                    "encacc_002_map_mun",
+                    "encacc_002_map_fy")))
 ```
 
 <!--# 
