@@ -31,7 +31,7 @@ add_fylke <- function(data, kommune_nummer = NULL, fylke_nummer = NULL){
                          fylke_name = fylke_nm)
   
   
-  if(is_null(kommune_nummer) == TRUE){
+  if(is_null(fylke_nummer) == TRUE){
     
     fylke_num <- data[[fylke_nummer]]
     
