@@ -3,11 +3,14 @@
 #' This function adds the fylke number and name based on the municipalities 
 #' numbers or the fylke numbers.
 
-#' @param kommune_nummer is the municipality number. Should be a character.
-#' Default if NULL.
+#' @param data the dataframe to which the fylke number and / or name should 
+#' be adted.
+#'
+#' @param kommune_nummer is the name of the column containing the municipality numbers. 
+#' Should be a character. Default is NULL.
 #' 
-#'  @param fylke_nummer is the fylke number. Should be a character.
-#' Default if NULL.
+#'  @param fylke_nummer is the name of the column containing the fylke number. 
+#'  Should be a character. Default is NULL.
 #' 
 #' @return a vector with the fylke number and the fylke name
 #' 
@@ -15,7 +18,7 @@
 #'
 #' @examples
 
-add_fylke <- function(kommune_nummer = NULL, fylke_nummer = NULL){
+add_fylke <- function(data, kommune_nummer = NULL, fylke_nummer = NULL){
   
   
   # Create a fylke name and number dataset
@@ -30,22 +33,26 @@ add_fylke <- function(kommune_nummer = NULL, fylke_nummer = NULL){
   
   if(is_null(kommune_nummer) == TRUE){
     
+    fylke_num <- data[[fylke_nummer]]
+    
     # Make fylke_nummer a df
-    fylke_nummer <- as.data.frame(fylke_nummer)
+    fylke_nummer <- as.data.frame(fylke_num)
     
     # Join
-    fylke_name <- left_join(fylke_nummer, fylke_df, join_by(fylke_nummer == "fylke_number")) %>%
-                    select(!fylke_nummer)
+    fylke_name <- left_join(fylke_num, fylke_df, join_by(fylke_num == "fylke_number")) %>%
+                    select(!fylke_num)
     
     # Return the column with the name
     return(fylke_name[["fylke_name"]])
     
   }else{
     
-    # Fylke number
-    fylke_nb <- substr(as.character(kommune_nummer), 1, 2)
+    kom_num <- data[[kommune_nummer]]
     
-    # Join with the fylke name and number dataframe
+    # Fylke number
+    fylke_nb <- substr(as.character(kom_num), 1, 2)
+    
+    # Join with the fylke name and number
     fylke_name <- left_join(as.data.frame(fylke_nb), fylke_df, join_by(fylke_nb == "fylke_number")) %>%
                     select(!fylke_nb)
     
