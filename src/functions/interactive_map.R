@@ -127,8 +127,3 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
 }
 
 
-tm_shape(data2) +
-  
-  tm_polygons(fill = {{fill_variable2}})
-
-
