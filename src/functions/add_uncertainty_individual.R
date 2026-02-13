@@ -16,12 +16,13 @@
 #' @param source2 this sources is the uncertainty of temporal discrepancy between
 #' the year of detection of encroachment data and the the year of mapping of
 #' another dataset (e.g., recreation areas, søærlig vkiting naturtyper).
+#' Its value is only TRUE or FALSE, default is FALSE.
 #' 
 #' @param yrsource1 this is the name of the column containing the years of detection
 #' of the encroachment polygons.
 #' 
 #' @param yrsource2 this is a vector with the names of the name of the column
-#' containing the years of mapping of the second dataset.
+#' containing the years of mapping of both datasets.
 #'
 #' @return a vector of character containing the colored-uncertainty.
 #' @export
@@ -51,8 +52,8 @@ add_uncertainty_individual <- function(data, source1 = FALSE, source2 = FALSE,  
   # Sources 1 and 2
   if(source2 == TRUE){
     
-    yr1 <- as.numeric(data[[yrsource1]])
-    yr2 <- as.numeric(data[[yrsource2]])
+    yr1 <- as.numeric(data[[yrsource2[1]]])
+    yr2 <- as.numeric(data[[yrsource2[2]]])
     diff_yr <- abs(yr1 - yr2)
     
     if(isTRUE(yr1 == 2023) && isTRUE(diff_yr <= 3)){
