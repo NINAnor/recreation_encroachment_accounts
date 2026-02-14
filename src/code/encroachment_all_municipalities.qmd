@@ -482,7 +482,7 @@ natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2913"] <- "2013"
 
 # Remove nature types that have been recorded before 2015
 natur_cln <- natur_cln %>%
-              filter(year_natur_recorded > 2016) %>%
+              filter(year_natur_recorded > 2009) %>%
               filter(!is.na(year_natur_recorded))
   
 
