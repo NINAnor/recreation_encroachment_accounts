@@ -576,7 +576,7 @@ DT02 includes both terrestrial and marine outdoor recreation areas. That is why 
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "DT02 - format"
+#| code-summary: "DT02 - restrict to terrestrial recreation areas only"
 
 # Check the CRS of both DT01 and DT02
 st_crs(lau_no) == st_crs(rec_cln)
@@ -585,16 +585,61 @@ st_crs(lau_no) == st_crs(rec_cln)
 # Re-project rec_cln into ESPG : 25832
 rcl_32 <- st_transform(rec_cln, crs = st_crs(lau_no))
 
-# Perform spatial intersection
+# Perform spatial intersection to have terrestrial recreation areas only
 rcl_32_tr <- lau_no %>%
               st_union() %>%
               st_intersection(rcl_32, .) %>%
               mutate(area_rec_m2 = unclass(st_area(.)), .after = områdeverdi)
 
+```
+
+The last step of formatting for the recreation data is to correct the year of mapping of municipalities with several and only report the most recent year. Except for Oslo, where the different district mapped their recreation areas in different years, the other municipalities should only have one year. This is in fact not the case in the recreation dataset. 196 municipalities have polygons appearing for more than one year. This is because they updated their polygons by adding new ones. So we need to take into account this year of update as the final mapping year.
+
+
+```{r clean_rec_area3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "DT02 - correct years of mapping"
+
+# Select municipalities have more than one year
+several_yr_mun <- rcl_32_tr %>%
+                    st_drop_geometry() %>%
+                    select(kommune,
+                           kartleggingsår) %>%
+                    filter(!kommune == "0301") %>%
+                    group_by(kommune) %>%
+                    summarise(count_yr = n_distinct(kartleggingsår)) %>%
+                    filter(count_yr >1) %>%
+                    ungroup() 
+
+# Select the most recent year of update as the mapping year
+update_yr_mun <- rcl_32_tr %>%
+                    st_drop_geometry() %>%
+                    select(kommune,
+                           kartleggingsår) %>%
+                    filter(kommune %in% as.vector(several_yr_mun$kommune)) %>%
+                    group_by(kommune) %>%
+                    arrange(kartleggingsår, .by_group = TRUE) %>% 
+                    slice_tail(n = 1) %>%
+                    ungroup() %>%
+                    rename(kartleggingsår_updated = kartleggingsår)
+                    
+# Replace all the mapping years of the 103 municipalities in update_yr_mun by their last year of update
+rcl_final <- rcl_32_tr %>%
+                left_join(., update_yr_mun, by = "kommune") %>%
+                mutate(kartleggingsår = if_else(!is.na(kartleggingsår_updated), 
+                                                kartleggingsår_updated, 
+                                                kartleggingsår)) %>%
+                select(!kartleggingsår_updated)
+
+
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("rcl_32_tr",
                     "lau_no",
+                    "rcl_final",
                     "project_path",
                     "functions_path")))
 
@@ -649,6 +694,7 @@ which(st_is_empty(encroach_dt) == TRUE) %>% length()
 rm(list = setdiff(ls(), 
                   c("rcl_32_tr",
                     "lau_no",
+                    "rcl_final",
                     "encroach_dt",
                     "project_path",
                     "functions_path")))
@@ -720,9 +766,9 @@ natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2102"] <- "2012"
 natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2913"] <- "2013"
 
 
-# Remove nature types that have been recorded before 2015
+# Remove nature types that have been recorded before 2010
 natur_cln <- natur_cln %>%
-              filter(year_natur_recorded > 2016) %>%
+              filter(year_natur_recorded > 2009) %>%
               filter(!is.na(year_natur_recorded))
   
 
@@ -730,6 +776,7 @@ natur_cln <- natur_cln %>%
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encroach_dt",
                     "natur_cln",
                     "lau_no",
@@ -767,6 +814,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec")))
 
 ```
@@ -810,6 +858,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "natur_32",
                     "encrec",
                     "encnatur")))
@@ -818,7 +867,6 @@ rm(list = setdiff(ls(),
 
 ### 9.3 Uncertainty analyses
 
-First step will be to group_by kommune nummer and year but not all years! You first have to choose the year of update of recreation areas!
 
 
 <!--# 
@@ -973,6 +1021,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -1155,6 +1204,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -1269,6 +1319,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "encrec_0012_acc",
@@ -1380,6 +1431,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -1496,6 +1548,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -1603,6 +1656,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -1712,6 +1766,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
@@ -1796,6 +1851,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_32_tr",
+                    "rcl_final",
                     "encrec",
                     "encnatur",
                     "kom_navn",
