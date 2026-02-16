@@ -504,7 +504,7 @@ rm(list = setdiff(ls(),
 ### 9.1 ENCACC_001
 To compile ENCACC_001, we need to perform a spatial intersections between DT01 and DT02. Note that we re-calculate the areas of the encroachment polygons after the intersection has been performed.
 
-*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities*
+*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities. In these cases, we reported the uncertainty of the year of encroachment.*
 
 ```{r encrec001234_analyses}
 #| eval: true
