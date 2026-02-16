@@ -593,15 +593,19 @@ rm(list = setdiff(ls(),
 
 ```
 ### 9.3 Uncertainty analyses
-There are different sources of uncertainty associated with our results (see 5.1 General uncertainties). We could report **qualitatively** some of these uncertainties and we chose to design a color-coded uncertainty indicator to make the interpretation of the results from the municipalities easier. It also have to be noted that, despite having a quantitative uncertainty for DT01, this uncertainty was quantified at national level and does not apply at municipal level. That is why we could not quantify the uncertainty linked to DT01. We however developed an application that will help in quantify the uncertainty in the prediction of encroachment at municipal level. You want to help? Just go [here](**<LINK>**)! Description on how this qualitative indicator can be compiled is available in section 5.2 Reported uncertainties.
+Our traffic-light uncertainty required to steps:
 
-First we attributed a colored-uncertainty to all sources of uncertainty. In te case of ENCACC_001, we just have one source: DT01 prediction. For ENCACC_002, we have two sources of uncertainties: DT01 prediction, and temporal discrepancy between DT01 and DT03. Although we restricted the temporal coverage of DT03 to match the temporal coverage of DT01, an encroachment detected in 2024 on a ''særlig viktig natur'' polygon from 2017 is likely to be more uncertain that if detected on a ''særlig viktig natur'' dating from 2024.
+1. Attribute a traffic-light uncertainty at the polygon level. For this we used our lookup table developed in our [NINA Rapport XXXX](**<LINK>**); 
+
+2. Derive a municipal / fylke traffic-light uncertainty based on the frequency of the traffic-light uncertainty at polygon-level (step 1 above). We basically created a frequency table of all the traffic-light color uncertainties from the polygons and derived the municipal / fylke traffic-light color uncertainty based the most predocminant polygons' traffic-light colors. See[NINA Rapport XXXX](**<LINK>**) for more information.
+
+First we attributed a colored-uncertainty to all sources of uncertainty.
 ```{r encacc_uncertainty_1}
 #| eval: true
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Step 1 - attribute colored-uncertainty to all sources of uncertainties per municipalities"
+#| code-summary: "Step 1 - attribute colored-uncertainty to all polygons"
 
 # Load necessary functions
 source(paste0(functions_path,"/add_uncertainty_individual.R"))
