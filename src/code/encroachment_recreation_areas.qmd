@@ -802,6 +802,9 @@ rm(list = setdiff(ls(),
 ## 9. Analyses
 ### 9.1 ENCREC_001 to ENCREC_0004
 Both the analyses for ENCREC_001 to ENCREC_004 rely on spatial intersections between DT02 and DT03. Also, note that we re-calculate the areas of the encroachment polygons after the intersection with DT02 has been performed.
+
+*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities*
+
 ```{r encrec001234_analyses}
 #| eval: true
 #| warning: false
