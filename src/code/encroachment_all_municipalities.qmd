@@ -597,7 +597,7 @@ Our traffic-light uncertainty required to steps:
 
 1. Attribute a traffic-light uncertainty at the polygon level. For this we used our lookup table developed in our [NINA Rapport XXXX](**<LINK>**); 
 
-2. Derive a municipal / fylke traffic-light uncertainty based on the frequency of the traffic-light uncertainty at polygon-level (step 1 above). We basically created a frequency table of all the traffic-light color uncertainties from the polygons and derived the municipal / fylke traffic-light color uncertainty based the most predocminant polygons' traffic-light colors. See[NINA Rapport XXXX](**<LINK>**) for more information.
+2. Derive a municipal / fylke traffic-light uncertainty based on the frequency of the traffic-light uncertainty at polygon-level (step 1 above). We basically created a frequency table of all the traffic-light color uncertainties from the polygons and derived the municipal / fylke traffic-light color uncertainty based the most predominant polygons' traffic-light colors. See[NINA Rapport XXXX](**<LINK>**) for more information.
 
 First we attributed a colored-uncertainty to all sources of uncertainty.
 ```{r encacc_uncertainty_1}
