@@ -1643,6 +1643,25 @@ encrec_006_kom <- encnatur %>%
                     relocate(c(LAU_NAME), .after = "kommune") %>%
                     mutate(indicator_id = "ENCREC_006", .before = "fylkesnr")
 
+# Add uncertainties to encrec_005_kom and encrec_006_kom
+encrec_005_kom_un <- encrec_005_kom %>%
+                      left_join(., unc_005_sum, by = c("kommune", "naturtype"))  %>%
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "unc_concat_full", 
+                                             kom_num = "kommune", 
+                                             habitat_accounting = "naturtype") %>%
+                      select(!unc_concat_full) %>%
+                      rename(global_period_uncertainty = global_habitat_uncertainty)
+
+encrec_006_kom_un <- encrec_006_kom %>%
+                      left_join(., unc_006_sum, by = c("kommune", "naturtype"))  %>%
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "unc_concat_full", 
+                                             kom_num = "kommune", 
+                                             habitat_accounting = "naturtype") %>%
+                      select(!unc_concat_full) %>%
+                      rename(global_period_uncertainty = global_habitat_uncertainty)
+
 # Total across all municipalities
 encrec_005_tot <- encrec_005_kom %>%
                     group_by(naturtype) %>%
@@ -1661,15 +1680,59 @@ encrec_006_tot <- encrec_006_kom %>%
                            kommune = "0000",
                            LAU_NAME = "Total", .before = naturtype) %>%
                     mutate(accounting_period = "2018-2024", .before = "total_nature_loss_dekar")
+
+
+# Add uncertainties to encrec_005_tot and encrec_006_tot
+encrec_005_tot_un <-  unc_005_idv %>%
+                        mutate(national = "0000",
+                               accounting_period = "2018-2024") %>%
+                        concatenate_fn(.,
+                              col_column_names = "uncertainty_source2",
+                              kom_num = "national",
+                              accounting_year = "accounting_period") %>%
+                        add_uncertainty_global(., 
+                                               kom_num = "national",
+                                               uncertainty_col_name = "unc_concat_full",
+                                               accounting_year = "accounting_period") %>%
+                      ungroup() %>%
+                      select(!c(unc_concat_full, 
+                                global_cumulative_uncertainty,
+                                national,
+                                accounting_period)) %>%
+                      cbind(encrec_005_tot, .) %>%
+                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
+                      rename(global_period_uncertainty = global_yearly_uncertainty)
+
+encrec_006_tot_un <-  unc_006_idv %>%
+                        mutate(national = "0000",
+                               accounting_period = "2018-2024") %>%
+                        concatenate_fn(.,
+                              col_column_names = "uncertainty_source2",
+                              kom_num = "national",
+                              accounting_year = "accounting_period") %>%
+                        add_uncertainty_global(., 
+                                               kom_num = "national",
+                                               uncertainty_col_name = "unc_concat_full",
+                                               accounting_year = "accounting_period") %>%
+                      ungroup() %>%
+                      select(!c(unc_concat_full, 
+                                global_cumulative_uncertainty,
+                                national,
+                                accounting_period)) %>%
+                      cbind(encrec_006_tot, .) %>%
+                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
+                      rename(global_period_uncertainty = global_yearly_uncertainty)
+
+
                     
 # Final accounting table               
-encrec_0056_acc <- bind_rows(encrec_005_kom,
-                             encrec_005_tot,
-                             encrec_006_kom, 
-                             encrec_006_tot)
+encrec_0056_acc <- bind_rows(encrec_005_kom_un,
+                             encrec_005_tot_un,
+                             encrec_006_kom_un, 
+                             encrec_006_tot_un)
 
-encrec_0056_acc$fylkesnr[which(encrec_0056_acc$fylkesnr == "00")] <- NA
-encrec_0056_acc$kommune[which(encrec_0056_acc$kommune == "0000")] <- NA
+encrec_0056_acc$fylkesnr[which(encrec_0056_acc$fylkesnr == "00")] <- "Total"
+encrec_0056_acc$kommune[which(encrec_0056_acc$kommune == "0000")] <- "Total"
 
 colnames(encrec_0056_acc) <- c("Indikatorens navn",
                                "Fylke nummer",
@@ -1677,7 +1740,8 @@ colnames(encrec_0056_acc) <- c("Indikatorens navn",
                                "Kommune navn",
                                "Natur typer",
                                "Regnskapsperiode",
-                               "Areal særlig viktige naturtyper gått tapt (dekar)")
+                               "Areal særlig viktige naturtyper gått tapt (dekar)",
+                              "Usikkerhet for areal i regnskapsperiode")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -1685,12 +1749,30 @@ rm(list = setdiff(ls(),
                     "encroach_dt",
                     "project_path",
                     "functions_path",
-                    "rcl_32_tr",
                     "rcl_final",
+                    "natur_32",
                     "encrec",
                     "encnatur",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_005_idv",
+                    "unc_006_idv",
+                    "unc_006_idv2",
+                    "unc_0024_idv2",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_0013_sum",
+                    "unc_0024_sum",
+                    "unc_005_sum",
+                    "unc_006_sum",
+                    "unc_0024_sum2",
+                    "unc_006_sum2",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
                     "encrec_0012_acc",
-                    "encrec_0033_acc",
+                    "encrec_0034_acc",
                     "encrec_0056_acc")))
 
 
@@ -1698,16 +1780,28 @@ rm(list = setdiff(ls(),
 datatable(encrec_0056_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list(dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                          columnDefs = list(list(targets = c(which(colnames(encrec_0056_acc) == "Usikkerhet for areal i regnskapsperiode")),
+                                                 visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Table 3 - Arealregnskap av sværlig vikitig natur som går tapt på grunn av inngrep i alle friluftslivområder (ENCREC_005) eller i viktige og svært viktige friluftslivområder (ENCREC_006) over 2018-2024."))) %>%
+                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",")
+    dec.mark = ",") %>%
+  ## Example: color Årlig areal i dekar by var1
+  formatStyle(
+    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
+    ),
+    valueColumns = "Usikkerhet for areal i regnskapsperiode"           # column used for the intervals
+  )
+
 
 ```
 
