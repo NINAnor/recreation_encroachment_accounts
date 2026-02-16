@@ -813,8 +813,15 @@ Both the analyses for ENCREC_001 to ENCREC_004 rely on spatial intersections bet
 st_crs(rcl_final) == st_crs(encroach_dt)
 
 # Perform spatial intersection
-encrec <- st_intersection(rcl_final, encroach_dt) %>%
-            mutate(area_inter_m2 = unclass(st_area(.)))
+encrec_raw <- st_intersection(rcl_final, encroach_dt) %>%
+                mutate(area_inter_m2 = unclass(st_area(.)))
+
+# Add missing years for accounting. Set the area as 0 for the missing year.
+encrec <- encrec_raw %>%
+            st_drop_geometry() %>%
+            complete(nesting(fylkesnr, kommune), year = 2018:2024, fill = list(id = "NA",
+                                                                                area = 0,
+                                                                                area_inter_m2 = 0))
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -824,6 +831,7 @@ rm(list = setdiff(ls(),
                     "project_path",
                     "functions_path",
                     "rcl_final",
+                    "encrec_raw",
                     "encrec")))
 
 ```
@@ -847,18 +855,27 @@ natur_32 <- st_transform(natur_cln, crs = st_crs(encrec))
 st_crs(natur_32) == st_crs(encrec)
 
 # Perform spatial intersection
-encnatur <- encrec %>%
-              select(fylkesnr,
-                     kommune,
-                     kartleggingsår,
-                     områdeverdi,
-                     id,
-                     year,
-                     area_inter_m2) %>%
-              rename(area_encrec = area_inter_m2,
-                     year_encrec = year) %>%
-              st_intersection(., natur_32) %>%
-              mutate(area_naturtyper_m2 = unclass(st_area(.)))
+encnatur_raw <- encrec %>%
+                 select(fylkesnr,
+                        kommune,
+                        kartleggingsår,
+                        områdeverdi,
+                        id,
+                        year,
+                        area_inter_m2) %>%
+                 rename(area_encrec = area_inter_m2,
+                        year_encrec = year) %>%
+                 st_intersection(., natur_32) %>%
+                 mutate(area_naturtyper_m2 = unclass(st_area(.)))
+
+encnatur <- encnatur_raw %>%
+            st_drop_geometry() %>%
+            select(!c(kommunenummer, area_encrec, id)) %>%
+            complete(nesting(fylkesnr, kommune, naturtype), 
+                     year_encrec = 2018:2024,
+                     fill = list(area = 0,
+                                 area_naturtyper_m2 = 0)) %>%
+            mutate(year_natur_recorded = coalesce(as.integer(year_natur_recorded), year_encrec))
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -868,7 +885,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_final",
                     "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur")))
 
 ```
@@ -951,7 +970,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_final",
                     "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
                     "unc_0013_idv",
                     "unc_0024_idv",
@@ -1019,7 +1040,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_final",
                     "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
                     "unc_0013_idv",
                     "unc_0024_idv",
@@ -1262,7 +1285,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_final",
                     "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
                     "unc_0013_idv",
                     "unc_0024_idv",
@@ -1322,6 +1347,267 @@ datatable(encrec_0012_acc,
   )
 
 ```
+
+```{r res_acc_tables2}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "ENCREC_001 and ENCREC_002- Create accounting table per fylke"
+
+# Call function to concatenate
+source(paste0(functions_path,"/concatenate_individual_uncertainty.R"))
+
+# Create the accounting table based on encacc_001_acc
+encrec_001_fy <- encrec_0012_acc %>%
+                  filter(!Regnskapsår == "Change 2018-2024") %>%
+                  filter(!`Kommune navn` == "Total") %>%
+                  filter(`Indikatorens navn` == "ENCREC_001") %>%
+                  group_by(`Indikatorens navn`, `Fylke nummer`, Regnskapsår) %>%
+                  summarise(yearly_area = sum(`Årlig areal i dekar`)) %>%
+                  mutate(cumulative_area = cumsum(yearly_area))
+
+
+## ENCREC_001 and 002 accounting tables
+# Accounts for all municipalities
+encrec_001_kom <- encrec %>%
+                    st_drop_geometry() %>%
+                    select(fylkesnr,
+                           kommune,
+                           year,
+                           area_inter_m2) %>%
+                    group_by(fylkesnr, kommune, year) %>%
+                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
+                    relocate(c(LAU_NAME), .after = "kommune") %>%
+                    mutate(indicator_id = "ENCREC_001", .before = "fylkesnr")
+
+encrec_002_kom <- encrec %>%
+                    st_drop_geometry() %>%
+                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                              "sværtViktigFriluftslivsområde")) %>%
+                    select(fylkesnr,
+                           kommune,
+                           year,
+                           area_inter_m2) %>%
+                    group_by(fylkesnr, kommune, year) %>%
+                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
+                    relocate(c(LAU_NAME), .after = "kommune") %>%
+                    mutate(indicator_id = "ENCREC_002", .before = "fylkesnr")
+
+# Add uncertainties to encacc_001_kom
+encrec_001_kom_un <- encrec_001_kom %>%
+                      left_join(., unc_0013_sum, by = c("kommune", "year")) %>%
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "unc_concat_full", 
+                                             kom_num = "kommune", 
+                                             accounting_year = "year") %>%
+                      select(!unc_concat_full)
+
+encrec_002_kom_un <- encrec_002_kom %>%
+                      left_join(., unc_0024_sum2, by = c("kommune", "year")) %>%
+                      add_uncertainty_global(., 
+                                             uncertainty_col_name = "unc_concat_full", 
+                                             kom_num = "kommune", 
+                                             accounting_year = "year") %>%
+                      select(!unc_concat_full)
+
+
+# Total across all municipalities
+encrec_001_tot <- encrec_001_kom %>%
+                    group_by(year) %>%
+                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    mutate(indicator_id = "ENCREC_001",
+                           fylkesnr = "00",
+                           kommune = "0000",
+                           LAU_NAME = "Total", .before = year)
+
+encrec_002_tot <- encrec_002_kom %>%
+                    group_by(year) %>%
+                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
+                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
+                    mutate(indicator_id = "ENCREC_002",
+                           fylkesnr = "00",
+                           kommune = "0000",
+                           LAU_NAME = "Total", .before = year)
+                     
+
+# Add uncertainty to encacc_001_tot and encrec_002_tot
+encrec_001_tot_un <-  unc_0013_idv %>%
+                        mutate(national = "0000") %>%
+                        concatenate_fn(.,
+                                       col_column_names = "uncertainty_source2",
+                                       kom_num = "national",
+                                       accounting_year = "year") %>%
+                        add_uncertainty_global(., 
+                                               kom_num = "national",
+                                               uncertainty_col_name = "unc_concat_full",
+                                               accounting_year = "year") %>%
+                      ungroup() %>%
+                      select(!c(unc_concat_full, 
+                                global_cumulative_uncertainty,
+                                national,
+                                year)) %>%
+                      cbind(encrec_001_tot, .)
+
+encrec_002_tot_un <-  unc_0024_idv %>%
+                        mutate(national = "0000") %>%
+                        concatenate_fn(.,
+                                       col_column_names = "uncertainty_source2",
+                                       kom_num = "national",
+                                       accounting_year = "year") %>%
+                        add_uncertainty_global(., 
+                                               kom_num = "national",
+                                               uncertainty_col_name = "unc_concat_full",
+                                               accounting_year = "year") %>%
+                      ungroup() %>%
+                      select(!c(unc_concat_full, 
+                                global_cumulative_uncertainty,
+                                national,
+                                year)) %>%
+                      cbind(encrec_002_tot, .)
+
+
+# Add change to all tables
+encrec_001_kom_un$year <- as.character(encrec_001_kom_un$year)
+
+encrec_001_kom_un <- encrec_001_kom_un %>%
+                      group_split(kommune) %>% 
+                      map(~ add_change_encroachment_area(., 
+                                                         year_column = "year",
+                                                         area1 = "area_dekar_cumulative")) %>% 
+                      compact() %>%
+                      bind_rows()
+
+encrec_002_kom_un$year <- as.character(encrec_002_kom_un$year)
+
+encrec_002_kom_un <- encrec_002_kom_un %>%
+                      group_split(kommune) %>% 
+                      map(~ add_change_encroachment_area(., 
+                                                         year_column = "year",
+                                                         area1 = "area_dekar_cumulative")) %>% 
+                      compact() %>%
+                      bind_rows()
+
+
+encrec_001_tot_un$year <- as.character(encrec_001_tot_un$year)
+
+encrec_001_tot_un <- add_change_encroachment_area(encrec_001_tot_un, 
+                                                  year_column = "year",
+                                                  area1 = "area_dekar_cumulative") %>% 
+                      compact() %>%
+                      bind_rows()
+
+
+encrec_002_tot_un$year <- as.character(encrec_002_tot_un$year)
+
+encrec_002_tot_un <- add_change_encroachment_area(encrec_002_tot_un, 
+                                                  year_column = "year",
+                                                  area1 = "area_dekar_cumulative") %>% 
+                      compact() %>%
+                      bind_rows()
+
+
+# Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
+encrec_001_kom_un[which(encrec_001_kom_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+encrec_002_kom_un[which(encrec_002_kom_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+encrec_001_tot_un[which(encrec_001_tot_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+encrec_002_tot_un[which(encrec_002_tot_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+                    
+# Final accounting table               
+encrec_0012_acc <- bind_rows(encrec_001_kom_un,
+                             encrec_001_tot_un, 
+                             encrec_002_kom_un,
+                             encrec_002_tot_un)
+
+encrec_0012_acc$fylkesnr[which(encrec_0012_acc$fylkesnr == "00")] <- "Total"
+encrec_0012_acc$kommune[which(encrec_0012_acc$kommune == "0000")] <- "Total"
+
+colnames(encrec_0012_acc) <- c("Indikatorens navn",
+                               "Fylke nummer",
+                               "Kommune nummer",
+                               "Kommune navn",
+                               "Regnskapsår",
+                               "Årlig areal i dekar",
+                               "Kumulativ areal i dekar",
+                               "Usikkerhet for årlig areal",
+                               "Usikkerhet for kumulativ areal")
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_final",
+                    "natur_32",
+                    "encrec_raw",
+                    "encrec",
+                    "encnatur_raw",
+                    "encnatur",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_005_idv",
+                    "unc_006_idv",
+                    "unc_006_idv2",
+                    "unc_0024_idv2",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_0013_sum",
+                    "unc_0024_sum",
+                    "unc_005_sum",
+                    "unc_006_sum",
+                    "unc_0024_sum2",
+                    "unc_006_sum2",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
+                    "encrec_0012_acc")))
+
+
+# Display the table dynamically
+datatable(encrec_0012_acc,
+          extensions = 'Buttons',
+          filter = list(position = 'top', clear = TRUE), 
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                          columnDefs = list(list(targets = c(which(colnames(encrec_0012_acc) == "Usikkerhet for årlig areal"),
+                                                             which(colnames(encrec_0012_acc) == "Usikkerhet for kumulativ areal")),
+                                                 visible = FALSE))),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i all friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
+    formatCurrency(
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",") %>%
+  ## Example: color Årlig areal i dekar by var1
+  formatStyle(
+    "Årlig areal i dekar",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
+    ),
+    valueColumns = "Usikkerhet for årlig areal"           # column used for the intervals
+  ) %>%
+  ## Example: color Kumulativ areal i dekar by var2
+  formatStyle(
+    "Kumulativ areal i dekar",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
+    ),
+    valueColumns = "Usikkerhet for kumulativ areal"           # column used for the intervals
+  )
+
+```
+
 
 #### 10.1.3 ENCREC_003 and ENCREC_004: Extent accounts of recreation areas
 Here we present the extent accounts table for the total area of mapped recreation areas between 2018 and 2024 for all recreation areas within each municipality in Norway. We compile the extent of these area in all recreation areas (ENCREC_003), but also only in recreation areas classified as important and very important (ENCREC_004). These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total across all municipalities in Norway which mapped their recreation areas.
@@ -1536,7 +1822,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_final",
                     "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
                     "unc_0013_idv",
                     "unc_0024_idv",
@@ -1751,7 +2039,9 @@ rm(list = setdiff(ls(),
                     "functions_path",
                     "rcl_final",
                     "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
                     "unc_0013_idv",
                     "unc_0024_idv",
