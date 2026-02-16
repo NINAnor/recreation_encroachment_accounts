@@ -120,9 +120,17 @@ add_uncertainty_individual <- function(data, source1 = FALSE, source2 = FALSE,  
       
       uncertainty_source1 <- "Red"
       
+    }else if(is.na(diff_yr) && isTRUE(yr1 == 2023)){
+      
+      uncertainty_source1 <- "Green"
+      
+    }else if(is.na(diff_yr) && isTRUE(yr1 %in% c(2018, 2019, 2020, 2021, 2022, 2024))){
+      
+      uncertainty_source1 <- "Yellow"
+      
     }
     
-    return(c(uncertainty_source1))
+    return(uncertainty_source1)
   }
   
 
