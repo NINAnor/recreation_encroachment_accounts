@@ -613,20 +613,14 @@ source(paste0(functions_path,"/add_uncertainty_individual.R"))
 # Uncertainty ENCACCC_001
 unc_001_idv <- komenc %>%
                 st_drop_geometry() %>%
-                group_by(GISCO_ID, year) %>%
-                summarise(n_poly = n()) %>%
-                select(!n_poly) %>%
-                ungroup() %>%
+                select(GISCO_ID, year) %>%
                 mutate(uncertainty_source1 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source1 = TRUE, yrsource1 = "year")}))
 
 
 # Uncertainty ENCACCC_002
 unc_002_idv <- encnatur %>%
                 st_drop_geometry() %>%
-                group_by(GISCO_ID, year_enc, year_natur_recorded, naturtype) %>%
-                summarise(n_poly = n()) %>%
-                select(!n_poly) %>%
-                ungroup() %>%
+                select(GISCO_ID, year_enc, year_natur_recorded, naturtype) %>%
                 mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year_enc", "year_natur_recorded"))}))
 
 
