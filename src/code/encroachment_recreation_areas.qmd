@@ -1314,7 +1314,7 @@ datatable(encrec_0012_acc,
                                                              which(colnames(encrec_0012_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i all friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -1499,7 +1499,7 @@ datatable(encrec_0012_fy_acc,
                                                              which(colnames(encrec_0012_fy_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i all friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -1779,7 +1779,7 @@ datatable(encrec_0034_acc,
                                                              which(colnames(encrec_0034_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 3 – Tematiske arealregnskap: areal av friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -1898,10 +1898,6 @@ encrec_004_fy_un <-  unc_0024_idv %>%
                       ungroup() %>%
                       mutate(fylke_name = add_fylke(data = ., fylke_nummer = "fylkesnr"), .after = fylkesnr)
 
-
-##################
-###############
-
 # Add change to encrec_003_fy_un and encrec_004_fy_un
 encrec_003_fy_unc <- encrec_003_fy_un %>%
                       mutate(year = as.character(year)) %>%
@@ -1997,7 +1993,7 @@ datatable(encrec_0034_fy_acc,
                                                              which(colnames(encrec_0034_fy_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i all friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 4 – Tematiske arealregnskap: areal av viktig og særlig viktig friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -2034,7 +2030,7 @@ Note that only the municipalities which have mapped their outdoors areas and in 
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "ENCREC_005 and 006 - Create accounting table"
+#| code-summary: "ENCREC_005 and 006 - Create accounting table per municipality"
 
 
 ## ENCREC_005 and 006 accounting tables
@@ -2167,7 +2163,7 @@ colnames(encrec_0056_acc) <- c("Indikatorens navn",
                                "Natur typer",
                                "Regnskapsperiode",
                                "Areal særlig viktige naturtyper gått tapt (dekar)",
-                              "Usikkerhet for areal i regnskapsperiode")
+                               "Usikkerhet for areal i regnskapsperiode")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -2203,7 +2199,8 @@ rm(list = setdiff(ls(),
                     "encrec_0012_acc",
                     "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0034_fy_acc")))
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc")))
 
 
 # Display the table dynamically
@@ -2215,7 +2212,7 @@ datatable(encrec_0056_acc,
                           columnDefs = list(list(targets = c(which(colnames(encrec_0056_acc) == "Usikkerhet for areal i regnskapsperiode")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabel 5 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
     currency = "",                
@@ -2246,140 +2243,81 @@ datatable(encrec_0056_acc,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "ENCREC_005 and 006 - Create accounting table"
+#| code-summary: "ENCREC_005 and 006 - Create accounting table per fylke"
+
+# Create the accounting table for ENCREC_001 and ENCREC_002 based on encrec_0012_acc
+encrec_005_fy <- encrec_0056_acc %>%
+                  filter(!`Kommune navn` == "Total") %>%
+                  filter(`Indikatorens navn` == "ENCREC_005") %>%
+                  group_by(`Indikatorens navn`, `Fylke nummer`, `Natur typer`, Regnskapsperiode) %>%
+                  summarise(total_area = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`))
+
+encrec_006_fy <- encrec_0056_acc %>%
+                  filter(!`Kommune navn` == "Total") %>%
+                  filter(`Indikatorens navn` == "ENCREC_006") %>%
+                  group_by(`Indikatorens navn`, `Fylke nummer`, `Natur typer`, Regnskapsperiode) %>%
+                  summarise(total_area = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`))
 
 
-## ENCREC_005 and 006 accounting tables
-# Accounts for all municipalities
-encrec_005_kom <- encnatur %>%
-                    st_drop_geometry() %>%
-                    select(fylkesnr,
-                           kommune,
-                           naturtype,
-                           year_encrec,
-                           area_naturtyper_m2) %>%
-                    group_by(fylkesnr, kommune, naturtype) %>%
-                    summarise(total_nature_loss_dekar = round2(sum(area_naturtyper_m2)/1000, 2)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    mutate(accounting_period = "2018-2024", .before = "total_nature_loss_dekar") %>%
-                    relocate(c(LAU_NAME), .after = "kommune") %>%
-                    mutate(indicator_id = "ENCREC_005", .before = "fylkesnr")
-
-encrec_006_kom <- encnatur %>%
-                    st_drop_geometry() %>%
-                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                    select(fylkesnr,
-                           kommune,
-                           naturtype,
-                           year_encrec,
-                           area_naturtyper_m2) %>%
-                    group_by(fylkesnr, kommune, naturtype) %>%
-                    summarise(total_nature_loss_dekar = round2(sum(area_naturtyper_m2)/1000, 2)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    mutate(accounting_period = "2018-2024", .before = "total_nature_loss_dekar") %>%
-                    relocate(c(LAU_NAME), .after = "kommune") %>%
-                    mutate(indicator_id = "ENCREC_006", .before = "fylkesnr")
-
-# Add uncertainties to encrec_005_kom and encrec_006_kom
-encrec_005_kom_un <- encrec_005_kom %>%
-                      left_join(., unc_005_sum, by = c("kommune", "naturtype"))  %>%
+# Add uncertainties to encacc_005_fy and encacc_006_fy
+encrec_005_fy_un <-  unc_005_idv %>%
+                      mutate(fylke = add_fylke(data = ., kommune_nummer = "kommune")[[1]], .before = kommune) %>%
+                      select(!kommune) %>%
+                      concatenate_fn(.,
+                                     col_column_names = c("uncertainty_source2"),
+                                     kom_num = "fylke",
+                                     habitat_col = "naturtype") %>%
                       add_uncertainty_global(., 
-                                             uncertainty_col_name = "unc_concat_full", 
-                                             kom_num = "kommune", 
-                                             habitat_accounting = "naturtype") %>%
+                                                      kom_num = "fylke",
+                                                      uncertainty_col_name = "unc_concat_full",
+                                                       habitat_accounting = "naturtype") %>%
                       select(!unc_concat_full) %>%
-                      rename(global_period_uncertainty = global_habitat_uncertainty)
+                      left_join(encrec_005_fy, ., join_by(`Fylke nummer` == "fylke", "Natur typer" == "naturtype")) %>%
+                      ungroup() %>%
+                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer"), .after = `Fylke nummer`)
 
-encrec_006_kom_un <- encrec_006_kom %>%
-                      left_join(., unc_006_sum, by = c("kommune", "naturtype"))  %>%
+
+
+
+encrec_006_fy_un <-  unc_006_idv %>%
+                      mutate(fylke = add_fylke(data = ., kommune_nummer = "kommune")[[1]], .before = kommune) %>%
+                      select(!kommune) %>%
+                      concatenate_fn(.,
+                                     col_column_names = c("uncertainty_source2"),
+                                     kom_num = "fylke",
+                                     habitat_col = "naturtype") %>%
                       add_uncertainty_global(., 
-                                             uncertainty_col_name = "unc_concat_full", 
-                                             kom_num = "kommune", 
-                                             habitat_accounting = "naturtype") %>%
+                                                      kom_num = "fylke",
+                                                      uncertainty_col_name = "unc_concat_full",
+                                                       habitat_accounting = "naturtype") %>%
                       select(!unc_concat_full) %>%
-                      rename(global_period_uncertainty = global_habitat_uncertainty)
-
-# Total across all municipalities
-encrec_005_tot <- encrec_005_kom %>%
-                    group_by(naturtype) %>%
-                    summarise(total_nature_loss_dekar = sum(total_nature_loss_dekar)) %>%
-                    mutate(indicator_id = "ENCREC_005",
-                           fylkesnr = "00",
-                           kommune = "0000",
-                           LAU_NAME = "Total", .before = naturtype) %>%
-                    mutate(accounting_period = "2018-2024", .before = "total_nature_loss_dekar")
-
-encrec_006_tot <- encrec_006_kom %>%
-                    group_by(naturtype) %>%
-                    summarise(total_nature_loss_dekar = sum(total_nature_loss_dekar)) %>%
-                    mutate(indicator_id = "ENCREC_006",
-                           fylkesnr = "00",
-                           kommune = "0000",
-                           LAU_NAME = "Total", .before = naturtype) %>%
-                    mutate(accounting_period = "2018-2024", .before = "total_nature_loss_dekar")
-
-
-# Add uncertainties to encrec_005_tot and encrec_006_tot
-encrec_005_tot_un <-  unc_005_idv %>%
-                        mutate(national = "0000",
-                               accounting_period = "2018-2024") %>%
-                        concatenate_fn(.,
-                              col_column_names = "uncertainty_source2",
-                              kom_num = "national",
-                              accounting_year = "accounting_period") %>%
-                        add_uncertainty_global(., 
-                                               kom_num = "national",
-                                               uncertainty_col_name = "unc_concat_full",
-                                               accounting_year = "accounting_period") %>%
+                      left_join(encrec_006_fy, ., join_by(`Fylke nummer` == "fylke", "Natur typer" == "naturtype")) %>%
                       ungroup() %>%
-                      select(!c(unc_concat_full, 
-                                global_cumulative_uncertainty,
-                                national,
-                                accounting_period)) %>%
-                      cbind(encrec_005_tot, .) %>%
-                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
-                      rename(global_period_uncertainty = global_yearly_uncertainty)
-
-encrec_006_tot_un <-  unc_006_idv %>%
-                        mutate(national = "0000",
-                               accounting_period = "2018-2024") %>%
-                        concatenate_fn(.,
-                              col_column_names = "uncertainty_source2",
-                              kom_num = "national",
-                              accounting_year = "accounting_period") %>%
-                        add_uncertainty_global(., 
-                                               kom_num = "national",
-                                               uncertainty_col_name = "unc_concat_full",
-                                               accounting_year = "accounting_period") %>%
-                      ungroup() %>%
-                      select(!c(unc_concat_full, 
-                                global_cumulative_uncertainty,
-                                national,
-                                accounting_period)) %>%
-                      cbind(encrec_006_tot, .) %>%
-                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
-                      rename(global_period_uncertainty = global_yearly_uncertainty)
+                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer"), .after = `Fylke nummer`)
 
 
-                    
-# Final accounting table               
-encrec_0056_acc <- bind_rows(encrec_005_kom_un,
-                             encrec_005_tot_un,
-                             encrec_006_kom_un, 
-                             encrec_006_tot_un)
+# Modify colnames
+colnames(encrec_005_fy_un) <- c("Indikatorens navn",
+                                 "Fylke nummer",
+                                 "Fylke navn",
+                                 "Natur typer",
+                                 "Regnskapsperiode",
+                                 "Areal særlig viktige naturtyper gått tapt (dekar)",
+                                 "Usikkerhet for areal i regnskapsperiode")
 
-encrec_0056_acc$fylkesnr[which(encrec_0056_acc$fylkesnr == "00")] <- "Total"
-encrec_0056_acc$kommune[which(encrec_0056_acc$kommune == "0000")] <- "Total"
+colnames(encrec_006_fy_un) <- colnames(encrec_005_fy_un)
 
-colnames(encrec_0056_acc) <- c("Indikatorens navn",
-                               "Fylke nummer",
-                               "Kommune nummer",
-                               "Kommune navn",
-                               "Natur typer",
-                               "Regnskapsperiode",
-                               "Areal særlig viktige naturtyper gått tapt (dekar)",
-                              "Usikkerhet for areal i regnskapsperiode")
+
+# Add total across fylke
+encrec_0056_fy_tot <- encrec_0056_acc %>%
+                        filter(`Kommune navn` == "Total") %>% 
+                        rename("Fylke navn" = "Kommune navn") %>%
+                        select(!`Kommune nummer`)
+                        
+  
+encrec_0056_fy_acc <- bind_rows(encrec_005_fy_unc,
+                                encrec_006_fy_unc,
+                                encrec_0056_fy_tot)
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -2413,19 +2351,20 @@ rm(list = setdiff(ls(),
                     "concatenate_fn",
                     "encrec_0012_acc",
                     "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encrec_0056_acc",
+                    "encrec_0056_fy_acc")))
 
 
 # Display the table dynamically
-datatable(encrec_0056_acc,
+datatable(encrec_0056_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0056_acc) == "Usikkerhet for areal i regnskapsperiode")),
+                          columnDefs = list(list(targets = c(which(colnames(encrec_0056_fy_acc) == "Usikkerhet for areal i regnskapsperiode")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabel 6 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i viktig og særlig viktig friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
     currency = "",                
