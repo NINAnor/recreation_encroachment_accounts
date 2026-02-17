@@ -924,7 +924,6 @@ encacc_001_fy_unc <- encacc_001_fy_un %>%
 
 # Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
 encacc_001_fy_unc[which(encacc_001_fy_unc$Regnskapsår == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
-encacc_001_fy_unc[which(encacc_001_fy_unc$Regnskapsår == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
 
 # Modify colnames
 colnames(encacc_001_fy_unc) <- c("Indikatorens navn",
