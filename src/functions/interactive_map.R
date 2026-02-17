@@ -81,7 +81,11 @@ interactive_map <- function(data1, data2 = NULL, fill_variable1, fill_variable2 
       tm_shape(data1) +
       
       tm_polygons(fill = {{fill_variable1}},
-                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type_map1}}, breaks = {{interval_breaks_map1}}, values = {{color_values_map1}}),
+                  fill.scale = tm_scale_intervals(n = 5, style = {{style_type_map1}}, 
+                                                  breaks = {{interval_breaks_map1}}, 
+                                                  values = {{color_values_map1}}, 
+                                                  value.na = "grey80",  
+                                                  label.na = "Missing"),
                   col = "black",
                   lwd = 1,
                   fill.legend = tm_legend(title = {{legend_title1}},
