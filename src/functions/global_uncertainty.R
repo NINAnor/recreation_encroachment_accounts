@@ -43,9 +43,9 @@ global_fn <- function(df, row, uncertainty_column){
       global_unc <- col_gr$color[which(col_gr$importance_perc >= 0.49)] %>%
         as.character()
       
-    }else if(isTRUE(length(which(col_gr$importance_perc >= 0.49)== TRUE) == 2)){
+    }else if(isTRUE(length(which(col_gr$importance_perc >= 0.40)== TRUE) == 2)){
       
-      main_col <- col_gr$color[which(col_gr$importance_perc >= 0.49)] %>%
+      main_col <- col_gr$color[which(col_gr$importance_perc >= 0.40)] %>%
         as.character()
       
       if(isTRUE(all.equal(main_col, c("Green", "Yellow"))) |  isTRUE(all.equal(main_col, c("Green", "Orange")))){ # Only two options as the rows are ordered so my colors will always appear in alphabetic order
@@ -62,7 +62,7 @@ global_fn <- function(df, row, uncertainty_column){
       }
       
       
-    }else if(isTRUE(length(which(col_gr$importance_perc >= 0.29 & col_gr$importance_perc < 0.49) == TRUE) == 3)){
+    }else if(isTRUE(length(which(col_gr$importance_perc >= 0.29 & col_gr$importance_perc < 0.40) == TRUE) == 3)){
       
       main_col <- col_gr$color[which(col_gr$importance_perc >= 0.29)] %>%
         as.character()
