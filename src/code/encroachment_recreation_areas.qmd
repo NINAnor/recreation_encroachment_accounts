@@ -2315,8 +2315,8 @@ encrec_0056_fy_tot <- encrec_0056_acc %>%
                         select(!`Kommune nummer`)
                         
   
-encrec_0056_fy_acc <- bind_rows(encrec_005_fy_unc,
-                                encrec_006_fy_unc,
+encrec_0056_fy_acc <- bind_rows(encrec_005_fy_un,
+                                encrec_006_fy_un,
                                 encrec_0056_fy_tot)
 
 # Clean R environment
@@ -2349,8 +2349,11 @@ rm(list = setdiff(ls(),
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
                     "concatenate_fn",
+                    "add_fylke",
                     "encrec_0012_acc",
+                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
+                    "encrec_0034_fy_acc",
                     "encrec_0056_acc",
                     "encrec_0056_fy_acc")))
 
@@ -2396,26 +2399,64 @@ We first prepare the dataset for mapping then map it both using an interactive a
 #| output: true
 #| code-summary: "Prepare dataset for mapping"
 
+## LAU dataset grouped by fylke
+fylke_geo <- lau_no %>%
+              select(GISCO_ID) %>%
+              mutate(fylke = add_fylke(data = ., kommune_nummer = "GISCO_ID")[[1]]) %>%
+              group_by(fylke) %>%
+              summarise()
 
-## Import LAU dataset to then join the name of the municipalities
+## AU dataset to then join to have the geometry to map
 kom_navn <- lau_no %>%
-              select(GISCO_ID,
-                     LAU_NAME)
+              select(GISCO_ID)
 
 ## Prepare dataset
+# Municipalities
 encrec_001_map <- encrec_0012_acc %>%
                     filter(!c(`Kommune navn` == "Total" | Regnskapsår == "Change 2018-2024")) %>%
                     filter(Regnskapsår == 2024) %>%
                     filter(`Indikatorens navn` == "ENCREC_001") %>%
-                    left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
+                    left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
                     select("Fylke nummer",
+                           "Kommune nummer",
                            "Kommune navn",
-                           "Kumulativ areal i dekar") %>%
-                    rename("Kumulativ areal av inngrep i dekar" = "Kumulativ areal i dekar")
+                           "Kumulativ areal i dekar",
+                           "Usikkerhet for kumulativ areal",
+                           "geometry") %>%
+                    rename("Kumulativ areal av nedbygging i dekar" = "Kumulativ areal i dekar") %>%
+                    st_as_sf()
 
-fylke_map <- encrec_001_map %>%
-              group_by(`Fylke nummer`) %>%
-              summarise("Kumulativ areal av inngrep i dekar" = sum(`Kumulativ areal av inngrep i dekar`))
+# Fylke 
+encrec_001_map_fy <- encrec_0012_fy_acc  %>%
+                        filter(!c(`Fylke navn` == "Total" | Regnskapsår == "Change 2018-2024")) %>%
+                        filter(Regnskapsår == 2024) %>%
+                        filter(`Indikatorens navn` == "ENCREC_001") %>%
+                        left_join(., fylke_geo, join_by("Fylke nummer" == "fylke"))  %>%
+                        select("Fylke nummer",
+                               "Fylke navn",
+                               "Kumulativ areal i dekar",
+                               "Usikkerhet for kumulativ areal",
+                               "geometry") %>%
+                        rename("Kumulativ areal av nedbygging i dekar" = "Kumulativ areal i dekar") %>%
+                        st_as_sf()
+
+# Replace labels of uncertainty
+encrec_001_map$`Usikkerhet for kumulativ areal`[which(encrec_001_map$`Usikkerhet for kumulativ areal` == "Green")]<- "Sikker"
+
+encrec_001_map$`Usikkerhet for kumulativ areal`[which(encrec_001_map$`Usikkerhet for kumulativ areal` == "Yellow")]<- "Ganske sikker"
+
+encrec_001_map$`Usikkerhet for kumulativ areal`[which(encrec_001_map$`Usikkerhet for kumulativ areal` == "Orange")]<- "Ganske usikker"
+
+encrec_001_map$`Usikkerhet for kumulativ areal`[which(encrec_001_map$`Usikkerhet for kumulativ areal` == "Red")]<- "Usikker"
+
+
+encrec_001_map_fy$`Usikkerhet for kumulativ areal`[which(encrec_001_map_fy$`Usikkerhet for kumulativ areal` == "Green")]<- "Sikker"
+
+encrec_001_map_fy$`Usikkerhet for kumulativ areal`[which(encrec_001_map_fy$`Usikkerhet for kumulativ areal` == "Yellow")]<- "Ganske sikker"
+
+encrec_001_map_fy$`Usikkerhet for kumulativ areal`[which(encrec_001_map_fy$`Usikkerhet for kumulativ areal` == "Orange")]<- "Ganske usikker"
+
+encrec_001_map_fy$`Usikkerhet for kumulativ areal`[which(encrec_001_map_fy$`Usikkerhet for kumulativ areal` == "Red")]<- "Usikker"
 
 ```
 
@@ -2425,21 +2466,27 @@ fylke_map <- encrec_001_map %>%
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Interactive map of total encroachment area in all recreation areas per municipality over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
 source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
-interactive_map(data1 = fylke_map, 
+interactive_map(data1 = encrec_001_map, 
                 data2 = encrec_001_map, 
-                fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-                fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-                legend_title1 = "Fylke - Areal av inngrep (dekar)", 
-                legend_title2 = "Kommune - Areal av inngrep (dekar)", 
-                map_title1 = "Totalt areal av inngrep (dekar) i friluftslivonsområder i fylker over 2018-2024", 
-                map_title2 = "Totalt areal av inngrep (dekar) i friluftslivonsområder i kommuner over 2018-2024")
+                fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
+                fill_variable2 =  "Usikkerhet for kumulativ areal", 
+                legend_title1 = "Totalt areal av nedbygging (dekar)", 
+                legend_title2 = "Usikkerhet", 
+                style_type_map1 = "fixed",
+                interval_breaks_map1 = c(0, 50, 150, 250, 500, 2600),
+                color_values_map2 = c("Quite certain" = "#94F4B6",
+                                      "Rather certain" = "#FFF085", 
+                                      "Rather uncertain" = "#FFC68A",
+                                      "Quite uncertain" = "#FF8A8A"),
+                map_title1 = "Totalt areal av nedbygging (dekar) i friluftslivonsområder i kommuner over 2018-2024", 
+                map_title2 = "Usikkerhet knyttet til det totale arealet av nedbygging over 2018-2024")
 
 ```
 
@@ -2448,37 +2495,55 @@ interactive_map(data1 = fylke_map,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of total encroachment area in all recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Static map of total encroachment area in all recreation areas per municipality over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = fylke_map,
+static_map(data1 = encrec_001_map, 
            data2 = encrec_001_map, 
-           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
-           fill_variable2 =  "Kumulativ areal av inngrep i dekar", 
-           legend_title1 = "Areal av inngrep (dekar)", 
-           legend_title2 = "Areal av inngrep (dekar)",
-           map_title1 = "Totalt areal av inngrep (dekar) \ni friluftslivonsområder \ni fylker i 2018-2024", 
-           map_title2 = "Totalt areal av inngrep (dekar) \ni friluftslivonsområder \ni kommuner i 2018-\n2024")
+           fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
+           fill_variable2 =  "Usikkerhet for kumulativ areal", 
+           legend_title1 = "Totalt areal av nedbygging (dekar)", 
+           legend_title2 = "Usikkerhet", 
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 50, 150, 250, 500, 2600),
+           color_values_map2 = c("Quite certain" = "#94F4B6",
+                                 "Rather certain" = "#FFF085", 
+                                 "Rather uncertain" = "#FFC68A",
+                                 "Quite uncertain" = "#FF8A8A"),
+           map_title1 = "Totalt areal av nedbygging (dekar) i friluftslivonsområder i kommuner over 2018-2024", 
+           map_title2 = "Usikkerhet knyttet til det totale arealet av nedbygging over 2018-2024")
+```
 
-## Clean R environment
-rm(list = setdiff(ls(), 
-                  c("lau_no",
-                    "encroach_dt",
-                    "project_path",
-                    "functions_path",
-                    "rcl_32_tr",
-                    "rcl_final",
-                    "encrec",
-                    "encnatur",
-                    "kom_navn",
-                    "encrec_0012_acc",
-                    "encrec_0034_acc",
-                    "encrec_0056_acc")))
+```{r map_enc001_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of total encroachment area in all recreation areas per fylke over 2018-2024"
 
+## Static maps
+# Call for the function to do static mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = encrec_001_map_fy, 
+           data2 = encrec_001_map_fy, 
+           fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
+           fill_variable2 =  "Usikkerhet for kumulativ areal", 
+           legend_title1 = "Totalt areal av nedbygging (dekar)", 
+           legend_title2 = "Usikkerhet", 
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 2000, 4000, 6000, 10000, 21000),
+           color_values_map2 = c("Quite certain" = "#94F4B6",
+                                 "Rather certain" = "#FFF085", 
+                                 "Rather uncertain" = "#FFC68A",
+                                 "Quite uncertain" = "#FF8A8A"),
+           map_title1 = "Totalt areal av nedbygging (dekar) i friluftslivonsområder i fylker over 2018-2024", 
+           map_title2 = "Usikkerhet knyttet til det totale arealet av nedbygging over 2018-2024")
 ```
 
 ```{r map_enc001_4}
@@ -2494,13 +2559,39 @@ rm(list = setdiff(ls(),
                     "encroach_dt",
                     "project_path",
                     "functions_path",
-                    "rcl_32_tr",
+                    "rcl_final",
+                    "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_005_idv",
+                    "unc_006_idv",
+                    "unc_006_idv2",
+                    "unc_0024_idv2",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_0013_sum",
+                    "unc_0024_sum",
+                    "unc_005_sum",
+                    "unc_006_sum",
+                    "unc_0024_sum2",
+                    "unc_006_sum2",
                     "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
+                    "add_fylke",
                     "encrec_0012_acc",
+                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc",
+                    "encrec_0056_fy_acc",
+                    "encrec_001_map",
+                    "encrec_001_map_fy")))
 
 ```
 
