@@ -803,7 +803,7 @@ rm(list = setdiff(ls(),
 ### 9.1 ENCREC_001 to ENCREC_0004
 Both the analyses for ENCREC_001 to ENCREC_004 rely on spatial intersections between DT02 and DT03. Also, note that we re-calculate the areas of the encroachment polygons after the intersection with DT02 has been performed.
 
-*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities*
+*Note: some municipalities had no encroachments detected in certain years. In these cases, the year where 0 encroachment was detected did not not appear. We thus had to add it manually for all municipalities. In these cases, we reported the uncertainty of the year of encroachment.*
 
 ```{r encrec001234_analyses}
 #| eval: true
@@ -822,7 +822,7 @@ encrec_raw <- st_intersection(rcl_final, encroach_dt) %>%
 # Add missing years for accounting. Set the area as 0 for the missing year.
 encrec <- encrec_raw %>%
             st_drop_geometry() %>%
-            complete(nesting(fylkesnr, kommune), year = 2018:2024, fill = list(id = "NA",
+            complete(nesting(fylkesnr, kommune, områdeverdi), year = 2018:2024, fill = list(id = "NA",
                                                                                 area = 0,
                                                                                 area_inter_m2 = 0))
 
@@ -849,16 +849,16 @@ For ENCREC_005 and ENCRREC_006, we need a spatial intersection between DT04 and 
 #| code-summary: "ENCREC_003 - intersection"
 
 # Check the CRS of both encrec and DT04
-st_crs(encrec) == st_crs(natur_cln)
+st_crs(encrec_raw) == st_crs(natur_cln)
 
 # Re-project natur_cln into ESPG : 25832
-natur_32 <- st_transform(natur_cln, crs = st_crs(encrec))
+natur_32 <- st_transform(natur_cln, crs = st_crs(encrec_raw))
 
 # Check CRS of both datasets are the same now
-st_crs(natur_32) == st_crs(encrec)
+st_crs(natur_32) == st_crs(encrec_raw)
 
 # Perform spatial intersection
-encnatur_raw <- encrec %>%
+encnatur_raw <- encrec_raw %>%
                  select(fylkesnr,
                         kommune,
                         kartleggingsår,
@@ -917,13 +917,11 @@ source(paste0(functions_path,"/add_uncertainty_individual.R"))
 
 # Uncertainty RECACC_001
 unc_0013_idv <- encrec %>%
-                st_drop_geometry() %>%
                 select(kommune, year, kartleggingsår) %>%
                 mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year", "kartleggingsår"))}))
 
 
 unc_0024_idv <- encrec %>%
-                st_drop_geometry() %>%
                     filter(områdeverdi %in% c("viktigFriluftslivsområde", 
                                               "sværtViktigFriluftslivsområde")) %>%
                 select(kommune, year, kartleggingsår) %>%
@@ -932,7 +930,6 @@ unc_0024_idv <- encrec %>%
 
 
 unc_0024_idv2 <- encrec %>%
-                st_drop_geometry()  %>%
                     filter(områdeverdi %in% c("viktigFriluftslivsområde", 
                                               "sværtViktigFriluftslivsområde")) %>%
                 group_by(kommune, year, kartleggingsår)  %>%
@@ -943,13 +940,11 @@ unc_0024_idv2 <- encrec %>%
 
 # Uncertainty ENCACCC_005
 unc_005_idv <- encnatur %>%
-                st_drop_geometry() %>%
                 select(kommune, year_encrec, year_natur_recorded, naturtype) %>%
                 mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year_encrec", "year_natur_recorded"))}))
 
 # Uncertainty ENCACCC_006
 unc_006_idv <- encnatur %>%
-                st_drop_geometry() %>%
                 filter(områdeverdi %in% c("viktigFriluftslivsområde", 
                                           "sværtViktigFriluftslivsområde")) %>%
                 select(kommune, year_encrec, year_natur_recorded, naturtype) %>%
@@ -957,7 +952,6 @@ unc_006_idv <- encnatur %>%
 
 
 unc_006_idv2 <- encnatur %>%
-                st_drop_geometry() %>%
                 group_by(kommune, year_encrec, year_natur_recorded, naturtype) %>%
                 summarise(n_poly = n()) %>%
                 select(!n_poly) %>%
@@ -1114,7 +1108,6 @@ kom_navn <- lau_no %>%
 ## ENCREC_001 and 002 accounting tables
 # Accounts for all municipalities
 encrec_001_kom <- encrec %>%
-                    st_drop_geometry() %>%
                     select(fylkesnr,
                            kommune,
                            year,
@@ -1127,7 +1120,6 @@ encrec_001_kom <- encrec %>%
                     mutate(indicator_id = "ENCREC_001", .before = "fylkesnr")
 
 encrec_002_kom <- encrec %>%
-                    st_drop_geometry() %>%
                     filter(områdeverdi %in% c("viktigFriluftslivsområde", 
                                               "sværtViktigFriluftslivsområde")) %>%
                     select(fylkesnr,
@@ -1151,7 +1143,7 @@ encrec_001_kom_un <- encrec_001_kom %>%
                       select(!unc_concat_full)
 
 encrec_002_kom_un <- encrec_002_kom %>%
-                      left_join(., unc_0024_sum2, by = c("kommune", "year")) %>%
+                      left_join(., unc_0024_sum, by = c("kommune", "year")) %>%
                       add_uncertainty_global(., 
                                              uncertainty_col_name = "unc_concat_full", 
                                              kom_num = "kommune", 
@@ -1361,7 +1353,10 @@ datatable(encrec_0012_acc,
 # Call function to concatenate
 source(paste0(functions_path,"/concatenate_individual_uncertainty.R"))
 
-# Create the accounting table based on encacc_001_acc
+# Call function to add fylke
+source(paste0(functions_path,"/add_fylke.R"))
+
+# Create the accounting table for ENCREC_001 and ENCREC_002 based on encrec_0012_acc
 encrec_001_fy <- encrec_0012_acc %>%
                   filter(!Regnskapsår == "Change 2018-2024") %>%
                   filter(!`Kommune navn` == "Total") %>%
@@ -1370,175 +1365,99 @@ encrec_001_fy <- encrec_0012_acc %>%
                   summarise(yearly_area = sum(`Årlig areal i dekar`)) %>%
                   mutate(cumulative_area = cumsum(yearly_area))
 
+encrec_002_fy <- encrec_0012_acc %>%
+                  filter(!Regnskapsår == "Change 2018-2024") %>%
+                  filter(!`Kommune navn` == "Total") %>%
+                  filter(`Indikatorens navn` == "ENCREC_002") %>%
+                  group_by(`Indikatorens navn`, `Fylke nummer`, Regnskapsår) %>%
+                  summarise(yearly_area = sum(`Årlig areal i dekar`)) %>%
+                  mutate(cumulative_area = cumsum(yearly_area))
 
-## ENCREC_001 and 002 accounting tables
-# Accounts for all municipalities
-encrec_001_kom <- encrec %>%
-                    st_drop_geometry() %>%
-                    select(fylkesnr,
-                           kommune,
-                           year,
-                           area_inter_m2) %>%
-                    group_by(fylkesnr, kommune, year) %>%
-                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
-                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(LAU_NAME), .after = "kommune") %>%
-                    mutate(indicator_id = "ENCREC_001", .before = "fylkesnr")
 
-encrec_002_kom <- encrec %>%
-                    st_drop_geometry() %>%
-                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                    select(fylkesnr,
-                           kommune,
-                           year,
-                           area_inter_m2) %>%
-                    group_by(fylkesnr, kommune, year) %>%
-                    summarise(area_dekar_yearly = round2(sum(area_inter_m2)/1000, 2)) %>%
-                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
-                    left_join(., kom_navn, join_by("kommune" == "GISCO_ID")) %>%
-                    relocate(c(LAU_NAME), .after = "kommune") %>%
-                    mutate(indicator_id = "ENCREC_002", .before = "fylkesnr")
-
-# Add uncertainties to encacc_001_kom
-encrec_001_kom_un <- encrec_001_kom %>%
-                      left_join(., unc_0013_sum, by = c("kommune", "year")) %>%
+# Add uncertainties to encacc_001_fy and encacc_002_fy
+encrec_001_fy_un <-  unc_0013_idv %>%
+                      mutate(fylke = add_fylke(data = ., kommune_nummer = "kommune")[[1]], .before = kommune) %>%
+                      select(!kommune) %>%
+                      concatenate_fn(.,
+                                     col_column_names = c("uncertainty_source2"),
+                                     kom_num = "fylke",
+                                     accounting_year = "year") %>%
                       add_uncertainty_global(., 
-                                             uncertainty_col_name = "unc_concat_full", 
-                                             kom_num = "kommune", 
-                                             accounting_year = "year") %>%
-                      select(!unc_concat_full)
+                                                      kom_num = "fylke",
+                                                      uncertainty_col_name = "unc_concat_full",
+                                                      accounting_year = "year") %>%
+                      select(!unc_concat_full) %>%
+                      mutate(year = as.character(year)) %>%
+                      left_join(encrec_001_fy, ., join_by(`Fylke nummer` == "fylke", "Regnskapsår" == "year")) %>%
+                      ungroup() %>%
+                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer"), .after = `Fylke nummer`)
 
-encrec_002_kom_un <- encrec_002_kom %>%
-                      left_join(., unc_0024_sum2, by = c("kommune", "year")) %>%
+
+encrec_002_fy_un <-  unc_0024_idv %>%
+                      mutate(fylke = add_fylke(data = ., kommune_nummer = "kommune")[[1]], .before = kommune) %>%
+                      select(!kommune) %>%
+                      concatenate_fn(.,
+                                     col_column_names = c("uncertainty_source2"),
+                                     kom_num = "fylke",
+                                     accounting_year = "year") %>%
                       add_uncertainty_global(., 
-                                             uncertainty_col_name = "unc_concat_full", 
-                                             kom_num = "kommune", 
-                                             accounting_year = "year") %>%
-                      select(!unc_concat_full)
-
-
-# Total across all municipalities
-encrec_001_tot <- encrec_001_kom %>%
-                    group_by(year) %>%
-                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
-                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
-                    mutate(indicator_id = "ENCREC_001",
-                           fylkesnr = "00",
-                           kommune = "0000",
-                           LAU_NAME = "Total", .before = year)
-
-encrec_002_tot <- encrec_002_kom %>%
-                    group_by(year) %>%
-                    summarise(area_dekar_yearly = sum(area_dekar_yearly)) %>%
-                    mutate(area_dekar_cumulative = round2(cumsum(area_dekar_yearly), 2)) %>%
-                    mutate(indicator_id = "ENCREC_002",
-                           fylkesnr = "00",
-                           kommune = "0000",
-                           LAU_NAME = "Total", .before = year)
-                     
-
-# Add uncertainty to encacc_001_tot and encrec_002_tot
-encrec_001_tot_un <-  unc_0013_idv %>%
-                        mutate(national = "0000") %>%
-                        concatenate_fn(.,
-                                       col_column_names = "uncertainty_source2",
-                                       kom_num = "national",
-                                       accounting_year = "year") %>%
-                        add_uncertainty_global(., 
-                                               kom_num = "national",
-                                               uncertainty_col_name = "unc_concat_full",
-                                               accounting_year = "year") %>%
+                                                      kom_num = "fylke",
+                                                      uncertainty_col_name = "unc_concat_full",
+                                                      accounting_year = "year") %>%
+                      select(!unc_concat_full) %>%
+                      mutate(year = as.character(year)) %>%
+                      left_join(encrec_002_fy, ., join_by(`Fylke nummer` == "fylke", "Regnskapsår" == "year")) %>%
                       ungroup() %>%
-                      select(!c(unc_concat_full, 
-                                global_cumulative_uncertainty,
-                                national,
-                                year)) %>%
-                      cbind(encrec_001_tot, .)
-
-encrec_002_tot_un <-  unc_0024_idv %>%
-                        mutate(national = "0000") %>%
-                        concatenate_fn(.,
-                                       col_column_names = "uncertainty_source2",
-                                       kom_num = "national",
-                                       accounting_year = "year") %>%
-                        add_uncertainty_global(., 
-                                               kom_num = "national",
-                                               uncertainty_col_name = "unc_concat_full",
-                                               accounting_year = "year") %>%
-                      ungroup() %>%
-                      select(!c(unc_concat_full, 
-                                global_cumulative_uncertainty,
-                                national,
-                                year)) %>%
-                      cbind(encrec_002_tot, .)
+                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer")[[1]], .after = `Fylke nummer`)
 
 
-# Add change to all tables
-encrec_001_kom_un$year <- as.character(encrec_001_kom_un$year)
-
-encrec_001_kom_un <- encrec_001_kom_un %>%
-                      group_split(kommune) %>% 
+# Add change to encrec_001_fy_un and encrec_001_fy_un
+encrec_001_fy_unc <- encrec_001_fy_un %>%
+                      group_split(`Fylke nummer`) %>% 
                       map(~ add_change_encroachment_area(., 
-                                                         year_column = "year",
-                                                         area1 = "area_dekar_cumulative")) %>% 
+                                                         year_column = "Regnskapsår",
+                                                         area1 = "cumulative_area")) %>% 
                       compact() %>%
                       bind_rows()
 
-encrec_002_kom_un$year <- as.character(encrec_002_kom_un$year)
 
-encrec_002_kom_un <- encrec_002_kom_un %>%
-                      group_split(kommune) %>% 
+encrec_002_fy_unc <- encrec_002_fy_un %>%
+                      group_split(`Fylke nummer`) %>% 
                       map(~ add_change_encroachment_area(., 
-                                                         year_column = "year",
-                                                         area1 = "area_dekar_cumulative")) %>% 
-                      compact() %>%
-                      bind_rows()
-
-
-encrec_001_tot_un$year <- as.character(encrec_001_tot_un$year)
-
-encrec_001_tot_un <- add_change_encroachment_area(encrec_001_tot_un, 
-                                                  year_column = "year",
-                                                  area1 = "area_dekar_cumulative") %>% 
-                      compact() %>%
-                      bind_rows()
-
-
-encrec_002_tot_un$year <- as.character(encrec_002_tot_un$year)
-
-encrec_002_tot_un <- add_change_encroachment_area(encrec_002_tot_un, 
-                                                  year_column = "year",
-                                                  area1 = "area_dekar_cumulative") %>% 
+                                                         year_column = "Regnskapsår",
+                                                         area1 = "cumulative_area")) %>% 
                       compact() %>%
                       bind_rows()
 
 
 # Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
-encrec_001_kom_un[which(encrec_001_kom_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
-encrec_002_kom_un[which(encrec_002_kom_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
-encrec_001_tot_un[which(encrec_001_tot_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
-encrec_002_tot_un[which(encrec_002_tot_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
-                    
-# Final accounting table               
-encrec_0012_acc <- bind_rows(encrec_001_kom_un,
-                             encrec_001_tot_un, 
-                             encrec_002_kom_un,
-                             encrec_002_tot_un)
+encrec_001_fy_unc[which(encrec_001_fy_unc$Regnskapsår == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+encrec_002_fy_unc[which(encrec_002_fy_unc$Regnskapsår == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
 
-encrec_0012_acc$fylkesnr[which(encrec_0012_acc$fylkesnr == "00")] <- "Total"
-encrec_0012_acc$kommune[which(encrec_0012_acc$kommune == "0000")] <- "Total"
+# Modify colnames
+colnames(encrec_001_fy_unc) <- c("Indikatorens navn",
+                                 "Fylke nummer",
+                                 "Fylke navn",
+                                 "Regnskapsår",
+                                 "Årlig areal i dekar",
+                                 "Kumulativ areal i dekar",
+                                 "Usikkerhet for årlig areal",
+                                 "Usikkerhet for kumulativ areal")
 
-colnames(encrec_0012_acc) <- c("Indikatorens navn",
-                               "Fylke nummer",
-                               "Kommune nummer",
-                               "Kommune navn",
-                               "Regnskapsår",
-                               "Årlig areal i dekar",
-                               "Kumulativ areal i dekar",
-                               "Usikkerhet for årlig areal",
-                               "Usikkerhet for kumulativ areal")
+colnames(encrec_002_fy_unc) <- colnames(encrec_001_fy_unc)
+
+
+# Add total across fylke
+encrec_0012_fy_tot <- encrec_0012_acc %>%
+                        filter(`Kommune navn` == "Total") %>% 
+                        rename("Fylke navn" = "Kommune navn") %>%
+                        select(!`Kommune nummer`)
+                        
+  
+encrec_0012_fy_acc <- bind_rows(encrec_001_fy_unc,
+                               encrec_002_fy_unc,
+                               encrec_0012_fy_tot)
+
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -1570,17 +1489,17 @@ rm(list = setdiff(ls(),
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
                     "concatenate_fn",
-                    "encrec_0012_acc")))
-
+                    "encrec_0012_acc",
+                    "encrec_0012_fy_acc")))
 
 # Display the table dynamically
-datatable(encrec_0012_acc,
+datatable(encrec_0012_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0012_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encrec_0012_acc) == "Usikkerhet for kumulativ areal")),
+                          columnDefs = list(list(targets = c(which(colnames(encrec_0012_fy_acc) == "Usikkerhet for årlig areal"),
+                                                             which(colnames(encrec_0012_fy_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i all friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
@@ -1608,7 +1527,6 @@ datatable(encrec_0012_acc,
     ),
     valueColumns = "Usikkerhet for kumulativ areal"           # column used for the intervals
   )
-
 ```
 
 
