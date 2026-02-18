@@ -1097,7 +1097,6 @@ source(paste0(functions_path, "/add_uncertainty_global.R"))
 ## Call function to concatenate
 source(paste0(functions_path,"/concatenate_individual_uncertainty.R"))
 
-
 ## Import LAU dataset to then join the name of the municipalities
 kom_navn <- lau_no %>%
               st_drop_geometry() %>%
@@ -1301,6 +1300,7 @@ rm(list = setdiff(ls(),
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
                     "concatenate_fn",
+                    "add_fylke.R",
                     "encrec_0012_acc")))
 
 
@@ -1602,7 +1602,7 @@ encrec_003_kom_un <- encrec_003_kom %>%
                       select(!unc_concat_full)
 
 encrec_004_kom_un <- encrec_004_kom %>%
-                      left_join(., unc_0024_sum2, by = c("kommune", "year")) %>%
+                      left_join(., unc_0024_sum, by = c("kommune", "year")) %>%
                       add_uncertainty_global(., 
                                              uncertainty_col_name = "unc_concat_full", 
                                              kom_num = "kommune", 
@@ -2345,7 +2345,6 @@ rm(list = setdiff(ls(),
                     "unc_006_sum",
                     "unc_0024_sum2",
                     "unc_006_sum2",
-                    "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
                     "concatenate_fn",
@@ -2697,8 +2696,8 @@ interactive_map(data1 = encrec_002_map,
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = encrec_002_map, 
-           data2 = encrec_002_map, 
+static_map(data1 = ndbygging_kommune, 
+           data2 = ndbygging_kommune, 
            fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
            fill_variable2 =  "Usikkerhet for kumulativ areal", 
            legend_title1 = "Totalt areal av nedbygging (dekar)", 
@@ -2834,9 +2833,10 @@ encrec_001_perc_map <- encrec_0012_acc %>%
                                "Share (%) of recreation area lost",
                                "Usikkerhet for kumulativ areal",
                                "geometry") %>%
-                        rename("Total recreation area" = "total_rec_area",
+                        rename("Totalt areal friluftsliv" = "total_rec_area",
+                               "Prosentandel (%) av friluftsliv gått tapt" = "Share (%) of recreation area lost",
                                "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
-                               "Usikkerhet for share of recreation area lost"  = "Usikkerhet for kumulativ areal") %>%
+                               "Usikkerhet av prosentandel"  = "Usikkerhet for kumulativ areal") %>%
                         st_as_sf()
 
 encrec_001_perc_map_fy <- encrec_0012_fy_acc %>%
@@ -2852,29 +2852,30 @@ encrec_001_perc_map_fy <- encrec_0012_fy_acc %>%
                                    "Kumulativ areal i dekar",
                                    "Share (%) of recreation area lost",
                                    "Usikkerhet for kumulativ areal") %>%
-                            rename("Total recreation area" = "total_rec_area",
+                            rename("Totalt areal av friluftsliv" = "total_rec_area",
+                               "Prosentandel (%) av friluftsliv gått tapt" = "Share (%) of recreation area lost",
                                    "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
-                                   "Usikkerhet for share of recreation area lost"  = "Usikkerhet for kumulativ areal") %>%
+                                   "Usikkerhet av prosentandel"  = "Usikkerhet for kumulativ areal") %>%
                             left_join(., fylke_geo, join_by("Fylke nummer" == "fylke")) %>%
                             st_as_sf() 
 
 # Replace labels of uncertainty
-encrec_001_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map$`Usikkerhet for share of recreation area lost` == "Green")]<- "Sikker"
+encrec_001_perc_map$`Usikkerhet av prosentandel`[which(encrec_001_perc_map$`Usikkerhet av prosentandel` == "Green")]<- "Sikker"
 
-encrec_001_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map$`Usikkerhet for share of recreation area lost` == "Yellow")]<- "Ganske sikker"
+encrec_001_perc_map$`Usikkerhet av prosentandel`[which(encrec_001_perc_map$`Usikkerhet av prosentandel` == "Yellow")]<- "Ganske sikker"
 
-encrec_001_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map$`Usikkerhet for share of recreation area lost` == "Orange")]<- "Ganske usikker"
+encrec_001_perc_map$`Usikkerhet av prosentandel`[which(encrec_001_perc_map$`Usikkerhet av prosentandel` == "Orange")]<- "Ganske usikker"
 
-encrec_001_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map$`Usikkerhet for share of recreation area lost` == "Red")]<- "Usikker"
+encrec_001_perc_map$`Usikkerhet av prosentandel`[which(encrec_001_perc_map$`Usikkerhet av prosentandel` == "Red")]<- "Usikker"
 
 
-encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Green")]<- "Sikker"
+encrec_001_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_001_perc_map_fy$`Usikkerhet av prosentandel` == "Green")]<- "Sikker"
 
-encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Yellow")]<- "Ganske sikker"
+encrec_001_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_001_perc_map_fy$`Usikkerhet av prosentandel` == "Yellow")]<- "Ganske sikker"
 
-encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Orange")]<- "Ganske usikker"
+encrec_001_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_001_perc_map_fy$`Usikkerhet av prosentandel` == "Orange")]<- "Ganske usikker"
 
-encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_001_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Red")]<- "Usikker"
+encrec_001_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_001_perc_map_fy$`Usikkerhet av prosentandel` == "Red")]<- "Usikker"
 
 ```
 
@@ -3062,9 +3063,10 @@ encrec_002_perc_map <- encrec_0012_acc %>%
                                "Share (%) of recreation area lost",
                                "Usikkerhet for kumulativ areal",
                                "geometry") %>%
-                        rename("Total recreation area" = "total_rec_area",
+                        rename("Totalt areal friluftsliv" = "total_rec_area",
+                               "Prosentandel (%) av friluftsliv gått tapt" = "Share (%) of recreation area lost",
                                "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
-                               "Usikkerhet for share of recreation area lost"  = "Usikkerhet for kumulativ areal") %>%
+                               "Usikkerhet av prosentandel"  = "Usikkerhet for kumulativ areal") %>%
                         st_as_sf()
 
 encrec_002_perc_map_fy <- encrec_0012_fy_acc %>%
@@ -3080,29 +3082,30 @@ encrec_002_perc_map_fy <- encrec_0012_fy_acc %>%
                                    "Kumulativ areal i dekar",
                                    "Share (%) of recreation area lost",
                                    "Usikkerhet for kumulativ areal") %>%
-                            rename("Total recreation area" = "total_rec_area",
-                                   "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
-                                   "Usikkerhet for share of recreation area lost"  = "Usikkerhet for kumulativ areal") %>%
+                            rename("Totalt areal friluftsliv" = "total_rec_area",
+                               "Prosentandel (%) av friluftsliv gått tapt" = "Share (%) of recreation area lost",
+                               "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
+                               "Usikkerhet av prosentandel"  = "Usikkerhet for kumulativ areal") %>%
                             left_join(., fylke_geo, join_by("Fylke nummer" == "fylke")) %>%
                             st_as_sf() 
 
 # Replace labels of uncertainty
-encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Green")]<- "Sikker"
+encrec_002_perc_map$`Usikkerhet av prosentandel`[which(encrec_002_perc_map$`Usikkerhet av prosentandel` == "Green")]<- "Sikker"
 
-encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Yellow")]<- "Ganske sikker"
+encrec_002_perc_map$`Usikkerhet av prosentandel`[which(encrec_002_perc_map$`Usikkerhet av prosentandel` == "Yellow")]<- "Ganske sikker"
 
-encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Orange")]<- "Ganske usikker"
+encrec_002_perc_map$`Usikkerhet av prosentandel`[which(encrec_002_perc_map$`Usikkerhet av prosentandel` == "Orange")]<- "Ganske usikker"
 
-encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Red")]<- "Usikker"
+encrec_002_perc_map$`Usikkerhet av prosentandel`[which(encrec_002_perc_map$`Usikkerhet av prosentandel` == "Red")]<- "Usikker"
 
 
-encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Green")]<- "Sikker"
+encrec_002_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_002_perc_map_fy$`Usikkerhet av prosentandel` == "Green")]<- "Sikker"
 
-encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Yellow")]<- "Ganske sikker"
+encrec_002_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_002_perc_map_fy$`Usikkerhet av prosentandel` == "Yellow")]<- "Ganske sikker"
 
-encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Orange")]<- "Ganske usikker"
+encrec_002_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_002_perc_map_fy$`Usikkerhet av prosentandel` == "Orange")]<- "Ganske usikker"
 
-encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Red")]<- "Usikker"
+encrec_002_perc_map_fy$`Usikkerhet av prosentandel`[which(encrec_002_perc_map_fy$`Usikkerhet av prosentandel` == "Red")]<- "Usikker"
 
 ```
 
@@ -3299,7 +3302,7 @@ encrec_006_map_un <- unc_006_idv %>%
                            "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
                            "global_period_uncertainty",
                            "geometry") %>%
-                    rename("Usikkerhet for totalt areal" = "global_period_uncertainty") %>%
+                    rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
                     st_as_sf()
 
 
@@ -3336,26 +3339,26 @@ encrec_006_map_un_fy <- unc_006_idv %>%
                            "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
                            "global_period_uncertainty",
                            "geometry") %>%
-                    rename("Usikkerhet for totalt areal" = "global_period_uncertainty") %>%
+                    rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
                     st_as_sf()
 
 # Replace labels of uncertainty
-encrec_006_map_un$`Usikkerhet for totalt areal`[which(encrec_006_map_un$`Usikkerhet for totalt areal` == "Green")]<- "Sikker"
+encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
 
-encrec_006_map_un$`Usikkerhet for totalt areal`[which(encrec_006_map_un$`Usikkerhet for totalt areal` == "Yellow")]<- "Ganske sikker"
+encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Yellow")]<- "Ganske sikker"
 
-encrec_006_map_un$`Usikkerhet for totalt areal`[which(encrec_006_map_un$`Usikkerhet for totalt areal` == "Orange")]<- "Ganske usikker"
+encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Orange")]<- "Ganske usikker"
 
-encrec_006_map_un$`Usikkerhet for totalt areal`[which(encrec_006_map_un$`Usikkerhet for totalt areal` == "Red")]<- "Usikker"
+encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Red")]<- "Usikker"
 
 
-encrec_006_map_un_fy$`Usikkerhet for totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet for totalt areal` == "Green")]<- "Sikker"
+encrec_006_map_un_fy$`Usikkerhet av totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
 
-encrec_006_map_un_fy$`Usikkerhet for totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet for totalt areal` == "Yellow")]<- "Ganske sikker"
+encrec_006_map_un_fy$`Usikkerhet av totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet av totalt areal` == "Yellow")]<- "Ganske sikker"
 
-encrec_006_map_un_fy$`Usikkerhet for totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet for totalt areal` == "Orange")]<- "Ganske usikker"
+encrec_006_map_un_fy$`Usikkerhet av totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet av totalt areal` == "Orange")]<- "Ganske usikker"
 
-encrec_006_map_un_fy$`Usikkerhet for totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet for totalt areal` == "Red")]<- "Usikker"
+encrec_006_map_un_fy$`Usikkerhet av totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet av totalt areal` == "Red")]<- "Usikker"
 
 
 ```
@@ -3584,7 +3587,7 @@ encrec_006_perc_map_fy$`Usikkerhet`[which(encrec_006_perc_map_fy$`Usikkerhet` ==
 ```
 
 
-```{r map_enc006_2}
+```{r map_enc006_perc_2}
 #| eval: false
 #| warning: false
 #| message: false
@@ -3614,7 +3617,7 @@ interactive_map(data1 = encrec_006_perc_map,
 
 ```
 
-```{r map_enc006_3}
+```{r map_enc006_perc_3}
 #| eval: true
 #| warning: false
 #| message: false
@@ -3644,7 +3647,7 @@ static_map(data1 = encrec_006_perc_map,
 
 ```
 
-```{r map_enc006_4}
+```{r map_enc006_perc_4}
 #| eval: true
 #| warning: false
 #| message: false
@@ -3675,6 +3678,66 @@ static_map(data1 = encrec_006_perc_map_fy,
 ```
 
 
+```{r map_enc006_perc_5}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Clean R environment"
+
+## Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_final",
+                    "natur_32",
+                    "encrec_raw",
+                    "encrec",
+                    "encnatur_raw",
+                    "encnatur",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_005_idv",
+                    "unc_006_idv",
+                    "unc_006_idv2",
+                    "unc_0024_idv2",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_0013_sum",
+                    "unc_0024_sum",
+                    "unc_005_sum",
+                    "unc_006_sum",
+                    "unc_0024_sum2",
+                    "unc_006_sum2",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
+                    "add_fylke",
+                    "encrec_0012_acc",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc",
+                    "encrec_0056_fy_acc",
+                    "fylke_geo",
+                    "kom_navn",
+                    "encrec_001_map",
+                    "encrec_001_map_fy",
+                    "encrec_002_map",
+                    "encrec_002_map_fy",
+                    "encrec_001_perc_map",
+                    "encrec_001_perc_map_fy",
+                    "encrec_002_perc_map",
+                    "encrec_002_perc_map_fy",
+                    "encrec_006_map_un",
+                    "encrec_006_map_un_fy",
+                    "encrec_006_perc_map",
+                    "encrec_006_perc_map_fy")))
+
+```
 
 <!--# 
 
@@ -3685,6 +3748,141 @@ This is typically where people will harvest data from, so make sure to include a
 -->
 
 ## 11. Export file
+We create a geopackage with all the different maps created above: (i) total area of nedbygging in recreation areas; (ii) share of nedbygging in recreation areas; (iii) total area of "særlig viktig natur" lost to nedbygging within recreation areas; (iv) share of nedbygging in recetation areas that was "særlig viktig natur". All of these indicatores were display by municipalities and fylke, as well as for all outdoor recreation areas and only for important and very important outdoor recreation areas. As in the report we focus solely on important and very important outdoor recteation areas, we will only export these layers. Note that the results were very similar whether we took all teh recreation areas or only important and very important.
+
+We first need to prepare the datasets because to display the maps on maps.nina.no, we need to create a variable for coloring.
+
+```{r export_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare datasets"
+
+## Call function to format the map to NINA's standard
+source(paste0(functions_path,"/map_nina_format.R"))
+
+## Layer 1 - Total area of nedbygging in important and very important recreation areas in municipalities
+nedbygging_kommune <- map_nina_format(encrec_002_map, 
+                                     mapping_variable = "Kumulativ areal av nedbygging i dekar", 
+                                     mapping_groups = 5, 
+                                     groups_thresholds = c(50, 150, 250, 500, 2200))
+                      
+## Layer 2 - Total area of nedbygging in important and very important recreation areas in fylke
+nedbygging_fylke <-  map_nina_format(encrec_002_map_fy, 
+                                     mapping_variable = "Kumulativ areal av nedbygging i dekar", 
+                                     mapping_groups = 5, 
+                                     groups_thresholds = c(2000, 4000, 6000, 8000, 16200))
+
+
+tm_shape(ndbygging_fylke) +
+    
+    tm_polygons(fill = "mapping_groups", 
+                fill.scale = tm_scale_categorical(values = "brewer.reds")) 
+
+
+## Layer 3 - Share of nedbygging in important and very important recreation areas in municipalities
+share_nedbygging_kommune <-  map_nina_format(encrec_002_perc_map, 
+                                             mapping_variable = "Prosentandel (%) av friluftsliv gått tapt", 
+                                             mapping_groups = 6, 
+                                             groups_thresholds = c(0.015, 0.050, 0.10, 0.20, 1, 2))
+
+
+## Layer 4 - Share of nedbygging in important and very important recreation areas in fylke
+share_nedbygging_fylke <-  map_nina_format(encrec_002_perc_map_fy, 
+                                           mapping_variable = "Share (%) of recreation area lost", 
+                                           mapping_groups = 5, 
+                                           groups_thresholds = c(0.040, 0.080, 0.10, 0.20, 0.40))
+
+
+
+## Layer 5 - Total area of "særlig viktig natur" lost to nedbygging in important and very important recreation areas in municipalities
+viktignatur_kommune <- map_nina_format(encrec_006_map_un, 
+                                       mapping_variable = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+                                       mapping_groups = 5, 
+                                       groups_thresholds = c(2, 5, 15, 50, 500))
+                      
+
+
+
+## Layer 6 - Total area of "særlig viktig natur" lost to nedbygging in important and very important recreation areas in fylke
+viktignatur_fylke <- map_nina_format(encrec_006_map_un_fy, 
+                                     mapping_variable = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+                                     mapping_groups = 5, 
+                                     groups_thresholds = c(50, 80, 150, 300, 620))
+
+
+## Layer 7 - Share of nedbygging that was "særlig viktig natur" in important and very important recreation areas in municipalities
+share_viktignatur_kommune <- map_nina_format(encrec_006_perc_map, 
+                                     mapping_variable = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+                                     mapping_groups = 5, 
+                                     groups_thresholds = c(1, 3, 10, 50, 100))
+
+
+
+## Layer 8 - Share of nedbygging that was "særlig viktig natur" in important and very important recreation areas in fylke
+share_viktignatur_fylke <- map_nina_format(encrec_006_perc_map_fy, 
+                                           mapping_variable = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+                                           mapping_groups = 5, 
+                                           groups_thresholds = c(1, 2, 3, 9, 12.5))
+
+```
+
+Now we can export all the layers in the same geopackage. *Note: we need to export to the scratch folder because the Mounts cause problems when writing geopackages.*
+```{r export_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Export datasets as geopackage"
+
+# Path to the result geopackage
+gpkg_path <- paste0(tempdir(), "/recreation_encroachment_accounts.gpkg")
+
+st_write(nedbygging_kommune,
+         dsn   = gpkg_path,
+         layer = "nedbygging_friluftlsiv_kommune",
+         append = FALSE)   
+
+st_write(nedbygging_fylke,
+         dsn   = gpkg_path,
+         layer = "nedbygging_friluftlsiv_fylke",
+         append = TRUE)    # append the new layer to same gpkg
+
+st_write(share_nedbygging_kommune,
+         dsn   = gpkg_path,
+         layer = "prosent_nedbygging_friluftlsiv_kommune",
+         append = TRUE)
+
+st_write(share_nedbygging_fylke,
+         dsn   = gpkg_path,
+         layer = "prosent_nedbygging_friluftlsiv_fylke",
+         append = TRUE)
+
+st_write(viktignatur_kommune,
+         dsn   = gpkg_path,
+         layer = "natur_nedbygging_friluftlsiv_kommune",
+         append = TRUE)
+
+st_write(viktignatur_fylke,
+         dsn   = gpkg_path,
+         layer = "natur_nedbygging_friluftlsiv_fylke",
+         append = TRUE)
+
+st_write(share_viktignatur_kommune,
+         dsn   = gpkg_path,
+         layer = "natur_prosent_nedbygging_friluftlsiv_kommune",
+         append = TRUE)
+
+st_write(share_viktignatur_fylke,
+         dsn   = gpkg_path,
+         layer = "natur_prosent_nedbygging_friluftlsiv_fylke",
+         append = TRUE)
+
+
+```
+
+
 
 <!--# 
 
