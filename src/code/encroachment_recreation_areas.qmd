@@ -3506,7 +3506,175 @@ rm(list = setdiff(ls(),
 
 ```
 
-#### 10.2.6 Map of share of nedbygging that was "særlig viktig natur"
+#### 10.2.6 Map of share of nedbygging that was "særlig viktig natur" in important nad very important outdoor recreation areas
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
+```{r map_enc006_perc_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Prepare data for mapping"
+
+## Prepare dataset
+# Total area recreation in municipalities
+kom_total_enc_area <- encrec %>%
+                          st_drop_geometry() %>%
+                          filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                                    "sværtViktigFriluftslivsområde")) %>%
+                          group_by(kommune) %>%
+                          summarise(total_enc_area = round2(sum(area_inter_m2)/1000, 2))
+
+# Total area recreation in Fylke
+fylke_total_enc_area <- encrec %>%
+                          st_drop_geometry() %>%
+                          filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                                    "sværtViktigFriluftslivsområde")) %>%
+                          group_by(fylkesnr) %>%
+                          summarise(total_enc_area = round2(sum(area_inter_m2)/1000, 2))
+
+# Share datasets
+encrec_006_perc_map <- encrec_006_map_un %>%
+                        ungroup() %>%
+                        left_join(., kom_total_enc_area, join_by("Kommune nummer" == "kommune")) %>%
+                        mutate("Prosentandel (%) av nedbygging som er ''særlig viktig natur''" = round2(`Totalt areal særlig viktige naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
+                        select("Fylke nummer",
+                               "Kommune nummer",
+                               "Kommune navn",
+                               "total_enc_area",
+                               "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
+                               "Prosentandel (%) av nedbygging som er ''særlig viktig natur''",
+                               "Usikkerhet for totalt areal",
+                               "geometry") %>%
+                        rename("Usikkerhet" =  "Usikkerhet for totalt areal",
+                               "Totalt areal av nedbygging" = "total_enc_area")
+
+
+encrec_006_perc_map_fy <- encrec_006_map_un_fy %>%
+                            ungroup() %>%
+                            left_join(., fylke_total_enc_area, join_by("Fylke nummer" == "fylkesnr")) %>%
+                            mutate("Prosentandel (%) av nedbygging som er ''særlig viktig natur''" = round2(`Totalt areal særlig viktige naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
+                            select("Fylke nummer",
+                                   "Fylke navn",
+                                   "total_enc_area",
+                                   "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
+                                   "Prosentandel (%) av nedbygging som er ''særlig viktig natur''",
+                                   "Usikkerhet for totalt areal",
+                                   "geometry") %>%
+                            rename("Usikkerhet" =  "Usikkerhet for totalt areal",
+                                   "Totalt areal av nedbygging" = "total_enc_area")
+
+# Replace labels of uncertainty
+encrec_006_perc_map$`Usikkerhet`[which(encrec_006_perc_map$`Usikkerhert` == "Green")]<- "Sikker"
+
+encrec_006_perc_map$`Usikkerhet`[which(encrec_006_perc_map$`Usikkerhet` == "Yellow")]<- "Ganske sikker"
+
+encrec_006_perc_map$`Usikkerhet`[which(encrec_006_perc_map$`Usikkerhet` == "Orange")]<- "Ganske usikker"
+
+encrec_006_perc_map$`Usikkerhet`[which(encrec_006_perc_map$`Usikkerhet` == "Red")]<- "Usikker"
+
+
+encrec_006_perc_map_fy$`Usikkerhet`[which(encrec_006_perc_map_fy$`Usikkerhet` == "Green")]<- "Sikker"
+
+encrec_006_perc_map_fy$`Usikkerhet`[which(encrec_006_perc_map_fy$`Usikkerhet` == "Yellow")]<- "Ganske sikker"
+
+encrec_006_perc_map_fy$`Usikkerhet`[which(encrec_006_perc_map_fy$`Usikkerhet` == "Orange")]<- "Ganske usikker"
+
+encrec_006_perc_map_fy$`Usikkerhet`[which(encrec_006_perc_map_fy$`Usikkerhet` == "Red")]<- "Usikker"
+
+```
+
+
+```{r map_enc006_2}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Interactive map of the share of nebygging that are ''sæarlig viktig natur'' in important and very important recreation areas per municipality over 2018-2024"
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/interactive_map.R"))
+
+# Run function
+interactive_map(data1 = encrec_006_perc_map, 
+                data2 = encrec_006_perc_map, 
+                fill_variable1 = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+                fill_variable2 = "Usikkerhet",
+                legend_title1 = "Prosentandel (%)", 
+                legend_title2 = "Usikkerhet", 
+                style_type_map1 = "fixed",
+                interval_breaks_map1 = c(0, 1, 3, 10, 50, 100),
+                color_values_map2 = c("Sikker" = "#94F4B6",
+                                      "Ganske sikker" = "#FFF085",
+                                      "Ganske usikker" = "#FFC68A",
+                                      "Usikker" = "#FF8A8A"),
+                map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i svært viktige og viktige friluftsområder i kommuner over 2018-\n2024", 
+                map_title2 = "Usikkerhet av prosentandel over 2018-2024")
+
+
+```
+
+```{r map_enc006_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Statis map of the share of nebygging that are ''sæarlig viktig natur'' in important and very important recreation areas per municipality over 2018-2024"
+
+## Static maps
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = encrec_006_perc_map, 
+           data2 = encrec_006_perc_map, 
+           fill_variable1 = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+           fill_variable2 = "Usikkerhet",
+           legend_title1 = "Prosentandel (%)", 
+           legend_title2 = "Usikkerhet", 
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 1, 3, 10, 50, 100),
+           color_values_map2 = c("Sikker" = "#94F4B6",
+                                 "Ganske sikker" = "#FFF085",
+                                 "Ganske usikker" = "#FFC68A",
+                                 "Usikker" = "#FF8A8A"),
+           map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i svært viktige og viktige friluftsområder i kommuner over 2018-\n2024", 
+           map_title2 = "Usikkerhet av prosentandel over 2018-2024")
+
+
+```
+
+```{r map_enc006_4}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of the share of nebygging that are ''sæarlig viktig natur'' in important and very important recreation areas per fylke over 2018-2024"
+
+## Interactive maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = encrec_006_perc_map_fy, 
+           data2 = encrec_006_perc_map_fy, 
+           fill_variable1 = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+           fill_variable2 = "Usikkerhet",
+           legend_title1 = "Prosentandel (%)", 
+           legend_title2 = "Usikkerhet", 
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 1, 2, 3, 9, 12.5),
+           color_values_map2 = c("Sikker" = "#94F4B6",
+                                 "Ganske sikker" = "#FFF085",
+                                 "Ganske usikker" = "#FFC68A",
+                                 "Usikker" = "#FF8A8A"),
+           map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i svært viktige og viktige friluftsområder i fylker over 2018-\n2024", 
+           map_title2 = "Usikkerhet av prosentandel over 2018-2024")
+
+
+```
+
+
 
 <!--# 
 
