@@ -38,9 +38,9 @@ global_fn <- function(df, row, uncertainty_column){
       
       global_unc <- as.character(col_gr[1,1])
       
-    }else if(isTRUE(length(which(col_gr$importance_perc >= 0.49)== TRUE) == 1)){
+    }else if(isTRUE(length(which(col_gr$importance_perc >= 0.40)== TRUE) == 1)){
       
-      global_unc <- col_gr$color[which(col_gr$importance_perc >= 0.49)] %>%
+      global_unc <- col_gr$color[which(col_gr$importance_perc >= 0.40)] %>%
         as.character()
       
     }else if(isTRUE(length(which(col_gr$importance_perc >= 0.40)== TRUE) == 2)){
