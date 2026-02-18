@@ -2813,23 +2813,9 @@ kom_total_rec_area <- rcl_final %>%
                           group_by(kommune) %>%
                           summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
 
-kom_total_recAB_area <- rcl_final %>%
-                          st_drop_geometry() %>%
-                          filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                                    "sværtViktigFriluftslivsområde")) %>%
-                          group_by(kommune) %>%
-                          summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
-
 # Total area recreation in Fylke
 fylke_total_rec_area <- rcl_final %>%
                           st_drop_geometry() %>%
-                          group_by(fylkesnr) %>%
-                          summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
-
-fylke_total_recAB_area <- rcl_final %>%
-                          st_drop_geometry() %>%
-                          filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                                    "sværtViktigFriluftslivsområde")) %>%
                           group_by(fylkesnr) %>%
                           summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
 
@@ -3045,33 +3031,79 @@ We first prepare the dataset for mapping then map it both using an interactive a
 #| code-summary: "Prepare data for mapping"
 
 ## Prepare dataset
-rec_total_kom <- rcl_32_tr %>%
-                  st_drop_geometry() %>%
-                  filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                  mutate(area_dekar = round2(area_rec_m2/1000), 2) %>%
-                  group_by(fylkesnr, kommune) %>%
-                  summarise(total_rec_area = sum(area_dekar))
+# Total area recreation in municipalities
+kom_total_recAB_area <- rcl_final %>%
+                          st_drop_geometry() %>%
+                          filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                                    "sværtViktigFriluftslivsområde")) %>%
+                          group_by(kommune) %>%
+                          summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
 
+# Total area recreation in Fylke
+fylke_total_recAB_area <- rcl_final %>%
+                          st_drop_geometry() %>%
+                          filter(områdeverdi %in% c("viktigFriluftslivsområde", 
+                                                    "sværtViktigFriluftslivsområde")) %>%
+                          group_by(fylkesnr) %>%
+                          summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
+
+# Share datasets
 encrec_002_perc_map <- encrec_0012_acc %>%
                         filter(!c(`Kommune navn` == "Total" | Regnskapsår == "Change 2018-2024")) %>%
                         filter(Regnskapsår == 2024) %>%
                         filter(`Indikatorens navn` == "ENCREC_002") %>%
-                        left_join(kom_navn, ., join_by("GISCO_ID" == "Kommune nummer")) %>%
-                        left_join(., rec_total_kom, join_by("GISCO_ID" == "kommune")) %>%
+                        left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
+                        left_join(., kom_total_recAB_area, join_by("Kommune nummer" == "kommune")) %>%
                         mutate("Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/total_rec_area * 100, 2)) %>%
                         select("Fylke nummer",
                                "Kommune navn",
-                               "Kumulativ areal i dekar",
                                "total_rec_area",
-                               "Share (%) of recreation area lost")
+                               "Kumulativ areal i dekar",
+                               "Share (%) of recreation area lost",
+                               "Usikkerhet for kumulativ areal",
+                               "geometry") %>%
+                        rename("Total recreation area" = "total_rec_area",
+                               "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
+                               "Usikkerhet for share of recreation area lost"  = "Usikkerhet for kumulativ areal") %>%
+                        st_as_sf()
 
-fylke_map <- encrec_002_perc_map %>%
-              group_by(`Fylke nummer`) %>%
-              summarise(fylke_rec_area = sum(total_rec_area),
-                        "Kumulativ areal i dekar" = sum(`Kumulativ areal i dekar`),
-                        "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/fylke_rec_area * 100, 2))
-                   
+encrec_002_perc_map_fy <- encrec_0012_fy_acc %>%
+                            filter(!c(`Fylke navn` == "Total" | Regnskapsår == "Change 2018-2024")) %>%
+                            filter(Regnskapsår == 2024) %>%
+                            filter(`Indikatorens navn` == "ENCREC_002") %>%
+                            left_join(., fylke_total_recAB_area, join_by("Fylke nummer" == "fylkesnr")) %>%
+                            mutate(fylke_rec_area = sum(total_rec_area),
+                                   "Share (%) of recreation area lost" = round2(`Kumulativ areal i dekar`/ total_rec_area * 100, 2), .after = Regnskapsår) %>%
+                            select("Fylke nummer",
+                                   "Fylke navn",
+                                   "total_rec_area",
+                                   "Kumulativ areal i dekar",
+                                   "Share (%) of recreation area lost",
+                                   "Usikkerhet for kumulativ areal") %>%
+                            rename("Total recreation area" = "total_rec_area",
+                                   "Kumulativ areal i 2024 (dekar)" = "Kumulativ areal i dekar",
+                                   "Usikkerhet for share of recreation area lost"  = "Usikkerhet for kumulativ areal") %>%
+                            left_join(., fylke_geo, join_by("Fylke nummer" == "fylke")) %>%
+                            st_as_sf() 
+
+# Replace labels of uncertainty
+encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Green")]<- "Sikker"
+
+encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Yellow")]<- "Ganske sikker"
+
+encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Orange")]<- "Ganske usikker"
+
+encrec_002_perc_map$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map$`Usikkerhet for share of recreation area lost` == "Red")]<- "Usikker"
+
+
+encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Green")]<- "Sikker"
+
+encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Yellow")]<- "Ganske sikker"
+
+encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Orange")]<- "Ganske usikker"
+
+encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost`[which(encrec_002_perc_map_fy$`Usikkerhet for share of recreation area lost` == "Red")]<- "Usikker"
+
 ```
 
 ```{r map_enc002_perc_2}
@@ -3079,21 +3111,27 @@ fylke_map <- encrec_002_perc_map %>%
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Interactive map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
 source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
-interactive_map(data1 = fylke_map, 
+interactive_map(data1 = encrec_002_perc_map, 
                 data2 = encrec_002_perc_map, 
                 fill_variable1 = "Share (%) of recreation area lost", 
-                fill_variable2 =  "Share (%) of recreation area lost", 
-                legend_title1 = "Fylke - Prosentandel (%)", 
-                legend_title2 = "Kommune -Prosentandel (%)", 
-                map_title1 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i fylker over 2018-2024", 
-                map_title2 = "Prosentandel (%) av totale svært viktig og viktig friluftsområder som er gått tapt i kommuner over 2018-2024")
+                fill_variable2 =  "Usikkerhet for share of recreation area lost", 
+                legend_title1 = "Prosentandel av nedbygging (%)", 
+                legend_title2 = "Usikkerhet", 
+                style_type_map1 = "fixed",
+                interval_breaks_map1 = c(0, 0.015, 0.050, 0.10, 0.20, 1, 2),
+                color_values_map2 = c("Sikker" = "#94F4B6",
+                                      "Ganske sikker" = "#FFF085", 
+                                      "Ganske usikker" = "#FFC68A",
+                                      "Usikker" = "#FF8A8A"),
+                map_title1 = "Prosentandel (%) av nedbygging i friluftsområder i kommuner over 2018-2024", 
+                map_title2 = "Usikkerhet knyttet til det prosentandel av nedbygging over 2018-2024")
 ```
 
 ```{r map_enc002_perc_3}
@@ -3101,27 +3139,64 @@ interactive_map(data1 = fylke_map,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality and fylke over 2018-2024"
+#| code-summary: "Static map of the share of recreation area lost to encroachments in important and very important recreation areas per municipality over 2018-2024"
 
 ## Static maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = fylke_map, 
+static_map(data1 = encrec_002_perc_map, 
            data2 = encrec_002_perc_map, 
            fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Share (%) of recreation area lost", 
-           legend_title1 = "Prosentandel (%)", 
-           legend_title2 = "Prosentandel (%)", 
-           map_title1 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni fylker over \n2018-2024", 
-           map_title2 = "Prosentandel (%) av totale \nsvært viktig og viktig \nfriluftsområder \nsom er gått tapt \ni kommuner over \n2018-2024")
+           fill_variable2 =  "Usikkerhet for share of recreation area lost",
+           legend_title1 = "Prosentandel av nedbygging (%)", 
+           legend_title2 = "Usikkerhet", 
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 0.015, 0.050, 0.10, 0.20, 1, 2),
+           color_values_map2 = c("Sikker" = "#94F4B6",
+                                 "Ganske sikker" = "#FFF085",
+                                 "Ganske usikker" = "#FFC68A",
+                                 "Usikker" = "#FF8A8A"),
+           map_title1 = "Prosentandel (%) av nedbygging i friluftsområder i kommuner over 2018-2024", 
+           map_title2 = "Usikkerhet knyttet til det prosentandel av nedbygging over 2018-2024")
+
+
+
+```
+```{r map_enc002_perc_4}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Static map of the share of recreation area lost to encroachments in important and very important recreation areas per fylke over 2018-2024"
+
+## Static maps -- disabled as too heavy to render in html
+# Call for the function to do interactive mapping
+source(paste0(functions_path, "/static_map.R"))
+
+# Run function
+static_map(data1 = encrec_002_perc_map_fy, 
+           data2 = encrec_002_perc_map_fy, 
+           fill_variable1 = "Share (%) of recreation area lost", 
+           fill_variable2 =  "Usikkerhet for share of recreation area lost",
+           legend_title1 = "Prosentandel av nedbygging (%)", 
+           legend_title2 = "Usikkerhet", 
+           style_type_map1 = "fixed",
+           interval_breaks_map1 = c(0, 0.040, 0.080, 0.10, 0.20, 0.40),
+           color_values_map2 = c("Sikker" = "#94F4B6",
+                                 "Ganske sikker" = "#FFF085",
+                                 "Ganske usikker" = "#FFC68A",
+                                 "Usikker" = "#FF8A8A"),
+           map_title1 = "Prosentandel (%) av nedbygging i friluftsområder i fylker over 2018-2024", 
+           map_title2 = "Usikkerhet knyttet til det prosentandel av nedbygging over 2018-2024")
 
 
 
 ```
 
-```{r map_enc004_4}
+
+```{r map_enc004_5}
 #| eval: true
 #| warning: false
 #| message: false
@@ -3134,14 +3209,47 @@ rm(list = setdiff(ls(),
                     "encroach_dt",
                     "project_path",
                     "functions_path",
-                    "rcl_32_tr",
                     "rcl_final",
+                    "natur_32",
+                    "encrec_raw",
                     "encrec",
+                    "encnatur_raw",
                     "encnatur",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_005_idv",
+                    "unc_006_idv",
+                    "unc_006_idv2",
+                    "unc_0024_idv2",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_0013_sum",
+                    "unc_0024_sum",
+                    "unc_005_sum",
+                    "unc_006_sum",
+                    "unc_0024_sum2",
+                    "unc_006_sum2",
                     "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
+                    "add_fylke",
                     "encrec_0012_acc",
+                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0056_acc")))
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc",
+                    "encrec_0056_fy_acc",
+                    "fylke_geo",
+                    "kom_navn",
+                    "encrec_001_map",
+                    "encrec_001_map_fy",
+                    "encrec_002_map",
+                    "encrec_002_map_fy",
+                    "encrec_001_perc_map",
+                    "encrec_001_perc_map_fy",
+                    "encrec_002_perc_map",
+                    "encrec_002_perc_map_fy")))
 
 ```
 
