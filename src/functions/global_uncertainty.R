@@ -10,7 +10,7 @@
 #' 
 #' @param row the number of the row to which the function applies
 #' 
-#' @param the name of the column containing the concatenated uncertainties of
+#' @param uncertainty_column name of the column containing the concatenated uncertainties of
 #' interest.
 #'
 #' @return a single character corresponding to a colored uncertainty: "green" for
