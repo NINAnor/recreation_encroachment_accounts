@@ -2796,7 +2796,7 @@ rm(list = setdiff(ls(),
 ```
 
 
-#### 10.2.3 Map of the share of the total recreation area lost to encroachment over 2018-2024
+#### 10.2.3 ENCREC_001: Map of the share of the total recreation area lost to encroachment over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc001_perc_1}
 #| eval: true
@@ -3022,7 +3022,7 @@ rm(list = setdiff(ls(),
 
 ```
 
-#### 10.2.4 Map of the share of the total important and very important recreation area lost to encroachment over 2018-2024
+#### 10.2.4 ENCREC_001: Map of the share of the total important and very important recreation area lost to encroachment over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc002_perc_1}
 #| eval: true
@@ -3509,7 +3509,7 @@ rm(list = setdiff(ls(),
 
 ```
 
-#### 10.2.6 Map of share of nedbygging that was "særlig viktig natur" in important nad very important outdoor recreation areas
+#### 10.2.6 ENCREC_006: Map of share of nedbygging that was "særlig viktig natur" in important nad very important outdoor recreation areas
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc006_perc_1}
 #| eval: true
