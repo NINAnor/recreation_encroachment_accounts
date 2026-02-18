@@ -3519,7 +3519,7 @@ We first prepare the dataset for mapping then map it both using an interactive a
 #| code-summary: "Prepare data for mapping"
 
 ## Prepare dataset
-# Total area recreation in municipalities
+# Total area of nedbygging in recreation areas in municipalities
 kom_total_enc_area <- encrec %>%
                           st_drop_geometry() %>%
                           filter(områdeverdi %in% c("viktigFriluftslivsområde", 
@@ -3527,7 +3527,7 @@ kom_total_enc_area <- encrec %>%
                           group_by(kommune) %>%
                           summarise(total_enc_area = round2(sum(area_inter_m2)/1000, 2))
 
-# Total area recreation in Fylke
+# Total area of nedbygging in recreation areas in fylke
 fylke_total_enc_area <- encrec %>%
                           st_drop_geometry() %>%
                           filter(områdeverdi %in% c("viktigFriluftslivsområde", 
@@ -3535,7 +3535,7 @@ fylke_total_enc_area <- encrec %>%
                           group_by(fylkesnr) %>%
                           summarise(total_enc_area = round2(sum(area_inter_m2)/1000, 2))
 
-# Share datasets
+# Datasets for mapping
 encrec_006_perc_map <- encrec_006_map_un %>%
                         ungroup() %>%
                         left_join(., kom_total_enc_area, join_by("Kommune nummer" == "kommune")) %>%
@@ -3829,7 +3829,7 @@ share_viktignatur_fylke <- map_nina_format(encrec_006_perc_map_fy,
 ```
 
 Now we can export all the layers in the same geopackage. *Note: we need to export to the scratch folder because the Mounts cause problems when writing geopackages.*
-```{r export_1}
+```{r export_2}
 #| eval: true
 #| warning: false
 #| message: false
