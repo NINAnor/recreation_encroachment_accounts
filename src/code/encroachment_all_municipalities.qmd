@@ -807,14 +807,6 @@ colnames(encacc_001_acc) <- c("Indikatorens navn",
                               "Usikkerhet for kumulativ areal")
 
 
-max_kom <- encacc_001_acc %>%
-            as.data.frame() %>%
-            filter(Regnskapsår == "2024") %>%
-            #filter(Regnskapsår == "Change 2018-2024") %>%
-            filter(!`Kommune navn` == "Norge") %>%
-            arrange(desc(.$`Kumulativ areal i dekar`)) %>%
-            filter(`Kumulativ areal i dekar`< 35)
-
 # Clean R environment
 rm(list = setdiff(ls(), 
                   c("lau_no",
@@ -1320,7 +1312,6 @@ encacc_001_map_fy$`Usikkerhet for kumulativ areal`[which(encacc_001_map_fy$`Usik
 
 encacc_001_map_fy$`Usikkerhet for kumulativ areal`[which(encacc_001_map_fy$`Usikkerhet for kumulativ areal` == "Red")]<- "Usikker"
 
-
 ```
 
 ```{r map_enc001_2}
@@ -1366,7 +1357,7 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encacc_001_map_mun, 
            data2 = encacc_001_map_mun, 
-           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+           fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
            fill_variable2 = "Usikkerhet for kumulativ areal", 
            legend_title1 = "Totalt areal av nedbygging (dekar)", 
            legend_title2 = "Usikkerhet",
@@ -1583,6 +1574,7 @@ static_map(data1 = encacc_001_perc_map_fy,
                                  "Usikker" = "#FF8A8A"),
            map_title1 = "Prosentandel (%) av nedbygging innenfor det totale fylke arealet over 2018-2024", 
            map_title2 = "Usikkerhet om prosentandelen av nedbygging over 2018-2024")
+
 ```
 
 ```{r map_enc001_perc_4}
@@ -1601,7 +1593,7 @@ static_map(data1 = encacc_001_perc_map_mun,
            data2 = encacc_001_perc_map_mun, 
            fill_variable1 = "Prosentandel (%) av nedbygging", 
            fill_variable2 =  "Usikkerhet for kumulativ areal", 
-           legend_title1 = "Prosentandel (%) av nedbygging innenfor det totale kommunale arealet", 
+           legend_title1 = "Prosentandel (%) av nedbygging", 
            legend_title2 = "Usikkerhet",
            style_type_map1 = "fixed",
            interval_breaks_map1 = c(0, 0.05, 0.1, 0.2, 0.5, 2.6),
@@ -1611,6 +1603,7 @@ static_map(data1 = encacc_001_perc_map_mun,
                                  "Usikker" = "#FF8A8A"),
            map_title1 = "Prosentandel (%) av nedbygging innenfor det totale kommunale arealet over 2018-2024", 
            map_title2 = "Usikkerhet om prosentandelen av nedbygging over 2018-2024")
+
 ```
 
 ```{r map_enc001_perc_5}
@@ -1764,8 +1757,8 @@ encacc_002_map_un_fy$`Usikkerhet av totalt areal`[which(encacc_002_map_un_fy$`Us
 source(paste0(functions_path, "/interactive_map.R"))
 
 # Run function
-interactive_map(data1 = encacc_002_map_mun, 
-                data2 = encacc_002_map_mun, 
+interactive_map(data1 = encacc_002_map_un, 
+                data2 = encacc_002_map_un, 
                 fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
                 fill_variable2 =  "Usikkerhet av totalt areal", 
                 legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
@@ -1808,6 +1801,7 @@ static_map(data1 = encacc_002_map_mun,
            map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
 
 ```
+
 ```{r map_enc002_4}
 #| eval: true
 #| warning: false
@@ -1873,8 +1867,8 @@ rm(list = setdiff(ls(),
                     "encacc_001_map_fy",
                     "encacc_001_perc_map_mun",
                     "encacc_001_perc_map_fy",
-                    "encacc_002_map_mun",
-                    "encacc_002_map_fy")))
+                    "encacc_002_map_un",
+                    "encacc_002_map_un_fy")))
 ```
 
 #### 10.2.4 ENCACC_002: Share of nedbygging that was "særlig viktig natur"
@@ -2010,8 +2004,6 @@ static_map(data1 = encacc_002_perc_map,
                                  "Usikker" = "#FF8A8A"),
            map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i kommuner over 2018-\n2024", 
            map_title2 = "Usikkerhet av prosentandel over 2018-2024")
-
-
 ```
 
 ```{r map_enc006_perc_4}
@@ -2201,3 +2193,36 @@ sessionInfo()
 ```
 
 :::
+
+<!-- ```{r highest_habitat_lost} -->
+
+<!-- habitat_summmary <- encnatur %>% -->
+<!--                       group_by(naturtype) %>% -->
+<!--                       summarise(total_area = round2(sum(area_naturtyper_m2)/1000, 2)) -->
+
+<!-- habitat_summmary_un <- unc_002_idv %>% -->
+<!--                         mutate(accounting_period = "2018-2024") %>% -->
+<!--                         concatenate_fn(., -->
+<!--                                        col_column_names = "uncertainty_source2", -->
+<!--                                        kom_num = "naturtype", -->
+<!--                                        accounting_year = "accounting_period") %>% -->
+<!--                         add_uncertainty_global(.,  -->
+<!--                                                kom_num = "naturtype", -->
+<!--                                                uncertainty_col_name = "unc_concat_full", -->
+<!--                                                accounting_year = "accounting_period") %>% -->
+<!--                       ungroup() %>% -->
+<!--                       select(!c(unc_concat_full,  -->
+<!--                                 global_cumulative_uncertainty, -->
+<!--                                 naturtype, -->
+<!--                                 accounting_period)) %>% -->
+<!--                       cbind(habitat_summmary, .) %>% -->
+<!--                       rename(global_period_uncertainty = global_yearly_uncertainty) -->
+
+<!-- sum(habitat_summmary_un$total_area) -->
+
+<!-- hab_max <- habitat_summmary_un %>% -->
+<!--             as.data.frame() %>% -->
+<!--             arrange(desc(.$total_area)) %>% -->
+<!--             filter(total_area <0.21) -->
+
+<!-- ``` -->
