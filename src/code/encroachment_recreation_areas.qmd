@@ -927,17 +927,6 @@ unc_0024_idv <- encrec %>%
                 select(kommune, year, kartleggingsår) %>%
                 mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year", "kartleggingsår"))}))
 
-
-
-unc_0024_idv2 <- encrec %>%
-                    filter(områdeverdi %in% c("viktigFriluftslivsområde", 
-                                              "sværtViktigFriluftslivsområde")) %>%
-                group_by(kommune, year, kartleggingsår)  %>%
-                summarise(n_poly = n()) %>%
-                select(!n_poly) %>%
-                ungroup() %>%
-                mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year", "kartleggingsår"))}))
-
 # Uncertainty ENCACCC_005
 unc_005_idv <- encnatur %>%
                 select(kommune, year_encrec, year_natur_recorded, naturtype) %>%
@@ -949,15 +938,6 @@ unc_006_idv <- encnatur %>%
                                           "sværtViktigFriluftslivsområde")) %>%
                 select(kommune, year_encrec, year_natur_recorded, naturtype) %>%
                 mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year_encrec", "year_natur_recorded"))}))
-
-
-unc_006_idv2 <- encnatur %>%
-                group_by(kommune, year_encrec, year_natur_recorded, naturtype) %>%
-                summarise(n_poly = n()) %>%
-                select(!n_poly) %>%
-                ungroup() %>%
-                mutate(uncertainty_source2 = apply(., 1, function(x) {add_uncertainty_individual(data = x, source2 = TRUE, yrsource2 = c("year_encrec", "year_natur_recorded"))}))
-
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -974,9 +954,7 @@ rm(list = setdiff(ls(),
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_005_idv",
-                    "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2")))
+                    "unc_006_idv")))
 
 ```
 
@@ -1006,10 +984,6 @@ unc_0024_sum <- concatenate_fn(unc_0024_idv,
                               kom_num = "kommune",
                               accounting_year = "year")
 
-unc_0024_sum2 <- concatenate_fn(unc_0024_idv2,
-                              col_column_names = "uncertainty_source2", 
-                              kom_num = "kommune",
-                              accounting_year = "year")
 
 # Concatenate for RECACC_005
 unc_005_sum <- concatenate_fn(unc_005_idv,
@@ -1023,11 +997,6 @@ unc_006_sum <- concatenate_fn(unc_006_idv,
                               kom_num = "kommune",
                               habitat_col = "naturtype")
 
-
-unc_006_sum2 <- concatenate_fn(unc_006_idv2,
-                              col_column_names = "uncertainty_source2",
-                              kom_num = "kommune",
-                              habitat_col = "naturtype")
 
 # Clean R environment
 rm(list = setdiff(ls(), 
@@ -1045,16 +1014,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
-                    "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2")))
+                    "unc_006_sum")))
 
 ```
 
@@ -1286,16 +1251,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -1471,16 +1432,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -1749,16 +1706,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -1963,16 +1916,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -2181,16 +2130,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -2335,16 +2280,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
                     "concatenate_fn",
@@ -2568,16 +2509,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -2696,8 +2633,8 @@ interactive_map(data1 = encrec_002_map,
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = ndbygging_kommune, 
-           data2 = ndbygging_kommune, 
+static_map(data1 = encrec_002_map, 
+           data2 = encrec_002_map, 
            fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
            fill_variable2 =  "Usikkerhet for kumulativ areal", 
            legend_title1 = "Totalt areal av nedbygging (dekar)", 
@@ -2710,6 +2647,7 @@ static_map(data1 = ndbygging_kommune,
                                  "Usikker" = "#FF8A8A"),
            map_title1 = "Totalt areal av nedbygging (dekar) i viktig og svært viktig friluftslivonsområder i kommuner over 2018-2024", 
            map_title2 = "Usikkerhet knyttet til det totale arealet av nedbygging over 2018-2024")
+
 
 ```
 
@@ -2765,16 +2703,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -3022,7 +2956,7 @@ rm(list = setdiff(ls(),
 
 ```
 
-#### 10.2.4 ENCREC_001: Map of the share of the total important and very important recreation area lost to encroachment over 2018-2024
+#### 10.2.4 ENCREC_002: Map of the share of the total important and very important recreation area lost to encroachment over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc002_perc_1}
 #| eval: true
@@ -3123,8 +3057,8 @@ source(paste0(functions_path, "/interactive_map.R"))
 # Run function
 interactive_map(data1 = encrec_002_perc_map, 
                 data2 = encrec_002_perc_map, 
-                fill_variable1 = "Share (%) of recreation area lost", 
-                fill_variable2 =  "Usikkerhet for share of recreation area lost", 
+                fill_variable1 = "Prosentandel (%) av friluftsliv gått tapt", 
+                fill_variable2 =  "Usikkerhet av prosentandel", 
                 legend_title1 = "Prosentandel av nedbygging (%)", 
                 legend_title2 = "Usikkerhet", 
                 style_type_map1 = "fixed",
@@ -3135,6 +3069,7 @@ interactive_map(data1 = encrec_002_perc_map,
                                       "Usikker" = "#FF8A8A"),
                 map_title1 = "Prosentandel (%) av nedbygging i friluftsområder i kommuner over 2018-2024", 
                 map_title2 = "Usikkerhet knyttet til det prosentandel av nedbygging over 2018-2024")
+
 ```
 
 ```{r map_enc002_perc_3}
@@ -3167,6 +3102,7 @@ static_map(data1 = encrec_002_perc_map,
 
 
 ```
+
 ```{r map_enc002_perc_4}
 #| eval: true
 #| warning: false
@@ -3222,16 +3158,12 @@ rm(list = setdiff(ls(),
                     "unc_0024_idv",
                     "unc_005_idv",
                     "unc_006_idv",
-                    "unc_006_idv2",
-                    "unc_0024_idv2",
                     "unc_0013_idv",
                     "unc_0024_idv",
                     "unc_0013_sum",
                     "unc_0024_sum",
                     "unc_005_sum",
                     "unc_006_sum",
-                    "unc_0024_sum2",
-                    "unc_006_sum2",
                     "kom_navn",
                     "add_change_encroachment_area",
                     "add_uncertainty_global",
@@ -3378,7 +3310,7 @@ source(paste0(functions_path, "/interactive_map.R"))
 interactive_map(data1 = encrec_006_map_un, 
                 data2 = encrec_006_map_un, 
                 fill_variable1 = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
-                fill_variable2 = "Usikkerhet for totalt areal",
+                fill_variable2 = "Usikkerhet av totalt areal",
                 legend_title1 = "Totalt areal (dekar)", 
                 legend_title2 = "Usikkerhet av areal", 
                 style_type_map1 = "fixed",
@@ -3389,7 +3321,6 @@ interactive_map(data1 = encrec_006_map_un,
                                       "Usikker" = "#FF8A8A"),
                 map_title1 = "otalt areal særlig viktige naturtyper gått tapt (dekar) i svært viktige og viktige friluftsområder i kommuner over 2018-\n2024", 
                 map_title2 = "Usikkerhet knyttet til totalt areal særlig viktige naturtyper gått tapt  over 2018-2024")
-
 
 ```
 
@@ -3505,7 +3436,8 @@ rm(list = setdiff(ls(),
                     "encrec_002_perc_map",
                     "encrec_002_perc_map_fy",
                     "encrec_006_map_un",
-                    "encrec_006_map_un_fy")))
+                    "encrec_006_map_un_fy",
+                    "encacc_001_acc")))
 
 ```
 
@@ -3546,9 +3478,9 @@ encrec_006_perc_map <- encrec_006_map_un %>%
                                "total_enc_area",
                                "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
                                "Prosentandel (%) av nedbygging som er ''særlig viktig natur''",
-                               "Usikkerhet for totalt areal",
+                               "Usikkerhet av totalt areal",
                                "geometry") %>%
-                        rename("Usikkerhet" =  "Usikkerhet for totalt areal",
+                        rename("Usikkerhet" =  "Usikkerhet av totalt areal",
                                "Totalt areal av nedbygging" = "total_enc_area")
 
 
@@ -3614,6 +3546,35 @@ interactive_map(data1 = encrec_006_perc_map,
                 map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i svært viktige og viktige friluftsområder i kommuner over 2018-\n2024", 
                 map_title2 = "Usikkerhet av prosentandel over 2018-2024")
 
+
+
+
+max_kom <- encrec_006_perc_map %>%
+            as.data.frame() %>%
+            arrange(desc(.$`Prosentandel (%) av nedbygging som er ''særlig viktig natur''`)) %>%
+            filter(`Prosentandel (%) av nedbygging som er ''særlig viktig natur''`< 1)
+
+max_kom <- encrec_006_map_un %>%
+            as.data.frame() %>%
+            arrange(desc(.$`Totalt areal særlig viktige naturtyper gått tapt (dekar)`)) %>%
+            filter(`Totalt areal særlig viktige naturtyper gått tapt (dekar)`< 10)
+
+tot_enc <- encacc_001_acc %>%
+            as.data.frame() %>%
+            filter(!is.na(`Årlig areal i dekar`)) %>%
+            filter(Regnskapsår == 2024) %>%
+  filter(`Kommune navn` %in% c("Nesbyen", "Flesberg", "Gausdal", "Sigdal", "Flå",
+                                         "Sandnes", "Skien", "Sunnfjord", "Tønsberg", "Kongsberg"
+)) %>%
+  select("Kommune nummer",
+         "Kommune navn",
+         "Kumulativ areal i dekar")
+
+essai <- left_join(max_kom, tot_enc, by = c("Kommune navn", "Kommune nummer")) %>%
+          st_drop_geometry() %>%
+          mutate(perc = `Kumulativ areal av nedbygging i dekar` / `Kumulativ areal i dekar` * 100) %>%
+            arrange(desc(.$`perc`)) %>%
+            filter(`perc`> 1211)
 
 ```
 
@@ -3894,7 +3855,8 @@ Optional: Display the code (don't execute it) or the workflow for exporting the 
 #| eval: false
 ```
 
-<!-- You can leave this last part as it is, unless you have a good reason to alter it. -->
+<!-- You can leave this last part as it is, unless you have a good reason to alter it. 
+##Arealregnskap for friluftsliv - nedbygging tematisk regnskap## -->
 
 ::: {.callout-tip collapse="true"}
 ## Session Info
@@ -3908,3 +3870,40 @@ sessionInfo()
 ```
 
 :::
+
+
+<!-- ```{r highest_habitat_lost} -->
+
+<!-- habitat_summmary <- encnatur %>% -->
+<!--                     filter(områdeverdi %in% c("viktigFriluftslivsområde",  -->
+<!--                                               "sværtViktigFriluftslivsområde")) %>% -->
+<!--                       group_by(naturtype) %>% -->
+<!--                       summarise(total_area = round2(sum(area_naturtyper_m2)/1000, 2)) -->
+
+<!-- habitat_summmary_un <- unc_006_idv %>% -->
+<!--                         mutate(accounting_period = "2018-2024") %>% -->
+<!--                         concatenate_fn(., -->
+<!--                                        col_column_names = "uncertainty_source2", -->
+<!--                                        kom_num = "naturtype", -->
+<!--                                        accounting_year = "accounting_period") %>% -->
+<!--                         add_uncertainty_global(., -->
+<!--                                                kom_num = "naturtype", -->
+<!--                                                uncertainty_col_name = "unc_concat_full", -->
+<!--                                                accounting_year = "accounting_period") %>% -->
+<!--                       ungroup() %>% -->
+<!--                       select(!c(unc_concat_full, -->
+<!--                                 global_cumulative_uncertainty, -->
+<!--                                 naturtype, -->
+<!--                                 accounting_period)) %>% -->
+<!--                       cbind(habitat_summmary, .) %>% -->
+<!--                       rename(global_period_uncertainty = global_yearly_uncertainty) -->
+
+<!-- sum(habitat_summmary_un$total_area) -->
+
+<!-- hab_max <- habitat_summmary_un %>% -->
+<!--             as.data.frame() %>% -->
+<!--             arrange(desc(.$total_area)) %>% -->
+<!--             filter(total_area ) -->
+
+<!-- ``` -->
+
