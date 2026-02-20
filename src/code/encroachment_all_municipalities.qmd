@@ -539,7 +539,7 @@ rm(list = setdiff(ls(),
 
 ```
 ### 9.2 ENCACC_002
-For ENCACC_005, we need a spatial intersection between DT04 and `komenc` as we are interested in the nature types that have been lost due to encroachment within municipalities. Here we have to note though that the only 4,2% of the "særlig viktig natur" occur in the encroachment of municipaplities.
+For ENCACC_005, we need a spatial intersection between DT04 and `komenc` as we are interested in the nature types that have been lost due to encroachment within municipalities. Here we have to note though that the only 4,2% of the "særlig viktig natur" occur in the encroachment of municipalities.
 
 ```{r encrec0056_analyses}
 #| eval: true
