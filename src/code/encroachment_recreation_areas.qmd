@@ -3190,7 +3190,7 @@ rm(list = setdiff(ls(),
 
 ```
 
-#### 10.2.5 ENCREC_006 map of total "sæarlig viktig natur" due to encroachment in important and very important recreation areas over 2018-2024
+#### 10.2.5 ENCREC_006: Map of total "sæarlig viktig natur" due to encroachment in important and very important recreation areas over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. As very few municipalities have "særlig viktig natur" in their encroachments of recreation areas, we do not provide summary statistics at Fylke Level.
  
 ```{r map_enc006_1}
@@ -3964,7 +3964,7 @@ sessionInfo()
 <!-- ```{r highest_habitat_lost} -->
 
 <!-- habitat_summmary <- encnatur %>% -->
-<!--                     filter(områdeverdi %in% c("viktigFriluftslivsområde",  -->
+<!--                     filter(områdeverdi %in% c("viktigFriluftslivsområde", -->
 <!--                                               "sværtViktigFriluftslivsområde")) %>% -->
 <!--                       group_by(naturtype) %>% -->
 <!--                       summarise(total_area = round2(sum(area_naturtyper_m2)/1000, 2)) -->
@@ -3992,7 +3992,7 @@ sessionInfo()
 <!-- hab_max <- habitat_summmary_un %>% -->
 <!--             as.data.frame() %>% -->
 <!--             arrange(desc(.$total_area)) %>% -->
-<!--             filter(total_area ) -->
+<!--             filter(total_area) -->
 
 <!-- ``` -->
 
