@@ -756,6 +756,8 @@ We first need to select the column of relevance for our work and clean the topol
 # Select columns of relevance
 natur_types <- naturtyper %>%
                 mutate(year_natur_recorded = substr(.$registreringsdato, 1, 4)) %>%
+                filter(verdikategori %in% c("Svært stor verdi",
+                                            "Stor verdi")) %>%
                 select(naturtype,
                        year_natur_recorded,
                        kommunenummer)
@@ -2856,8 +2858,8 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encrec_001_perc_map, 
            data2 = encrec_001_perc_map, 
-           fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Usikkerhet for share of recreation area lost", 
+           fill_variable1 = "Prosentandel (%) av friluftsliv gått tapt", 
+           fill_variable2 =  "Usikkerhet av prosentandel", 
            legend_title1 = "Prosentandel av nedbygging (%)", 
            legend_title2 = "Usikkerhet", 
            style_type_map1 = "fixed",
@@ -2885,8 +2887,8 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encrec_001_perc_map_fy, 
            data2 = encrec_001_perc_map_fy, 
-           fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Usikkerhet for share of recreation area lost", 
+           fill_variable1 = "Prosentandel (%) av friluftsliv gått tapt", 
+           fill_variable2 =  "Usikkerhet av prosentandel", 
            legend_title1 = "Prosentandel av nedbygging (%)", 
            legend_title2 = "Usikkerhet", 
            style_type_map1 = "fixed",
@@ -3086,8 +3088,8 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encrec_002_perc_map, 
            data2 = encrec_002_perc_map, 
-           fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Usikkerhet for share of recreation area lost",
+           fill_variable1 = "Prosentandel (%) av friluftsliv gått tapt", 
+           fill_variable2 =  "Usikkerhet av prosentandel",
            legend_title1 = "Prosentandel av nedbygging (%)", 
            legend_title2 = "Usikkerhet", 
            style_type_map1 = "fixed",
@@ -3117,8 +3119,8 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encrec_002_perc_map_fy, 
            data2 = encrec_002_perc_map_fy, 
-           fill_variable1 = "Share (%) of recreation area lost", 
-           fill_variable2 =  "Usikkerhet for share of recreation area lost",
+           fill_variable1 = "Prosentandel (%) av friluftsliv gått tapt", 
+           fill_variable2 =  "Usikkerhet av prosentandel",
            legend_title1 = "Prosentandel av nedbygging (%)", 
            legend_title2 = "Usikkerhet", 
            style_type_map1 = "fixed",
@@ -3339,7 +3341,7 @@ source(paste0(functions_path, "/static_map.R"))
 static_map(data1 = encrec_006_map_un, 
            data2 = encrec_006_map_un, 
            fill_variable1 = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
-           fill_variable2 = "Usikkerhet for totalt areal",
+           fill_variable2 = "Usikkerhet av totalt areal",
            legend_title1 = "Totalt areal (dekar)", 
            legend_title2 = "Usikkerhet av areal",
            style_type_map1 = "fixed",
@@ -3352,6 +3354,7 @@ static_map(data1 = encrec_006_map_un,
            map_title2 = "Usikkerhet knyttet til totalt areal særlig viktige naturtyper gått tapt  over 2018-2024")
 
 ```
+
 ```{r map_enc006_3}
 #| eval: true
 #| warning: false
@@ -3367,7 +3370,7 @@ source(paste0(functions_path, "/static_map.R"))
 static_map(data1 = encrec_006_map_un_fy, 
            data2 = encrec_006_map_un_fy, 
            fill_variable1 = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
-           fill_variable2 = "Usikkerhet for totalt areal",
+           fill_variable2 = "Usikkerhet av totalt areal",
            legend_title1 = "Totalt areal (dekar)", 
            legend_title2 = "Usikkerhet av areal",
            style_type_map1 = "fixed",
@@ -3493,9 +3496,9 @@ encrec_006_perc_map_fy <- encrec_006_map_un_fy %>%
                                    "total_enc_area",
                                    "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
                                    "Prosentandel (%) av nedbygging som er ''særlig viktig natur''",
-                                   "Usikkerhet for totalt areal",
+                                   "Usikkerhet av totalt areal",
                                    "geometry") %>%
-                            rename("Usikkerhet" =  "Usikkerhet for totalt areal",
+                            rename("Usikkerhet" =  "Usikkerhet av totalt areal",
                                    "Totalt areal av nedbygging" = "total_enc_area")
 
 # Replace labels of uncertainty
@@ -3709,15 +3712,101 @@ This is typically where people will harvest data from, so make sure to include a
 -->
 
 ## 11. Export file
-We create a geopackage with all the different maps created above: (i) total area of nedbygging in recreation areas; (ii) share of nedbygging in recreation areas; (iii) total area of "særlig viktig natur" lost to nedbygging within recreation areas; (iv) share of nedbygging in recetation areas that was "særlig viktig natur". All of these indicatores were display by municipalities and fylke, as well as for all outdoor recreation areas and only for important and very important outdoor recreation areas. As in the report we focus solely on important and very important outdoor recteation areas, we will only export these layers. Note that the results were very similar whether we took all teh recreation areas or only important and very important.
+### Tables
+```{r export_tab}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Export tables"
+
+# Accounting tables
+write.table(encrec_0012_acc, 
+            paste0(project_path,
+                   "/result/tables/ENCREC001-002_accounting_table_kommune.csv"), 
+            sep = ";")
+
+write.table(encrec_0012_fy_acc, 
+            paste0(project_path,
+                   "/result/tables/ENCREC001-002_accounting_table_fylke.csv"), 
+            sep = ";")
+
+write.table(encrec_0034_acc, 
+            paste0(project_path,
+                   "/result/tables/ENCREC003-004_accounting_table_kommune.csv"), 
+            sep = ";")
+
+write.table(encrec_0034_fy_acc, 
+            paste0(project_path,
+                   "/result/tables/ENCREC003-004_accounting_table_fylke.csv"), 
+            sep = ";")
+
+write.table(encrec_0056_acc, 
+            paste0(project_path,
+                   "/result/tables/ENCREC005-006_accounting_table_kommune.csv"), 
+            sep = ";")
+
+write.table(encrec_0056_fy_acc, 
+            paste0(project_path,
+                   "/result/tables/ENCREC005-006_accounting_table_fylke.csv"), 
+            sep = ";")
+
+# Tables associated to maps
+write.table(encrec_002_map, 
+            paste0(project_path,
+                   "/result/tables/ENCREC002_map_kommune.csv"), 
+            sep = ";")
+
+write.table(encrec_002_map_fy, 
+            paste0(project_path,
+                   "/result/tables/ENCREC002_map_fylke.csv"), 
+            sep = ";")
+
+write.table(encrec_002_perc_map, 
+            paste0(project_path,
+                   "/result/tables/ENCREC002-share_map_kommune.csv"), 
+            sep = ";")
+
+
+write.table(encrec_002_perc_map_fy, 
+            paste0(project_path,
+                   "/result/tables/ENCREC002-share_map_fylke.csv"), 
+            sep = ";")
+
+write.table(encrec_006_map_un, 
+            paste0(project_path,
+                   "/result/tables/ENCREC006_map_kommune.csv"), 
+            sep = ";")
+
+write.table(st_drop_geometry(encrec_006_map_un_fy), 
+            paste0(project_path,
+                   "/result/tables/ENCREC006_map_fylke.csv"), 
+            sep = ";")
+
+write.table(encrec_006_perc_map, 
+            paste0(project_path,
+                   "/result/tables/ENCREC006-share_map_kommune.csv"), 
+            sep = ";")
+
+write.table(encrec_006_perc_map_fy, 
+            paste0(project_path,
+                   "/result/tables/ENCREC006-share_map_fylke.csv"), 
+            sep = ";")
+
+
+```
+
+
+### Maps
+We create a geopackage with all the different maps created above: (i) total area of nedbygging in recreation areas; (ii) share of nedbygging in recreation areas; (iii) total area of "særlig viktig natur" lost to nedbygging within recreation areas; (iv) share of nedbygging in recetation areas that was "særlig viktig natur". All of these indicatores were display by municipalities and fylke, as well as for all outdoor recreation areas and only for important and very important outdoor recreation areas. As in the report we focus solely on important and very important outdoor recreation areas, we will only export these layers. Note that the results were very similar whether we took all the recreation areas or only important and very important.
 
 We first need to prepare the datasets because to display the maps on maps.nina.no, we need to create a variable for coloring.
 
 ```{r export_1}
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
-#| output: true
+#| output: false
 #| code-summary: "Prepare datasets"
 
 ## Call function to format the map to NINA's standard
