@@ -1,0 +1,354 @@
+---
+title: "Thematic accounts - encroachment extent accounts in recreation areas"
+subtitle: 
+# delete the line with the second indicatorID (line 5) 
+# if it's not relevant for you.
+# In the parentheses you can add a word to distinguish multiple indicators 
+# from each other, for example the ecosystem type that they cover
+indicatorID: 
+  - ENCACC_001
+  - ENCACC_002 # delete whole line if not needed
+# If you are presenting multiple indicators, and have multiple 
+# indicator IDs, then add them as a list here, and make sure you add
+# the same number of list entries, 
+# and in the same order that corresponds to the indicator IDs,  
+# to the meta data fields where the indicators differ. 
+# For example, if the indicators cover different ecosystem types, 
+# add the ecosystems as a list under 'Ecosystems', but if they are in the
+# same realm, same country etc., then you only need to write the realm and
+# country once. 
+indicatorName: 
+  - Extent accounts of all encroachment in municipalities # add more by adding another line starting '-'
+  - Extent accounts of all sværlig vikitig natur lost due to encroachments in municipalities
+  
+folderName: code # name of the folder under 'indicators/'. 
+# If it's a single indicator being reported, the folder name should be the same as the indicatorID. 
+# If there are multiple ID's then the folder name could look something like XX_YYY_ZZZ-ÅÅÅ.
+country: Norway
+continent: Europe
+# ECT: write ECT here # e.g. A2 - Chemical State characteristics
+Realm: 
+  - write realm here # e.g. Freshwater (F)
+Biome: 
+  - write biome here # e.g. F1 Rivers and streams biome
+Ecosystem: 
+  - write ecosystem here # e.g. F1.3 Freeze-thaw streams
+yearAdded: 2025 # the year when the indicator was first submitted to ecRxiv
+yearLastUpdate: 2025
+status: incomplete # options are complete, incomplete, or deprecated
+Version: "000.001" # Beta-versions are numbers incrementally with values below 0. Operational versions can be given the version numbers above 0. Use this terms similar as for software versioning,
+VersionComment: This is the first version of the thematic encroachment extent accounts in municipalities being compiled # Describe briefly how this version differs from earlier versions 
+url: https://github.com/NINAnor/recereation_encroachment_accounts
+# Leave the url as is, but replace XX_YYYY_ZZ with the name of the root folder for the current indicator(s). It should be the same as the indicatorID, but if there are more indicator IDs presented in the same folder, the folder name might be different, e.g. XX_YYYY_AAA-BBB 
+Normalised: No # Yes or no depending on whether the metric has been normliased or not.
+SpatialAggregationPathway: Describe the aggregation using the standrdaise terminology # e.g. Scale - Transform - Aggregate (length-weighted arithmetic mean) - Truncate
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+    toc-title: Contents
+    toc-depth: 3
+    smooth-scroll: true
+execute: 
+  cache: true
+author:
+  - name: Sylvie Clappe             # Enter name
+    email: sylvie.clappe@nina.no  # Enter email
+    affiliations:
+      - id: myID
+        name: Norwegian Institute for Nature Research  # Enter affiliations
+  - name: David Barton              #  Enter subsequent authors like this, or remove if not relevant
+    affiliations:
+      - ref: myID               # To reuse affiliations reference the id like this
+  - name: Reto Spielhofer             #  Enter subsequent authors like this, or remove if not relevant
+    affiliations:
+  - ref: myID 
+AuthorList: Clappe, S., Barton, D.N., Spielhofer, R.  
+date: January 22, 2026 # Enter date
+data_availability: none
+code_reproducibility: none
+open_science_badge: none
+callout-icon: false
+lightbox: true
+css: ../../../style.css
+code-links:
+      - text: Add a review
+        icon: github
+        href: https://github.com/NINAnor/ecRxiv
+hide: TRUE # Change to FALSE
+---
+
+<!--# This is a template for how to document the indicator analyses. Make sure also to not change the order, or modify, the headers, unless you really need to. This is because it easier to read if all the indicators are presented using the same layout. If there is one header where you don't have anything to write, just leave the header as is, and don't write anything below it. If you are providing code, be careful to annotate and comment on every step in the analysis. Before starting it is recommended to fill in as much as you can in the metadata file. This file will populate the initial table in your output.-->
+
+<!--# Load all you dependencies here -->
+
+```{r setup}
+#| include: false
+#| cache: false
+library(knitr)
+library(tidyverse)
+library(kableExtra)
+library(here)
+library(anybadger)
+library(yaml)
+library(tibble)
+library(conflicted)
+library(httr2)
+library(giscoR)
+library(zen4R)
+library(jsonlite)
+library(sf)
+library(purrr)
+library(numform)
+library(DT)
+library(tmap)
+
+# weird workarounds for cache issues
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::lag)
+conflicts_prefer(dplyr::select)
+pull<-dplyr::pull
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Remove dplyr and messages
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r source}
+#| echo: false
+#| cache: false
+source(here::here("_common.R"))
+```
+
+```{r working_directory}
+#| include: false
+#| cache: false
+
+# Workaround to force the working directory
+# Needs to be set after {r source} otherwise
+# {_common.R is not found}
+opts_knit$set(root.dir = here:::here())
+```
+
+
+<!--# The following parts are autogenerated. Do not edit. -->
+
+::: {layout-ncol="5"}
+
+```{r statusBadge}
+#| echo: false
+status_badge(as.character(st))
+```
+
+```{r versionBadge}
+#| echo: false
+version_badge(my_version_number = as.character(version[[1]]),
+  folder_name = folder_name)
+```
+
+```{r dataBadge}
+#| echo: false
+data_badge(as.character(badges[[1]]))
+```
+
+```{r codeBadge}
+#| echo: false
+code_badge(as.character(badges[[2]]))
+```
+
+```{r openScienceBadge}
+#| echo: false
+open_science_badge(as.character(badges[[3]]))
+```
+::: 
+ 
+
+> **Recommended citation**: `r paste(auth, " ", year, ". ", name, " (ID(s): ", folder_name, ") ", "v. ", version, ". ", url, sep="")`
+
+
+
+::: {.callout-tip collapse="true"}
+## Metadata
+```{r tbl-meta2}
+#| tbl-cap: 'Indicator metadata'
+#| echo: false
+#| warning: false
+meta |>
+  dplyr::filter(Variable %in% c(
+    "Indicator ID",
+    "Indicator Name",
+    "Continent",
+    "Country",
+    "Ecosystem Condition Typology Class", 
+    "Realm",
+    "Biome",
+    "Ecosystem",
+    "Year added", 
+    "Last update",
+    "Version",
+    "Version comment",
+    "Normalised",
+    "Spatial aggregation pathway")) |>   
+  kable()
+
+```
+:::
+
+::: {.callout-tip collapse="true"}
+
+## Log
+
+<!--# Update this logg with short messages for each update -->
+- 22 January 2026 - Analyses completed
+- XXX - First draft version
+:::
+
+
+<hr />
+
+<!--# Document you work below.  -->
+
+## 1. Les meg 
+Norway is losing nature at high speed. According to the NRK article “Norgei Rødt, Hvitt og Grått”, Norway lost 208 km2 of semi-natural lands to artificial land expansion; a process known as land take[^1,2] . Almost a year later, in October 2025, NRK released another article looking at the rate of land take in Europe, «Europe from Green to Grey – Norway has the highest loss of nature per capita in Europe». In this article, Norway had the alarming rate of more than  38 m2 of nature loss per inhabitant in the period 2018-2024 (NRK, 2025). 
+
+Although we know what is happening at the scale of the nation, we don't know what is happening within outdoor recreation areas. How much natur is being lost in these area due to land take? Also, what type of nature was lost? To answer these question, we compile arealregnskap over 2018-2024 for:
+
+1. All nedbygging whitin the municipality / fylke
+
+2. Nedbygging whitin all of outdoor recreation areas per municipality / fylke
+
+3. Nedbygging whitin important and very important outdoor recreation areas per municipality / fylke
+
+4. Versatte naturtyper tapt within 1, 2 and 3 above.
+
+
+## 2. Hvilke datasett brukte vi?
+### 2.1 Kart over kommunegrensene i Norge 
+
+
+
+### 2.2 Kart over området og verdiene av kommunale friluftsområder
+
+
+
+### 2.3 Kart over potensielle «nedbygging» i Norge i perioden 2018–2024
+
+
+
+
+### 2.3 Kart over habitatene som anses som «særlig viktig natur»
+
+
+## 5. Uncertainties
+Resultatene må være pålitelige for å ta informerte beslutninger. Rapporten bruker et tra-fikklyssystem for å vise viser relativ (u)sikkerhet i resultatene fra din kommune og / eller fylke: 
+
+FIGURE
+
+## 6. Fylke tematisk arealregnskap for nedbygging
+### 6.1 Totalt areal av nedbygging
+```{r ENCACC001}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: true
+#| echo: false
+
+# Load the accounting table: encacc_001_acc
+
+# Display the table dynamically
+datatable(encacc_002_acc,
+          extensions = 'Buttons',
+          filter = list(position = 'top', clear = TRUE), 
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                          columnDefs = list(list(targets = c(which(colnames(encacc_002_acc) == "Usikkerhet for areal i regnskapsperiode")),
+                                                 visible = FALSE))),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
+    formatCurrency(
+    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",") %>%
+  ## Example: color Årlig areal i dekar by var1
+  formatStyle(
+    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
+    ),
+    valueColumns = "Usikkerhet for areal i regnskapsperiode"           # column used for the intervals
+  )
+
+```
+
+### 6.2 Totalt areal av nedbygging i friluftlivsområder
+
+### 6.3 Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging
+```{r ENCACC002}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: true
+#| echo: false
+
+# Load the accounting table: encacc_001_fy_acc
+
+# Display the table dynamically
+datatable(encacc_002_acc,
+          extensions = 'Buttons',
+          filter = list(position = 'top', clear = TRUE), 
+          options = list( dom = 'Bfrtip',
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                          columnDefs = list(list(targets = c(which(colnames(encacc_002_acc) == "Usikkerhet for areal i regnskapsperiode")),
+                                                 visible = FALSE))),
+          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
+    formatCurrency(
+    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    currency = "",                
+    interval = 3,                 
+    mark = " " ,
+    dec.mark = ",") %>%
+  ## Example: color Årlig areal i dekar by var1
+  formatStyle(
+    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    backgroundColor = styleEqual(
+      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
+      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
+    ),
+    valueColumns = "Usikkerhet for areal i regnskapsperiode"           # column used for the intervals
+  )
+
+```
+
+### 6.3 Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder
+
+## 7. Kommune tematisk arealregnskap for nedbygging
+### 6.1 Totalt areal av nedbygging
+
+### 6.2 Totalt areal av nedbygging i friluftlivsområder
+
+### 6.3 Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging
+
+### 6.3 Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder
+
+## 8. References
+(Waiting, 2024; Venter et al., 2024)
+
+::: {.callout-tip collapse="true"}
+## Session Info
+
+This information is mainly aimed at developers that need to recreate the R environment that produced the html.
+Important note: this information is about the R session that was running when the html was rendered, and if some of the code chunks were not evaluated when the html was rendered, they may have been executed in a different environment.  
+
+```{r sessionInfo}
+#| echo: false
+sessionInfo()
+```
+
+:::
