@@ -235,18 +235,20 @@ We also developed a simple traffic-light system to inform users of the uncertain
 
 3. **Main headlines**:
 
-- More than 13 000 football pitches (97 000 decares; 97 km2) of nature disappeared due to land take between 218 and 2024. More than 80% (78 000 decares) occurred in important and very important outdoor recreation areas.
+- Despite a total of about 362 000 decares (362 km2) of nature lost in Norway due to land take between 2018 and 2024, the area of nature disappearing each year is decreasing since 2021.
 
-- With annual losses of more than 2 200 and 1 800 decares respectively, Buskerud and Innlandet lost the biggest area of their important and very important outdoor rec-reation areas to land take.
+- Innlandet saw the largest loss with more than 7 600 dekar of nature disappearing annualy over 2018-2024. While Oslo lost the smallest area with about 1 100 decares over seven years.
 
-- Over 1 600 decares of specially important nature disappeared in important and very important outdoor recreation areas due to land take.
+- Over 5 200 decares of specially important nature disappeared due to land take be-tween 2018 and 2024
 
-- With 11,5%, Roagaland has the highest percentage of land take built on specially important nature of its important and very important outdoor recreation areas. While less than 1% of the nature lost to land take in the recreation areas of Troms, Oslo and Innlandet was specially important.
+- Over 2 300 decares of coastal heathlands disappeared all over Norway due to land take between 2018 and 2024.
+
+- With almost 4,5%, Roagaland has the highest percentage of land take built on spe-cially important nature. While less than 1% of the nature lost to nedbygging in Østfold, Troms, Agder, Oslo was specially important nature.
+
 
 
 ## 2. About the underlying data
 We used three main datasets:
-
 
 - **DT01**: [Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Map of potential “nedbygging” (i.e., land take) event in Norway over 2018-2024. This data have been using Sentinal-2 satellite imagery and  a convolutional neural network from Google called Dynamic World.
 
