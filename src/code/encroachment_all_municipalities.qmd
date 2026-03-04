@@ -229,7 +229,7 @@ In this document, we explore how much of this nature loss happened in both count
 
 2. **Methods**:
 
-We created extent accounts for land take within the county and municipalities as a whole. Three main datasets were used to create our accounts: (i) a map of municipal administrative boundaries; (ii) Maps of built-up expansion over Norway 2017-2014 from Venters 2025;  and (iii) a map of valued nature types from the Norwegian Environmental Agency. The analyses mostly relied on various spatial intersection of the data. 
+We created extent accounts for land take within the county and municipalities as a whole. Three main datasets were used to create our accounts: (i) a map of municipal administrative boundaries; (ii) Maps of built-up expansion over Norway 2017-2014 from Venter 2025;  and (iii) a map of valued nature types from the Norwegian Environmental Agency. The analyses mostly relied on various spatial intersection of the data. 
 
 We also developed a simple traffic-light system to inform users of the uncertainty of our results. This system is mainly based on the user accuracy of the prediction of land take, and the temporal discrepancy between datasets.
 
