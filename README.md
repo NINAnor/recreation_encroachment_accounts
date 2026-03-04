@@ -23,7 +23,7 @@ We use a number of datasets including:
 
 - Outdoor recreation areas from [naturebase.no](https://geocortex02.miljodirektoratet.no/vertigisstudio/web/?app=a3a09afee5c24c459c53a9a9ff0915f1). Go to Frisluftsliv > Kartlagte og verdsatte friluftslivområder > Kartlagte friluftslivområder, verdi.
 
-- Land take data from Zander's [Zenodo repository](https://zenodo.org/records/15130992), version 1 (3/04/2025).
+- Land take data from Zander and NRK [Zenodo repository](https://zenodo.org/records/15130992), version 1 (3/04/2025).
 
 - Eurostat administrative boundaries for municipalities in Norway [Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$)
 
