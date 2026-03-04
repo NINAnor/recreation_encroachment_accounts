@@ -1,0 +1,33 @@
+project:
+  type: book
+  output-dir: _book
+  
+book:
+  title: "Recreation Encroachment Accounts"
+  author: "NINA"
+  description: | 
+    Encroachment accounts within recreation areas and especially valuable nature in Norwegian municipalities.
+  repo-url: https://github.com/NINAnor/recereation_encroachment_accounts
+  repo-branch: main
+  repo-actions: [edit]
+  sharing: [twitter, facebook, linkedin]
+  chapters:
+    - index.qmd
+    - part: "Encroachment Accounts"
+      chapters: 
+        - src/code/encroachment_recreation_areas.qmd
+        - src/code/encroachment_all_municipalities.qmd
+    - part: "Accounting Tables"
+      chapters:
+        - src/code/accounting-tables_display.qmd
+    
+format:
+  html: 
+    theme: 
+    - cosmo
+    - NINAstyle.scss
+    
+    code-link: true
+
+bibliography: references.bib
+csl: NINArefStyle.csl

@@ -1,0 +1,29 @@
+Package: recereation_encroachment_accounts
+Title: Recreation Encroachment Accounts
+Version: 0.1.0
+Authors@R: c(person("NINA", email = "nina@nina.no", role = c("aut", "cre", "cph")))
+Depends: R (>= 4.0)
+URL: https://github.com/NINAnor/recereation_encroachment_accounts/
+Imports:
+  rmarkdown,
+  tidyverse,
+  knitr,
+  kableExtra,
+  here,
+  anybadger,
+  yaml,
+  tibble,
+  conflicted,
+  httr2,
+  giscoR,
+  zen4R,
+  jsonlite,
+  sf,
+  purrr,
+  numform,
+  DT,
+  DiagrammeR,
+  DiagrammeRsvg,
+  rsvg,
+  downlit,
+  xml2

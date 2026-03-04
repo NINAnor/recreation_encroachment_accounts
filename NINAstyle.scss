@@ -1,0 +1,70 @@
+/*-- scss:defaults --*/
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;700&display=swap');
+
+$primary: #425563;
+/*$primary: #000000;*/
+$teal: #008C95;
+$secondary: $teal;
+$green: #7A9A01;
+$orange: #E57200;
+$yellow: #FFB25B;
+$purple: #93328E;
+$cyan: #0099e6;
+$hr-border-color: $primary;
+$headings-color: $primary;
+$link-color: $secondary;
+$font-family-sans-serif: "Open Sans", Helvetica, Arial;
+$font-weight-normal: 300;
+$font-weight-light: 200;
+$headings-font-weight: 300;
+$headings-font-family: $font-family-sans-serif;
+$body-color: #000000;;
+$table-accent-bg: rgba($primary, .4);
+
+/*-- table styling --*/
+table thead tr {
+    background-color: rgba($primary, .8);
+    color: white;
+  }
+  
+  table tbody tr:nth-child(even) {
+    background-color: rgba($primary, .1);
+  }
+  
+  table tbody tr:nth-child(odd) {
+    background-color: white;
+  }
+
+/*-- codeblock styling --*/
+pre, code {
+  border: 1px solid #ccc; // Light grey border
+  background-color: #f8f8f8; // Light grey background
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); // Optional: adds a subtle shadow
+  border-radius: 0; // Rounded corners
+  padding: 10px; // Some padding inside the box
+  overflow: auto; // Adds a scrollbar if the content is wider than the box
+
+  // If you want to style code within pre differently
+  code {
+      background-color: transparent; // Ensures nested code elements don't have a different background
+  }
+}
+
+/*-- scss:rules --*/
+
+/* Example of a note class for adding textboxes.
+
+:::{.note}
+**Note**: This is a note.
+:::
+*/
+.note {
+    background-color: rgba($primary, .2); 
+    border: 1px solid $primary; // Use the primary color as the border
+    padding: 10px 10px 2px 10px;
+    border-radius: 5px;
+    color: $body-color; // Use the body color for the text
+    font-family: $font-family-sans-serif;
+    font-size: 0.8em;
+    margin: 20px 0 40px 0;
+}
