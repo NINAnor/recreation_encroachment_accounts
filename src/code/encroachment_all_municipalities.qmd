@@ -30,20 +30,20 @@ country: Norway
 continent: Europe
 # ECT: write ECT here # e.g. A2 - Chemical State characteristics
 Realm: 
-  - write realm here # e.g. Freshwater (F)
+  - all terrestrial # e.g. Freshwater (F)
 Biome: 
-  - write biome here # e.g. F1 Rivers and streams biome
+  - all terrestrial # e.g. F1 Rivers and streams biome
 Ecosystem: 
-  - write ecosystem here # e.g. F1.3 Freeze-thaw streams
-yearAdded: 2025 # the year when the indicator was first submitted to ecRxiv
-yearLastUpdate: 2025
-status: incomplete # options are complete, incomplete, or deprecated
+  - all terrestrial # e.g. F1.3 Freeze-thaw streams
+yearAdded: 2026 # the year when the indicator was first submitted to ecRxiv
+yearLastUpdate: 2026
+status: complete # options are complete, incomplete, or deprecated
 Version: "000.001" # Beta-versions are numbers incrementally with values below 0. Operational versions can be given the version numbers above 0. Use this terms similar as for software versioning,
-VersionComment: This is the first version of the thematic encroachment extent accounts in municipalities being compiled # Describe briefly how this version differs from earlier versions 
+VersionComment: This is the first version of the thematic land take extent accounts in Norway's municipalities and counties being compiled # Describe briefly how this version differs from earlier versions 
 url: https://github.com/NINAnor/recereation_encroachment_accounts
 # Leave the url as is, but replace XX_YYYY_ZZ with the name of the root folder for the current indicator(s). It should be the same as the indicatorID, but if there are more indicator IDs presented in the same folder, the folder name might be different, e.g. XX_YYYY_AAA-BBB 
-Normalised: No # Yes or no depending on whether the metric has been normliased or not.
-SpatialAggregationPathway: Describe the aggregation using the standrdaise terminology # e.g. Scale - Transform - Aggregate (length-weighted arithmetic mean) - Truncate
+Normalised: No normalisation, except when ENCACC_001-002 are presented as percentages. In that case we normalised by the total area of the municiplaities / counties (ENCACC_001); or the total area of land take whithin municipalities / counties (ENCACC_002). # Yes or no depending on whether the metric has been normliased or not.
+SpatialAggregationPathway: Area of land take calculated at polygon level, then aggregated at municipal level, then aggregated at county and national levels. Standard or cumulative sums were used. # e.g. Scale - Transform - Aggregate (length-weighted arithmetic mean) - Truncate
 format: 
   html:
     embed-resources: true
@@ -65,9 +65,12 @@ author:
       - ref: myID               # To reuse affiliations reference the id like this
   - name: Reto Spielhofer             #  Enter subsequent authors like this, or remove if not relevant
     affiliations:
-  - ref: myID 
-AuthorList: Clappe, S., Barton, D.N., Spielhofer, R.  
-date: January 22, 2026 # Enter date
+      - ref: myID 
+  - name: Zander Venter             #  Enter subsequent authors like this, or remove if not relevant
+    affiliations:
+      - ref: myID 
+AuthorList: Clappe, S., Barton, D.N., Spielhofer, R., Venter, Z.  
+date: March 04, 2026 # Enter date
 data_availability: none
 code_reproducibility: none
 open_science_badge: none
@@ -222,11 +225,11 @@ With a maximum of 300 words, describe the indicator in general terms as you woul
 
 Norway is losing nature at high speed. According to the NRK article “Norge i Rødt, Hvitt og Grått”, Norway lost 208 km2 of semi-natural lands to artificial land expansion; a process known as land take (Venter et al., 2024a,b,c). Almost a year later, in October 2025, NRK released another article looking at the rate of land take in Europe, «Europe from Green to Grey – Norway has the highest loss of nature per capita in Europe». In this article, Norway had the alarming rate of more than  38 m2 of nature loss per inhabitant in the period 2018-2024 (NRK, 2025a). 
 
-In this document, we explore how much of this nature loss happened in both counties and kommuner and what type of nature was lost. To be relevant in a planning context, we also focused on the nature types referred to Environmental Administration's Objection Practice under the collective term «nature of particular importance».
+In this document, we explore how much of this nature loss happened in both counties and municipalities and what type of nature was lost. To be relevant in a planning context, we also focused on the nature types referred to Environmental Administration's Objection Practice under the collective term «nature of particular importance».
 
 2. **Methods**:
 
-We created extent accounts for land take within the county and municipalities as a whole. Three main datasets were used to create our accounts: (i) a map of outdoor recreation areas from the Norwegian Environmental Agency; (ii) Maps of built-up expansion over Norway 2017-2014 from Venter 2025;  and (iii) a map of valued nature types from the Norwegian Environmental Agency. The analyses mostly relied on various spatial intersection of the data. 
+We created extent accounts for land take within the county and municipalities as a whole. Three main datasets were used to create our accounts: (i) a map of municipal administrative boundaries; (ii) Maps of built-up expansion over Norway 2017-2014 from Venters 2025;  and (iii) a map of valued nature types from the Norwegian Environmental Agency. The analyses mostly relied on various spatial intersection of the data. 
 
 We also developed a simple traffic-light system to inform users of the uncertainty of our results. This system is mainly based on the user accuracy of the prediction of land take, and the temporal discrepancy between datasets.
 
