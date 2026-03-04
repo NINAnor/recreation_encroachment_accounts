@@ -21,13 +21,13 @@ This project has 3 sub-folders:
 ## Data
 We use a number of datasets including:
 
-- recreation areas from [naturebase.no](https://geocortex02.miljodirektoratet.no/vertigisstudio/web/?app=a3a09afee5c24c459c53a9a9ff0915f1). Go to Frisluftsliv > Kartlagte og verdsatte friluftslivområder > Kartlagte friluftslivområder, verdi.
+- Outdoor recreation areas from [naturebase.no](https://geocortex02.miljodirektoratet.no/vertigisstudio/web/?app=a3a09afee5c24c459c53a9a9ff0915f1). Go to Frisluftsliv > Kartlagte og verdsatte friluftslivområder > Kartlagte friluftslivområder, verdi.
 
-- encroachment data from Zander's [Zenodo repository](https://zenodo.org/records/15130992), version 1 (3/04/2025).
+- Land take data from Zander's [Zenodo repository](https://zenodo.org/records/15130992), version 1 (3/04/2025).
 
-- 
+- Eurostat administrative boundaries for municipalities in Norway [Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$)
 
-
+- Sepcially important nature types [Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$)
 
 
 ## Packages
@@ -40,24 +40,38 @@ library(anybadger)
 library(yaml)
 library(tibble)
 library(conflicted)
-library(httr)
+library(httr2)
+library(giscoR)
+library(zen4R)
 library(jsonlite)
 library(sf)
+library(purrr)
+library(numform)
+library(DT)
+library(tmap)
 ```
 
 
 ## Functions
 A lot of different functions have been created to make the core code more easy to read and follow. These functions can be found in .src/functions:
 - api_zenodo.R: download a Zenodo dataset through an API request.
+- api_geonorge: request data from Geonorge with an API request.
 - add_change_encroachment_area.R: add a net change row to an extent account table for encroachment areas.
 - add_change_recreation_area.R: add a net change row to an extent account table for recreation areas.
+- add_fylke.R: add fylke number and / or names.
+- add_uncertainty:individual.R: add the traffic light uncertainty at polygon level.
+- concatenate_individual_uncertainties.R: aggregate the polygon-level uncertainty to the municipal / county / national level.
+- add_uncertainty_global.R: compile the final uncertainty (traffic light) of the results.
+- global_uncertainty.R: function used within add_uncertainty_global.R.
+- interactive_map.R: creates an interactive map.
+- static_map.R: create a static map.
+- map_nina_format.R: format the spatial data created with the `sf package`so they can be displayed proprely on maps.nina.no.
 
 ## Code
 Five core code scripts have been created as quarto document (.qmd), one for each encroachment account or indicator that were of interest in this project. They are accessible along with its HTML version in .src/code. The quarto document has been adapted from an internal NINA quarto template from the ecRix project. It was initially created by Anders Kolstad.
 
 The quarto documents and HTML versions contain both the code but a detailed explanation of the different steps and the metadata of the data used for each account and / or indicator:
 
-- **Total encroachment of nature in municipalities**: encroachment_total.qmd
-- **Total encroachment of recreation areas**: encroachment_all_recreation_areas.qmd
-- **Total encroachment of especially valuable recreation areas**, these are recreation areas classified as A and B according to M98 Miljødirektoratet methodology:  encroachment_recreation_areas_AB.qmd
-- **Area of "other especially valuable nature"" types within especially valuable recreation areas**, ???: encroachment_other_valuable_nature_AB.qmd
+- **encroachment_all_municipalities.qmd**: (i) total land take within counties and municipalities; (ii) area and type of specially important nature lost within counties and municipalities.
+- **encroachment_recreation_areas.qmd**: same as for encroachment_all_municipalities.qmd BUT for outdoor recreation areas.
+- **accounting-tables_display.qmd**: display accounting tables for users. Links to the interactive table sin the NINA report 2754 relate to this file.
