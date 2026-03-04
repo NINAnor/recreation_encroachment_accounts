@@ -235,25 +235,22 @@ We also developed a simple traffic-light system to inform users of the uncertain
 
 3. **Main headlines**:
 
-- Despite a total of about 362 000 decares (362 km2) of nature lost in Norway due to land take between 2018 and 2024, the area of nature disappearing each year is decreasing since 2021.
+- More than 13 000 football pitches (97 000 decares; 97 km2) of nature disappeared due to land take between 218 and 2024. More than 80% (78 000 decares) occurred in important and very important outdoor recreation areas.
 
-- Innlandet saw the largest loss with more than 7 600 dekar of nature disappearing annualy over 2018-2024. While Oslo lost the smallest area with about 1 100 decares over seven years.
+- With annual losses of more than 2 200 and 1 800 decares respectively, Buskerud and Innlandet lost the biggest area of their important and very important outdoor rec-reation areas to land take.
 
-- Over 5 200 decares of specially important nature disappeared due to land take be-tween 2018 and 2024
+- Over 1 600 decares of specially important nature disappeared in important and very important outdoor recreation areas due to land take.
 
-- Over 2 300 decares of coastal heathlands disappeared all over Norway due to land take between 2018 and 2024.
-
-- With almost 4,5%, Roagaland has the highest percentage of land take built on spe-cially important nature. While less than 1% of the nature lost to nedbygging in Østfold, Troms, Agder, Oslo was specially important nature.
-
+- With 11,5%, Roagaland has the highest percentage of land take built on specially important nature of its important and very important outdoor recreation areas. While less than 1% of the nature lost to land take in the recreation areas of Troms, Oslo and Innlandet was specially important.
 
 
 ## 2. About the underlying data
 We used three main datasets:
 
-- **DT01**: [Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$): Map of the administrative boundaries of municipalities in Norway. It is pro-duced by Eurostat. We chose not to use the Kartverket map of the munic-ipalities as their boundaries extend to the marine habitats. Eurostat’s boundaries are restricted to the ter-restrial habitats. As DT02 is limited to terrestrial habitats, we chose to restrict the extent of outdoor recrea-tion areas to terrestrial habitats only.
 
+- **DT01**: [Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Map of potential “nedbygging” (i.e., land take) event in Norway over 2018-2024. This data have been using Sentinal-2 satellite imagery and  a convolutional neural network from Google called Dynamic World.
 
-- **DT02**: [Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Map of potential “nedbygging” (i.e., land take) event in Norway over 2018-2024. This data have been using Sentinal-2 satellite imagery and  a convolutional neural network from Google called Dynamic World.
+- **DT02**: [Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$): Map of the administrative boundaries of municipalities in Norway. It is pro-duced by Eurostat. We chose not to use the Kartverket map of the munic-ipalities as their boundaries extend to the marine habitats. Eurostat’s boundaries are restricted to the ter-restrial habitats. As DT02 is limited to terrestrial habitats, we chose to restrict the extent of outdoor recrea-tion areas to terrestrial habitats only.
 
 - **DT03**: [Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$): Map of the habitats considered as specially important nature  in accordance with the valuation criteria in guideline M-1941 Impact assessments for climate and the environment.
 
@@ -261,9 +258,9 @@ We used three main datasets:
 
 ### 2.1 Spatial and temporal resolution and extent
 
-- **DT01**: vector data last updated in 2025 and covering 2024 administrative boundaries. DT01 covers all of Norway's municipalities.
+- **DT01**: vector data last updated in 2025 and covering the land take that appeared between 2018 and 2024. DT02 has a national coverage.
 
-- **DT02**: vector data last updated in 2025 and covering the land take that appeared between 2018 and 2024. DT02 has a national coverage.
+- **DT02**: vector data last updated in 2025 and covering 2024 administrative boundaries. DT01 covers all of Norway's municipalities.
 
 - **DT03**: vector data last updated in 2025 and whose mapping years of habitats range between 1899 and 2025. DT03 does not have a national coverage (see bias below).
 
@@ -271,9 +268,9 @@ We used three main datasets:
 
 ### 2.2 Sampling design
 
-- **DT01**: Not applicable
+- **DT01**: detection of encroachment is based on Sentinel-2 data and a convulotional neural network from Google called Dynamic World. These data are associated with a 85% user accuracy, this means that the detected encroachment are incorrect 18% of the time. This acuracy however varies depending on the year of detection of the land take: 80.6% for 2018; 81.8 for 2019; 82.2 for 2020; 84% for 2021; 86% for 2022; 95% for 2023. 2024 is not reported, we will assume it is equal to the overall user accuracy of 82%.
 
-- **DT02**: detection of encroachment is based on Sentinel-2 data and a convulotional neural network from Google called Dynamic World. These data are associated with a 85% user accuracy, this means that the detected encroachment are incorrect 18% of the time. This acuracy however varies depending on the year of detection of the land take: 80.6% for 2018; 81.8 for 2019; 82.2 for 2020; 84% for 2021; 86% for 2022; 95% for 2023. 2024 is not reported, we will assume it is equal to the overall user accuracy of 82%.
+- **DT02**: Not applicable
 
 - **DT03**: No noational coverage or revisit or sites. This means two things: (i) that if a habitat is not mapped at a particular location, we do not know if it's because it is indeed not there or that it simply hasn't been mapped yet; (ii) once a habitat has been mapped, there is no temporal indication for ensuring it is still there over the years.
 
@@ -281,9 +278,9 @@ We used three main datasets:
 
 ### 2.3 Original units
 
-- **DT01**: Municipalities
-
 - **DT02**: Land take polygons
+
+- **DT02**: Municipalities
 
 - **DT03**: Habitats polygons
 <!--# What are the original units for the most relevant  variables in the data-->
@@ -291,9 +288,9 @@ We used three main datasets:
 
 ### 2.3 Instructions for citing, using and accessing data
 
-- **DT01**: [Acces here](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$). Can be cited as: Eurostat (2025). Local Administrative Units (LAU) 2024. 
-
 - **DT02**: [Access here](^https://zenodo.org/records/15130992$). Can be cited as: Miljødirektoratet (2025). Verdsatte naturtyper 2025. 
+
+- **DT02**: [Acces here](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$). Can be cited as: Eurostat (2025). Local Administrative Units (LAU) 2024. 
 
 - **DT03**: [Access here](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$). Can be cited as: Venter, Z. (2025). Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss [Data set]. Zenodo. https://doi.org/10.5281/zenodo.15130992
 
@@ -301,9 +298,13 @@ We used three main datasets:
 
 ### 2.4 Additional comments about the dataset
 
-- **DT01**: was used to delineate the administrative boundaries of the municipalities and counties.
+- **DT01**: was used to identify the area of land take.
 
-- **DT02**: was used to identify the area of land take.
+- **DT02**: was used to delineate the administrative boundaries of the municipalities and counties.
+
+- **DT03**: was used to identify the area and type of specially important nature lost to land take.
+
+
 
 
 
@@ -337,9 +338,9 @@ When we present the ENCACC_002 map of percentage of land take that was specially
 ### 5.1 General uncertainties
 There are several sources of uncertainty that underlay the results that are presented in this report. Among them, we identified four major sources:
 
-1. Prediction uncertainty linked to DT03, whereby 18% of the land take areas are false positive. These means that 18% of the land take  areas are not “real” land take. 
+1. Prediction uncertainty linked to DT01, whereby 18% of the land take areas are false positive. These means that 18% of the land take  areas are not “real” land take. 
 
-2. Discrepancy in temporal coverages between the datasets used (DT01, DT02, DT03). As already described previously, all the datasets used in our analysis do not have the same temporal coverage. This creates uncertainty when performing the spatial intersection as data are not representative from the same year. We took this source of uncertainty into account as described in section 5.2 Reported uncertainties. Note that we omitted DT01 as boundaries within municipalities are unlikely to change over time.
+2. Discrepancy in temporal coverages between the datasets used (DT01, DT02, DT03). As already described previously, all the datasets used in our analysis do not have the same temporal coverage. This creates uncertainty when performing the spatial intersection as data are not representative from the same year. We took this source of uncertainty into account as described in section 5.2 Reported uncertainties. Note that we omitted DT02 as boundaries within municipalities are unlikely to change over time.
 
 3.Spatial quality of the boundaries of DT03. It was not possible to assess the quality of the boundaries of the mapped specially important nature, neither the rate of error in the identification of the nature types. We are however conscious that they would impact the quality of the results if a habitat is mapped smaller or bigger than it is in reality, or if a habitat is not recorded as occurring due to misclassification in the habitat type. Due to the lack of potential proxies for these uncertainties, it was not possible to take them into account in our results.
 
