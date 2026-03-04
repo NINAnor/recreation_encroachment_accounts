@@ -1,8 +1,8 @@
 ---
-title: "Thematic accounts - encroachment extent accounts in recreation areas"
+title: "Thematic accounts - land take extent accounts in Norway"
 subtitle: |
-  [ENCACC_001] (Extent accounts of all encroachment in municipalities) \
-  [ENCACC_005] (Extent accounts of all sværlig vikitig natur lost due to encroachments in municipalities)
+  [ENCACC_001] (Extent accounts of all land take in municipalities) \
+  [ENCACC_005] (Extent accounts of specaially important nature lost due to land take in municipalities)
 # delete the line with the second indicatorID (line 5) 
 # if it's not relevant for you.
 # In the parentheses you can add a word to distinguish multiple indicators 
@@ -20,8 +20,8 @@ indicatorID:
 # same realm, same country etc., then you only need to write the realm and
 # country once. 
 indicatorName: 
-  - Extent accounts of all encroachment in municipalities # add more by adding another line starting '-'
-  - Extent accounts of all sværlig vikitig natur lost due to encroachments in municipalities
+  - Extent accounts of all land take in municipalities # add more by adding another line starting '-'
+  - Extent accounts of verdsatte natur av "stor" og "svært stor" verdi lost due to land take in municipalities
   
 folderName: code # name of the folder under 'indicators/'. 
 # If it's a single indicator being reported, the folder name should be the same as the indicatorID. 
@@ -204,8 +204,8 @@ meta |>
 ## Log
 
 <!--# Update this logg with short messages for each update -->
-- 22 January 2026 - Analyses completed
-- XXX - First draft version
+- 25 February 2026 - Analyses completed
+- 04 March 2026 - First version
 :::
 
 
@@ -219,72 +219,147 @@ With a maximum of 300 words, describe the indicator in general terms as you woul
  -->
 
 1. **Background and rationale**:
-Norway is loosing its nature at rapid rate[^1]. Yet 
-<!-- What does the metric represent? Why is this relevant for describing ecosystem condition in this ecosystem?
-What are the main anthropogenic impact factors? -->
-2. **Methods**:
-<!-- What kind of data is used? How is the data customized (modified, estimated, integrated) to fit its purpose as an indicator? -->
-3. **Interpretation**:
-<!-- Add a very short description of how the indicator values should be interpreted. Here's an example for a bumblebee indicator: An indicator value of 1 signifies an intact bumblebee community. Values decreasing toward zero reflect negative ecological change, specifically the decline of species expected to be present. This metric does not account for potentially positive changes, such as increases in species' abundance or the arrival of new species. Tip: Add text on the line directly following the subheader, and don't introduce blank lines. This way the whole paragraph renders as a block quote. -->
-An indicator value of 1 signifies ...
-Values decreasing toward zero reflect...
 
-4. **Results and development needs**:
-<!-- Briefly, what does the indicator say about the ecosystem condition. What is the current status of  the metric (can it be used or is it still in development), and what immediate tasks remain to improve the indicator or to make the indicator operational -->
+Norway is losing nature at high speed. According to the NRK article “Norge i Rødt, Hvitt og Grått”, Norway lost 208 km2 of semi-natural lands to artificial land expansion; a process known as land take (Venter et al., 2024a,b,c). Almost a year later, in October 2025, NRK released another article looking at the rate of land take in Europe, «Europe from Green to Grey – Norway has the highest loss of nature per capita in Europe». In this article, Norway had the alarming rate of more than  38 m2 of nature loss per inhabitant in the period 2018-2024 (NRK, 2025a). 
+
+In this document, we explore how much of this nature loss happened in both counties and kommuner and what type of nature was lost. To be relevant in a planning context, we also focused on the nature types referred to Environmental Administration's Objection Practice under the collective term «nature of particular importance».
+
+2. **Methods**:
+
+We created extent accounts for land take within the county and municipalities as a whole. Three main datasets were used to create our accounts: (i) a map of outdoor recreation areas from the Norwegian Environmental Agency; (ii) Maps of built-up expansion over Norway 2017-2014 from Venter 2025;  and (iii) a map of valued nature types from the Norwegian Environmental Agency. The analyses mostly relied on various spatial intersection of the data. 
+
+We also developed a simple traffic-light system to inform users of the uncertainty of our results. This system is mainly based on the user accuracy of the prediction of land take, and the temporal discrepancy between datasets.
+
+3. **Main headlines**:
+
+- Despite a total of about 362 000 decares (362 km2) of nature lost in Norway due to land take between 2018 and 2024, the area of nature disappearing each year is decreasing since 2021.
+
+- Innlandet saw the largest loss with more than 7 600 dekar of nature disappearing annualy over 2018-2024. While Oslo lost the smallest area with about 1 100 decares over seven years.
+
+- Over 5 200 decares of specially important nature disappeared due to land take be-tween 2018 and 2024
+
+- Over 2 300 decares of coastal heathlands disappeared all over Norway due to land take between 2018 and 2024.
+
+- With almost 4,5%, Roagaland has the highest percentage of land take built on spe-cially important nature. While less than 1% of the nature lost to nedbygging in Østfold, Troms, Agder, Oslo was specially important nature.
 
 
 
 ## 2. About the underlying data
+We used three main datasets:
+
+- **DT01**: [Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$): Map of the administrative boundaries of municipalities in Norway. It is pro-duced by Eurostat. We chose not to use the Kartverket map of the munic-ipalities as their boundaries extend to the marine habitats. Eurostat’s boundaries are restricted to the ter-restrial habitats. As DT02 is limited to terrestrial habitats, we chose to restrict the extent of outdoor recrea-tion areas to terrestrial habitats only.
+
+
+- **DT02**: [Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Map of potential “nedbygging” (i.e., land take) event in Norway over 2018-2024. This data have been using Sentinal-2 satellite imagery and  a convolutional neural network from Google called Dynamic World.
+
+- **DT03**: [Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$): Map of the habitats considered as specially important nature  in accordance with the valuation criteria in guideline M-1941 Impact assessments for climate and the environment.
 
 <!--# Give a general introduction the datasets you have used, and provide more specific details in the sub-chapters.  -->
 
 ### 2.1 Spatial and temporal resolution and extent
 
+- **DT01**: vector data last updated in 2025 and covering 2024 administrative boundaries. DT01 covers all of Norway's municipalities.
+
+- **DT02**: vector data last updated in 2025 and covering the land take that appeared between 2018 and 2024. DT02 has a national coverage.
+
+- **DT03**: vector data last updated in 2025 and whose mapping years of habitats range between 1899 and 2025. DT03 does not have a national coverage (see bias below).
+
 <!--# Describe the temporal and spatial resolution and extent of the data used -->
 
 ### 2.2 Sampling design
+
+- **DT01**: Not applicable
+
+- **DT02**: detection of encroachment is based on Sentinel-2 data and a convulotional neural network from Google called Dynamic World. These data are associated with a 85% user accuracy, this means that the detected encroachment are incorrect 18% of the time. This acuracy however varies depending on the year of detection of the land take: 80.6% for 2018; 81.8 for 2019; 82.2 for 2020; 84% for 2021; 86% for 2022; 95% for 2023. 2024 is not reported, we will assume it is equal to the overall user accuracy of 82%.
+
+- **DT03**: No noational coverage or revisit or sites. This means two things: (i) that if a habitat is not mapped at a particular location, we do not know if it's because it is indeed not there or that it simply hasn't been mapped yet; (ii) once a habitat has been mapped, there is no temporal indication for ensuring it is still there over the years.
 
 <!-- How was the data sampled? Describe potential sampling biases -->
 
 ### 2.3 Original units
 
+- **DT01**: Municipalities
+
+- **DT02**: Land take polygons
+
+- **DT03**: Habitats polygons
 <!--# What are the original units for the most relevant  variables in the data-->
 
 
 ### 2.3 Instructions for citing, using and accessing data
 
+- **DT01**: [Acces here](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$). Can be cited as: Eurostat (2025). Local Administrative Units (LAU) 2024. 
+
+- **DT02**: [Access here](^https://zenodo.org/records/15130992$). Can be cited as: Miljødirektoratet (2025). Verdsatte naturtyper 2025. 
+
+- **DT03**: [Access here](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$). Can be cited as: Venter, Z. (2025). Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss [Data set]. Zenodo. https://doi.org/10.5281/zenodo.15130992
+
 <!--# Is the data openly available? If not, how can one access it? What are the key references to the datasets?   -->
 
 ### 2.4 Additional comments about the dataset
+
+- **DT01**: was used to delineate the administrative boundaries of the municipalities and counties.
+
+- **DT02**: was used to identify the area of land take.
+
+
 
 <!--# Optional. Text here -->
 
 ## 3. Indicator properties
 
-### 3.1 Collinearities with other indicators
+### 3.1 Mis-alignment with the System of Environmental Economic Accounting - Ecosystem Accounting
+For ENCACC_001, we have two deviations from the SEEA-EA traditional extent accounts:
+
+1.	A land take represent a land change over time. The SEEA-EA uses an “ecosystem-based” approach referring to ecosystem types and assets, whereby we record the extent in the opening and closing year of the accounting period, as well as a net change. land take being already a change, the accounts that are created will be for a land change which is not an “ecosystem” asset  per se. Here, we however decided to consider the land change as an “ecosystem” and report an opening (2018) and closing (2024) extent for the land change. This led to a subsequent deviation regarding the calculation of a total change in land take extent during the accounting period (see point 2 below).
+
+2. SEEA-EA extent accounts report the total area of an ecosystem during the accounting period and details the reductions, additions and net changes in this extent. As per point 1 above, land take intrinsically represent change in land cover only as the data only record the area of new land take in “natural areas” each year. Even though we consider it as a “pseudo-ecosystem” in our extent accounts, it meant that we could not calculate a change over the opening and closing years in the traditional way the SEEA-EA presents by subtracting the yearly opening extent to the yearly closing extent. To counteract this, we decided to also compile the cumulative area so we could compile a change in area between the opening and closing year. However, as previously noted, the land take data only record the apparition of new land take each year. This means that we only report the additions in area over the years, not the reductions (e.g., restoration works). In other words, we report when an encroachment appear but not when it disappears. There is thus a bias in the way the information is presented and the total change we present over the accounting period (2018-2024) is not a “net change”. Overall this means that we do not compile full SEEA-EA extent accounts, but only partial ones.
+
+For ENCACC_002, we only presented the total area lost over the accounting period per habitat type. This was to simplify the interpretation by the municpalities as areas are not lost constantly over time.
 
 <!--# Describe known collinearities with other metrics (indicators or variables) that could become problematic if they were also included in the same Ecosystem Condition Assessment as the indicator described here. -->
 
 
-### 3.2 Impact factors
+### 3.2 Spatial aggregation
 
-<!--# Describe the main natural and anthropogenic factors that affecst the metric -->
+For both ENCACC_001 and ENCACC_002, areas were first calculated at the municipal level, then aggregated at county and national level. 
+When we present the ENCACC_001 map of the land take as a share of the total municipal / county area, we normalise the total land take area at the municipal / county level by the total administrative area of the municipality / county. 
 
-### 3.3 Spatial aggregation
+When we present the ENCACC_002 map of percentage of land take that was specially important nature, we normalise the total area of specially important nature lost to land take by the total area of land take for the municipality / county. 
 
 <!-- Describe in word the same aggregation pathway presented in the top yaml (the metadata). If you have scaled against the reference value, it is especially important to know if you did any avergaing or summations etc. beforehand. An example text for a rather simple case could be: "The variable is scaled at the initial polygon level and the point estimate is a area-weighted arithmetic mean of all polygins. There is no transformation, and truncation is not needed as the indicator becomes naturally bound between 0 and 1".  -->
 
 
 ## 5. Uncertainties
 ### 5.1 General uncertainties
+There are several sources of uncertainty that underlay the results that are presented in this report. Among them, we identified four major sources:
+
+1. Prediction uncertainty linked to DT03, whereby 18% of the land take areas are false positive. These means that 18% of the land take  areas are not “real” land take. 
+
+2. Discrepancy in temporal coverages between the datasets used (DT01, DT02, DT03). As already described previously, all the datasets used in our analysis do not have the same temporal coverage. This creates uncertainty when performing the spatial intersection as data are not representative from the same year. We took this source of uncertainty into account as described in section 5.2 Reported uncertainties. Note that we omitted DT01 as boundaries within municipalities are unlikely to change over time.
+
+3.Spatial quality of the boundaries of DT03. It was not possible to assess the quality of the boundaries of the mapped specially important nature, neither the rate of error in the identification of the nature types. We are however conscious that they would impact the quality of the results if a habitat is mapped smaller or bigger than it is in reality, or if a habitat is not recorded as occurring due to misclassification in the habitat type. Due to the lack of potential proxies for these uncertainties, it was not possible to take them into account in our results.
+
+
+4. Spatial uncertainty linked to DT03. As previoulsy explaines, this dataset doesn’t have a national coverage. This means that if a habitat is not recorded at a specific spatial location, it is either not occurring at that particular location, or occurring but the location has not been surveyed yet. Unfortunately, it was not possible to take into account this mapping uncertainty in our results as we could not find any appropriate proxy to represent it.
+
+
 <!--# Describe the main reasons why you might not trust 100% the final value to represent the given ecosystem characteristic for the give ecosystem type. What aspects of this condition metric are most sensitive to subjective decitions? Is the spatial sampling sufficient? Does the choice of modeling framework affect the values? Is the metric relevant do describe ecosystem condition for the give ecosystem type?  -->
-
-Be careful: we did not add any restoration: we just have additions and not "reductions" in the extent of the encroachment. THis is a bias, it might be that the figures are smaller in reality.
-
-In cumulative accounts, we assume emcroachment add over the years but in fact some might have disappeared (restoration as mentioned above)
 
 
 ### 5.2 Reported uncertainties
+For each municipality in each of the extent accounts we compiled, we calculated a qualitative indicator of uncertainty associated to the results. This indicator is based on the first two sources of uncertainty described in the previous section (i.e., prediction uncertainty of DT02 and temporal discrepancy between datasets) and has been designed as a traffic light system whereby:
+
+-	Green: “Certain”
+- Yellow: “Rather certain”
+- Orange: “Rather uncertain”
+- Red: “Uncertain”
+
+Note that although we use “certain” in our Likert scale, no results can truly be qualified as “certain” with scientific robustness due to the numerous sources of uncertainty we listed previously. This was done to make the interpretation of our indicator more user-friendly.
+
+The complete description of how this indicator has been compiled can be found in our NINA Report: Clappe, S., Barton D.N., Spielhofer, R. & Venter, Z. 2026.  Arealregnskap for friluftsliv - Hvor stort område gikk tapt på grunn av inngrep og hvilke andre naturverdier hadde de? NINA Rapport 2754. Norsk institutt for naturforskning. ISBN: 978-82-426-5592-9
+
+
 <!-- Describe the nature of the errors you (hopefully) provide alongside the point estimate for the condition metric. It is especially important to clarify if the errors are inferential (referring to the uncertainty of the point estimate) or descriptive (referreing to the data itself). Here' an example text: "What we report as uncertainties in @tbl-finalTable are inferential and refer to the uncertainty around the point estimates. It does not directly describe variation in the data itself. 
 However, the variation in the mean is defined by the spatial variation only, and quartiles are obtained by bootstrapping the set of localities within a region, and calculating the indicator for each of 9999 such samples".   -->
 
@@ -292,12 +367,22 @@ However, the variation in the mean is defined by the spatial variation only, and
 
 ## 6. References
 
-[^1] Nyborg Støstad, M., Mon, S.T., Solvang, R. 2023. [Norge i rødt, hvitt of grått](https://www.nrk.no/dokumentar/xl/nrk-avslorer_-44.000-inngrep-i-norsk-natur-pa-fem-ar-1.16573560). Norsk Rikskringkasting (NRK).
+NRK, 2025a. NRK avslører europeisk naturtap: Norge topper verstingliste [online]. NRK. URL https://www.nrk.no/dokumentar/xl/europa-fra-gront-til-gratt_-nordmenn-bygger-ned-mest-natur_-viser-europeisk-kartlegging-1.17577504 (accessed 2.20.26).
+
+Venter, Z., 2024a. Viser nedbygging av naturen ved hjelp av fugleperspektiv og kunstig intel-ligens [online]. Norsk institutt for naturforskning. URL https://www.nina.no/Om-NINA/Aktuelt/Nyheter/article/viser-nedbygging-av-naturen-ved-hjelp-av-fugleperspektiv-og-kunstig-intelligens (accessed 2.20.26).
+
+Venter, Z., Mads, N.S., Ruben, S., Anne Linn, K.-E., Su Thet, M., 2024b. Map of built-up ex-pansion (“nedbygging”) over Norway 2017-2022. https://doi.org/10.5281/zenodo.10566644
+
+Venter, Z.S., Czúcz, B., Stange, E., Nowell, M.S., Simensen, T., Immerzeel, B., Barton, D.N., 2024c. ‘Uncertainty audit’ for ecosystem accounting: Satellite-based ecosystem extent is biased without design-based area estimation and accuracy assessment. Ecosystem Services 66: 101599. https://doi.org/10.1016/j.ecoser.2024.101599
+
+Venter, Z., 2025. Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss. Zenodo. https://doi.org/10.5281/zenodo.15130992
+
+
 
 <!--# You can add references manually or use a citation manager and add intext citations as with crossreferencing and hyperlinks. See https://quarto.org/docs/authoring/footnotes-and-citations.html -->
 
 ## 7. Import and prepare datasets
-In this section, we show how to import the data through API. We also prepare them  for analyses. We first set up the path that will be used during th eproject. Users can change it to match their own path.
+In this section, we show how to import the data through API. We also prepare them  for analyses. We first set up the path that will be used during the project. Users can change it to match their own path.
 ```{r path_setup1}
 #| eval: true
 #| code-summary: "Path setup"
@@ -313,7 +398,7 @@ functions_path <- here::here(project_path, "src/functions")
 
 ### 7.1. Encroachment areas - DT01
 #### 7.1.1 Download DT01 from Zenodo through an API
-The process is very similar than for Geonorge. Instead of going through all the steps above, we created a function that users can use to retrieve the downloadable *content* link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
+We created a function that users can use to retrieve the downloadable *content* link to the data. We could have used `zen4R` package but we decided to create our own function to read the data from Zenodo directly instead of downloading them locally before reading them.
 ```{r enc_link}
 #| eval: true
 #| warning: false
@@ -421,7 +506,7 @@ rm(list = setdiff(ls(),
 
 ### 7.3 Naturtyper - verdsatte - DT03
 #### 7.3.1 Download DT03 for Geonorge through an API
-Downloading datasets from Geornorge using an API is a bit subtle and we created a function for it.
+Downloading datasets from Geornorge using an API is a bit subtle and we created a function for it. The full step-by-step process is explained in the encroachment_recreation_areas.qmd document of this project (see README).
 ```{r import_natur_api1}
 #| eval: true
 #| warning: false
@@ -432,7 +517,7 @@ source(paste0(functions_path,"/api_geonorge.R"))
 
 # Retrieve and download the data
 natur_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314",
-                              email_address = "sylvie.clappe@nina.no")
+                              email_address = "john.doe@nina.no")
 
 ```
 
@@ -451,6 +536,10 @@ naturtyper <- st_read(natur_link[grepl("Naturtyper", natur_link)])
 #### 7.3.3 Clean and format the data for analyses
 We first need to select the column of relevance for our work and clean the topological and geometrical errors if any. The two major issues we have with these data are the spatial and temporal coverages. Spatial coverage because the data do not cover the entire country of Norway. This means that it's not because we don't record one a nature type as occurring that it is indeed not occurring, it might just not have been sampled yet. Also, the nature types have been recorded only once for a wide temporal coverage: from 1905 to 2025. Given that our encroachment data cover 2017-2024, we decided to keep only the data that have been recorded in 2015 or after. We consider that a record in 2025 doesn't mean that the type was not present before. We also assume that nature types are relatively stable and have not change since 2015. We also removed all nature types whose year of report was not stated. This made us keep 72% of the original dataset, which is still very good for analyses.
 
+In our report, we define "specially important nature" as the nature types within DT03 that are classified as "stor" and "svært stor" verdi. So we need to filter for them.
+
+*Note: we restrict the coverage to 2025, which means that we filter out the polygons from 2026. This was done to be consistent with the figures in the NINA report we published but can of course be removed!*
+
 ```{r clean_natur}
 #| eval: true
 #| warning: false
@@ -461,6 +550,8 @@ We first need to select the column of relevance for our work and clean the topol
 # Select columns of relevance
 natur_types <- naturtyper %>%
                 mutate(year_natur_recorded = substr(.$registreringsdato, 1, 4)) %>%
+                filter(verdikategori %in% c("Svært stor verdi",
+                                            "Stor verdi")) %>%
                 select(naturtype,
                        year_natur_recorded,
                        kommunenummer)
@@ -483,6 +574,7 @@ natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2913"] <- "2013"
 # Remove nature types that have been recorded before 2015
 natur_cln <- natur_cln %>%
               filter(year_natur_recorded > 2009) %>%
+              filter(year_natur_recorded < 2026) %>%
               filter(!is.na(year_natur_recorded))
   
 
@@ -497,6 +589,7 @@ rm(list = setdiff(ls(),
 ```
 
 ## 8. Spatial units
+All of our accounts have been compiled for Norway (Ecosystem Accounting Area) and broken down at municipal and county levels. As explained in section 3.1, the "ecosystem" of interest in ENCACC_001 is "land take". This means that our Basic Spatial Units are "land take" polygons in ENCACC_001, but "specially important nature" polygons in ENCACC_002. The ecosystem Asset is "land take" for ENCACC_001 and "specially important nature types" for ENCACC_002.
 
 <!--# Describe the spatial units that you rely on in your analyses. Highlight the spatial units (the resolution) that the indicator values should be interpreted at. Potential spatial delineation data (maksing layers etc.) should be introduced under chapert 7. We recommend using the SEEA EA terminology of Basic Spatial Units (BSU), Ecosystem Asses (EA) and Ecosystem Accounting Area (EAA). -->
 
@@ -539,7 +632,7 @@ rm(list = setdiff(ls(),
 
 ```
 ### 9.2 ENCACC_002
-For ENCACC_005, we need a spatial intersection between DT04 and `komenc` as we are interested in the nature types that have been lost due to encroachment within municipalities. Here we have to note though that the only 4,2% of the "særlig viktig natur" occur in the encroachment of municipalities.
+For ENCACC_002, we need a spatial intersection between DT03 and `komenc` as we are interested in the nature types that have been lost due to encroachment within municipalities. Here we have to note though that the only 4,2% of the specially important nature occur in the encroachment of municipalities.
 
 ```{r encrec0056_analyses}
 #| eval: true
@@ -595,9 +688,9 @@ rm(list = setdiff(ls(),
 ### 9.3 Uncertainty analyses
 Our traffic-light uncertainty required to steps:
 
-1. Attribute a traffic-light uncertainty at the polygon level. For this we used our lookup table developed in our [NINA Rapport XXXX](**<LINK>**); 
+1. Attribute a traffic-light uncertainty at the polygon level. For this we used our lookup table developed in our NINA Rapport 2754; 
 
-2. Derive a municipal / fylke traffic-light uncertainty based on the frequency of the traffic-light uncertainty at polygon-level (step 1 above). We basically created a frequency table of all the traffic-light color uncertainties from the polygons and derived the municipal / fylke traffic-light color uncertainty based the most predominant polygons' traffic-light colors. See[NINA Rapport XXXX](**<LINK>**) for more information.
+2. Derive a municipal / county traffic-light uncertainty based on the frequency of the traffic-light uncertainty at polygon-level (step 1 above). We basically created a frequency table of all the traffic-light color uncertainties from the polygons and derived the municipal / county traffic-light color uncertainty based the most predominant polygons' traffic-light colors. See NINA Rapport 2754 for more information.
 
 First we attributed a colored-uncertainty to all sources of uncertainty.
 ```{r encacc_uncertainty_1}
@@ -638,7 +731,7 @@ rm(list = setdiff(ls(),
 
 ```
 
-The second step is to attribute ONE "global" color-based uncertainty to each municipality for each accounting year and change between 2018 and 2024. For this we need to create a vector of all the color-based uncertainties per municipality per year. After that we look at the frequency of each of the colors and we take the two most predominant. In case of ties, we take the three most predominant. In case the four color-based uncertainty were all equal in their frequency, we decided to classify the "global" uncertainty as "Orange". To see the "global" color-based uncertainty we assign with each combination of two or three predominant colors of uncertainty, you can refer to our NINA rapport <REPORT NUMBER>. For this we first need to create a vector where we concatenate all the individual color-based uncertainties, and then create a function to produce the "global" uncertainty. As we haven't calculated all the metrics yet: cumulative areas and change area, we only summarise and concatenate all the color uncertainties for each municipality for each year. When we will calculate our metrics, we will then compile the final uncertainty going with each metric. We wrote a function to concatenate all the colored-uncertainty into one column per municipality per accounting year. *Note: the "accounting year" is the year of encroachment as we are compiling encroachment extent accounts. Only the area of accounting is changing among the accounts*.
+The second step is to attribute ONE "global" color-based uncertainty to each municipality for each accounting year and change between 2018 and 2024. For this we need to create a vector of all the color-based uncertainties per municipality per year. After that we look at the frequency of each of the colors and we take the two most predominant. In case of ties, we take the three most predominant. In case the four color-based uncertainty were all equal in their frequency, we decided to classify the "global" uncertainty as "Orange". To see the "global" color-based uncertainty we assign with each combination of two or three predominant colors of uncertainty, you can refer to our NINA Rapport 2754. For this we first need to create a vector where we concatenate all the individual color-based uncertainties, and then create a function to produce the "global" uncertainty. As we haven't calculated all the metrics yet: cumulative areas and change area, we only summarise and concatenate all the color uncertainties for each municipality for each year. When we will calculate our metrics, we will then compile the final uncertainty going with each metric. We wrote a function to concatenate all the colored-uncertainty into one column per municipality per accounting year. *Note: the "accounting year" is the year of encroachment as we are compiling encroachment extent accounts. Only the area of accounting is changing among the accounts*.
 
 
 ```{r encacc_uncertainty_2}
@@ -688,14 +781,14 @@ Caching is also activated (from the top YAML), meaning that rendering to html wi
 
 -->
 
-## 10. Results - Thematic Extent Accounts: encroachment in municipalities
+## 10. Results - Thematic Extent Accounts: land take in municipalities
 Now we can built the accounting tables and maps based on the spatial intersection we performed in the previous section. We chose to build the thematic accounts over the 2018-2024 period. Maps will be created only for the closing (2024) year of the total accounting period 2018-2024.
 
 ### 10.1 Accounting tables
-#### 10.1.1 ENCACC_001: Extent accounts of encroachment in municipalities
-Here we present the extent accounts table for encroachment areas between 2018 and 2024 within each municipality and fylke in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway. We added the uncertainty as color-based indicators presented in 5.2 Reported uncertainties. We first present the table per municipalities and then per fylke.
+#### 10.1.1 ENCACC_001: Extent accounts of land take in municipalities
+Here we present the extent accounts table for land take areas between 2018 and 2024 within each municipality and county in Norway. These accounts present both the yearly area of land take and the cumulative area of land take over the years. We also present a total for Norway. We added the uncertainty as color-based indicators presented in 5.2 Reported uncertainties. We first present the table per municipalities and then per county.
 
-*Note: the function calculating the change compiles it as area_closing_year - area_opening_year. This is because we expect an increase in encroachment so we want to show how we gain in built-in areas.*
+*Note: the function calculating the change compiles it as area_closing_year - area_opening_year. This is because we expect an increase in land take so we want to show how we gain in built-in areas.*
 
 *Note: We consider the uncertainty of the change in area between the opening and closing accounting years, the same as the cumulative uncertainty for the closing accounting year. This is because when we calculate a change we refer to all the accounting period as the cumulative area for the last accounting year is calculated based on all the accounting years. In our code, add_change_encroachment_area() automatically duplicate the uncertainty of the last accounting year for the change in area.*
 
@@ -753,7 +846,6 @@ encacc_001_tot <- encacc_001_kom %>%
                            LAU_NAME = "Norge", .before = year)
 
 # Add uncertainty to encacc_001_tot
-
 encacc_001_tot_un <-encacc_001_tot  %>%
                       mutate(uncertainty_source1 = apply(., 
                                                          1, 
@@ -788,6 +880,10 @@ encacc_001_tot_un <- encacc_001_tot_un %>%
 # Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
 encacc_001_kom_un[which(encacc_001_kom_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
 encacc_001_tot_un[which(encacc_001_tot_un$year == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+
+# Translate "Change 2018-2024" in Norwegian
+encacc_001_kom_un[which(encacc_001_kom_un$year == "Change 2018-2024"), "year"] <- "Endring 2018-2024"
+encacc_001_tot_un[which(encacc_001_tot_un$year == "Change 2018-2024"), "year"] <- "Endring 2018-2024"
 
 # Final accounting table               
 encacc_001_acc <- bind_rows(encacc_001_kom_un,
@@ -839,7 +935,7 @@ datatable(encacc_001_acc,
                                                              which(colnames(encacc_001_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i kommunner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av nedbygging i kommunner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -873,14 +969,14 @@ datatable(encacc_001_acc,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "ENCACC_001 - Create accounting table per Fylke"
+#| code-summary: "ENCACC_001 - Create accounting table per county"
 
 # Call function to concatenate
 source(paste0(functions_path,"/concatenate_individual_uncertainty.R"))
 
 # Create the accounting table based on encacc_001_acc
 encacc_001_fy <- encacc_001_acc %>%
-                  filter(!Regnskapsår == "Change 2018-2024") %>%
+                  filter(!Regnskapsår == "Endring 2018-2024") %>%
                   filter(!`Kommune navn` == "Norge") %>%
                   group_by(`Indikatorens navn`, `Fylke nummer`, Regnskapsår) %>%
                   summarise(yearly_area = sum(`Årlig areal i dekar`)) %>%
@@ -901,7 +997,8 @@ encacc_001_fy_un <-  unc_001_idv %>%
                       select(!unc_concat_full) %>%
                       mutate(year = as.character(year)) %>%
                       left_join(encacc_001_fy, ., join_by(`Fylke nummer` == "fylke", "Regnskapsår" == "year")) %>%
-                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer")[[1]], .after = `Fylke nummer`)
+                      ungroup() %>%
+                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer"), .after = `Fylke nummer`)
 
 
 # Add change to encacc_001_fy_un
@@ -916,6 +1013,9 @@ encacc_001_fy_unc <- encacc_001_fy_un %>%
 
 # Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
 encacc_001_fy_unc[which(encacc_001_fy_unc$Regnskapsår == "Change 2018-2024"), "global_yearly_uncertainty"] <- "NA"
+
+# Translate "Change 2018-2024" in Norwegian
+encacc_001_fy_unc[which(encacc_001_fy_unc$Regnskapsår == "Change 2018-2024"), "Regnskapsår"] <- "Endring 2018-2024"
 
 # Modify colnames
 colnames(encacc_001_fy_unc) <- c("Indikatorens navn",
@@ -974,7 +1074,7 @@ datatable(encacc_001_fy_acc,
                                                              which(colnames(encacc_001_fy_acc) == "Usikkerhet for kumulativ areal")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av all nedbygging i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
     currency = "",                
@@ -1002,8 +1102,8 @@ datatable(encacc_001_fy_acc,
 
 ```
 
-#### 10.1.2 ENCACC_002: Extent accounts of encroachments in all sværlig vikitig natur lost due to encroachments in municipalities
-Here we present the extent accounts table for "sværlig vikitig natur" lost to encroachment between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of encroachment and the cumulative area of encroachment over the years. We also present a total for Norway. As previously, we first present the results per municipality sand then aggregated at fylke's level.
+#### 10.1.2 ENCACC_002: Extent accounts of all specially important nature lost due to land take in municipalities
+Here we present the extent accounts table for specially important nature lost to land take between 2018 and 2024 within each municipality in Norway. These accounts present both the yearly area of land take and the cumulative area of land take over the years. We also present a total for Norway. As previously, we first present the results per municipality sand then aggregated at county's level.
 
 As the loss of the nature types did not happen homogeneously within municipalities, these accounts only present both the total area lost by nature types over the 2018-2024 period. This is to avoid confusion and present the bigger picture, instead of having different years for different municipalities and nature types. We also present a total across all municipalities in Norway which mapped their recreation areas.
 
@@ -1084,9 +1184,9 @@ colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
-                              "Særlig viktig naturtype",
+                              "Verdsatte naturtype",
                               "Regnskapsperiode",
-                              "Areal særlig viktige naturtyper gått tapt (dekar)",
+                              "Areal verdsatte naturtyper gått tapt (dekar)",
                               "Usikkerhet for areal i regnskapsperiode")
 
 
@@ -1124,16 +1224,16 @@ datatable(encacc_002_acc,
                           columnDefs = list(list(targets = c(which(colnames(encacc_002_acc) == "Usikkerhet for areal i regnskapsperiode")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabel 3 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
   ## Example: color Årlig areal i dekar by var1
   formatStyle(
-    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    "Areal verdsatte naturtyper gått tapt (dekar)",
     backgroundColor = styleEqual(
       c("Green",   "Yellow",    "Orange",    "Red", "NA"),
       c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
@@ -1149,13 +1249,13 @@ datatable(encacc_002_acc,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "ENCACC_002 - Create accounting table per fylke"
+#| code-summary: "ENCACC_002 - Create accounting table per county"
 
 # Create the accounting table based on encacc_001_acc
 encacc_002_fy <- encacc_002_acc %>%
                   filter(!`Kommune navn` == "Norge") %>%
-                  group_by(`Indikatorens navn`, `Fylke nummer`, `Særlig viktig naturtype`, Regnskapsperiode) %>%
-                  summarise(total_area = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`))
+                  group_by(`Indikatorens navn`, `Fylke nummer`, `Verdsatte naturtype`, Regnskapsperiode) %>%
+                  summarise(total_area = sum(`Areal verdsatte naturtyper gått tapt (dekar)`))
 
 # Add uncertainties to encacc_001_fy
 encacc_002_fy_un <-  unc_002_idv %>%
@@ -1169,16 +1269,17 @@ encacc_002_fy_un <-  unc_002_idv %>%
                                                       uncertainty_col_name = "unc_concat_full",
                                                       habitat_accounting = "naturtype") %>%
                       select(!unc_concat_full) %>%
-                      left_join(encacc_002_fy, ., join_by(`Fylke nummer` == "fylke", "Særlig viktig naturtype" == "naturtype"))  %>%
-                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer")[[1]], .after = `Fylke nummer`)
+                      left_join(encacc_002_fy, ., join_by(`Fylke nummer` == "fylke", "Verdsatte naturtype" == "naturtype"))  %>%
+                      ungroup() %>%
+                      mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer"), .after = `Fylke nummer`)
 
 # Modify colnames
 colnames(encacc_002_fy_un) <- c("Indikatorens navn",
                                  "Fylke nummer",
                                  "Fylke navn",
-                                 "Særlig viktig naturtype",
+                                 "Verdsatte naturtype",
                                  "Regnskapsperiode",
-                                 "Areal særlig viktige naturtyper gått tapt (dekar)",
+                                 "Areal verdsatte naturtyper gått tapt (dekar)",
                                  "Usikkerhet for areal i regnskapsperiode")
 
 
@@ -1226,16 +1327,16 @@ datatable(encacc_002_fy_acc,
                           columnDefs = list(list(targets = c(which(colnames(encacc_002_fy_acc) == "Usikkerhet for areal i regnskapsperiode")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabel 4 - Tematiske arealregnskap: areal av særlig viktig natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabel 4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
       
   formatStyle(
-    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    "Areal verdsatte naturtyper gått tapt (dekar)",
     backgroundColor = styleEqual(
       c("Green",   "Yellow",    "Orange",    "Red", "NA"),
       c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
@@ -1246,7 +1347,7 @@ datatable(encacc_002_fy_acc,
 
 
 ### 10.2 Maps
-#### 10.2.1 ENCACC_001: Map of the total encroachment area in municipalities over 2018-2024
+#### 10.2.1 ENCACC_001: Map of the total land take area in municipalities over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc001_1}
 #| eval: true
@@ -1269,7 +1370,7 @@ fylke_geo <- lau_no %>%
 ## Prepare dataset
 # Municipalities
 encacc_001_map_mun <- encacc_001_acc %>%
-                        filter(!c(`Kommune navn` == "Norge" | Regnskapsår == "Change 2018-2024")) %>%
+                        filter(!c(`Kommune navn` == "Norge" | Regnskapsår == "Endring 2018-2024")) %>%
                         filter(Regnskapsår == 2024) %>%
                         left_join(., kom_navn, join_by( `Kommune nummer` == "GISCO_ID")) %>%
                         select("Fylke nummer",
@@ -1282,7 +1383,7 @@ encacc_001_map_mun <- encacc_001_acc %>%
 
 # Fylke
 encacc_001_map_fy <- encacc_001_fy_acc %>%
-                        filter(!c(`Fylke navn` == "Norge" | Regnskapsår == "Change 2018-2024")) %>%
+                        filter(!c(`Fylke navn` == "Norge" | Regnskapsår == "Endring 2018-2024")) %>%
                         filter(Regnskapsår == 2024) %>%
                         left_join(., fylke_geo, join_by( `Fylke nummer` == "fylke")) %>%
                         select("Fylke nummer",
@@ -1319,7 +1420,7 @@ encacc_001_map_fy$`Usikkerhet for kumulativ areal`[which(encacc_001_map_fy$`Usik
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of total encroachment area in municipality over 2018-2024"
+#| code-summary: "Interactive map of total encroachment area in municipalities over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -1348,7 +1449,7 @@ interactive_map(data1 = encacc_001_map_mun,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of total encroachment area in municipality over 2018-2024"
+#| code-summary: "Static map of total encroachment area in municipalities over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
@@ -1370,8 +1471,6 @@ static_map(data1 = encacc_001_map_mun,
            map_title1 = "Totalt areal av nedbygging (dekar) i kommuner over 2018-2024", 
            map_title2 = "Usikkerhet til det totale arealet av nedbygging over 2018-2024")
 
-
-
 ```
 
 
@@ -1380,7 +1479,7 @@ static_map(data1 = encacc_001_map_mun,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of total encroachment area in fylke over 2018-2024"
+#| code-summary: "Static map of total encroachment area in counties over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
@@ -1389,7 +1488,7 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encacc_001_map_fy, 
            data2 = encacc_001_map_fy, 
-           fill_variable1 = "Kumulativ areal av inngrep i dekar", 
+           fill_variable1 = "Kumulativ areal av nedbygging i dekar", 
            fill_variable2 = "Usikkerhet for kumulativ areal", 
            legend_title1 = "Totalt areal av nedbygging (dekar)", 
            legend_title2 = "Usikkerhet",
@@ -1401,7 +1500,6 @@ static_map(data1 = encacc_001_map_fy,
                                  "Usikker" = "#FF8A8A"),
            map_title1 = "Totalt areal av nedbygging (dekar) i fylker over 2018-2024", 
            map_title2 = "Usikkerhet til det totale arealet av nedbygging over 2018-2024")
-
 
 
 ```
@@ -1442,7 +1540,7 @@ rm(list = setdiff(ls(),
                     "encacc_001_map_fy")))
 ```
 
-#### 10.2.2 ENCACC_001: Share of the total encroachment area in municipalities over 2018-2024
+#### 10.2.2 ENCACC_001: Share of the total land take area in municipalities over 2018-2024
 We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. 
 
 ```{r map_enc001_perc_1}
@@ -1473,7 +1571,7 @@ fylke_total_area <- encacc_001_acc %>%
 
 ## Prepare dataset
 encacc_001_perc_map_mun <- encacc_001_acc %>%
-                              filter(!c(`Kommune navn` == "Norge" | Regnskapsår == "Change 2018-2024")) %>%
+                              filter(!c(`Kommune navn` == "Norge" | Regnskapsår == "Endring 2018-2024")) %>%
                               filter(Regnskapsår == 2024) %>%
                               left_join(., kom_navn, join_by( `Kommune nummer` == "GISCO_ID")) %>%
                               select("Fylke nummer",
@@ -1487,7 +1585,7 @@ encacc_001_perc_map_mun <- encacc_001_acc %>%
                               st_as_sf()
 
 encacc_001_perc_map_fy <- encacc_001_fy_acc %>%
-                              filter(!c(`Fylke navn` == "Norge" | Regnskapsår == "Change 2018-2024")) %>%
+                              filter(!c(`Fylke navn` == "Norge" | Regnskapsår == "Endring 2018-2024")) %>%
                               filter(Regnskapsår == 2024) %>%
                               select("Fylke nummer",
                                      "Fylke navn",
@@ -1553,7 +1651,7 @@ interactive_map(data1 = encacc_001_perc_map_mun,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of the the share of encroachments in fylke over 2018-2024"
+#| code-summary: "Static map of the the share of encroachments in counties over 2018-2024"
 
 ## Static maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -1645,8 +1743,8 @@ rm(list = setdiff(ls(),
 
 ```
 
-#### 10.2.3 ENCACC_002: Map of the total area of "sæarlig viktig natur" lost due to encroachment in municipalities over 2018-2024
-We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. As few municipalities have "særlig viktig natur" in their encroachments, we do not provide summary statistics at Fylke Level.
+#### 10.2.3 ENCACC_002: Map of the total area of specially important nature lost due to land take in municipalities over 2018-2024
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. 
 ```{r map_enc002_1}
 #| eval: true
 #| warning: false
@@ -1659,7 +1757,7 @@ We first prepare the dataset for mapping then map it both using an interactive a
 encacc_002_map_tot <- encacc_002_acc %>%
                         filter(!`Kommune navn` == "Norge") %>%
                         group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
-                        summarise("Totalt areal særlig viktige naturtyper gått tapt (dekar)" = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`))
+                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`))
 
 
 encacc_002_map_un <- unc_002_idv %>%
@@ -1683,7 +1781,7 @@ encacc_002_map_un <- unc_002_idv %>%
                     select("Fylke nummer",
                            "Kommune nummer",
                            "Kommune navn",
-                           "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
+                           "Totalt areal verdsatte naturtyper gått tapt (dekar)",
                            "global_period_uncertainty",
                            "geometry") %>%
                     rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
@@ -1694,7 +1792,7 @@ encacc_002_map_un <- unc_002_idv %>%
 encacc_002_map_tot_fy <- encacc_002_fy_acc %>%
                           filter(!`Fylke navn` == "Norge") %>%
                           group_by(`Fylke nummer`, `Fylke navn`) %>%
-                          summarise("Totalt areal særlig viktige naturtyper gått tapt (dekar)" = sum(`Areal særlig viktige naturtyper gått tapt (dekar)`))
+                          summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`))
 
 
 encacc_002_map_un_fy <- unc_002_idv %>%
@@ -1718,7 +1816,7 @@ encacc_002_map_un_fy <- unc_002_idv %>%
                     left_join(., fylke_geo, join_by("Fylke nummer" == "fylke")) %>%
                     select("Fylke nummer",
                            "Fylke navn",
-                           "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
+                           "Totalt areal verdsatte naturtyper gått tapt (dekar)",
                            "global_period_uncertainty",
                            "geometry") %>%
                     rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
@@ -1750,7 +1848,7 @@ encacc_002_map_un_fy$`Usikkerhet av totalt areal`[which(encacc_002_map_un_fy$`Us
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of total area of ''særlig viktig natur'' lost due to encroachment in municipality over 2018-2024"
+#| code-summary: "Interactive map of total area of specially important nature lost due to encroachment in municipalities over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -1759,9 +1857,9 @@ source(paste0(functions_path, "/interactive_map.R"))
 # Run function
 interactive_map(data1 = encacc_002_map_un, 
                 data2 = encacc_002_map_un, 
-                fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+                fill_variable1 =  "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
                 fill_variable2 =  "Usikkerhet av totalt areal", 
-                legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
+                legend_title1 = "Areal av verdsatte natur gått tapt", 
                 legend_title2 = "Usikkerhet",
                 style_type_map1 = "fixed",
                 interval_breaks_map1 = c(0, 1, 5, 15, 30, 100, 400),
@@ -1769,7 +1867,7 @@ interactive_map(data1 = encacc_002_map_un,
                                       "Ganske sikker" = "#FFF085", 
                                       "Ganske usikker" = "#FFC68A",
                                       "Usikker" = "#FF8A8A"),
-                map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på nedbygging i kommuner over 2018-2024",
+                map_title1 = "Totalt areal av verdsatte natur gått tapt (dekar) på nedbygging i kommuner over 2018-2024",
                 map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
 ```
 
@@ -1778,27 +1876,28 @@ interactive_map(data1 = encacc_002_map_un,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of map of total area of ''særlig viktig natur'' lost due to encroachment in municipality over 2018-2024"
+#| code-summary: "Static map of map of total area of specially important nature lost due to encroachment in municipalities over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = encacc_002_map_mun, 
-           data2 = encacc_002_map_mun, 
-           fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+static_map(data1 = encacc_002_map_un, 
+           data2 = encacc_002_map_un, 
+           fill_variable1 =  "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
            fill_variable2 =  "Usikkerhet av totalt areal", 
-           legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
+           legend_title1 = "Areal av verdsatte natur gått tapt", 
            legend_title2 = "Usikkerhet",
            style_type_map1 = "fixed",
            interval_breaks_map1 = c(0, 1, 5, 15, 30, 100, 400),
-           color_values_map2 = c("Quite certain" = "#94F4B6",
-                                 "Rather certain" = "#FFF085", 
-                                 "Rather uncertain" = "#FFC68A",
-                                 "Quite uncertain" = "#FF8A8A"),
-           map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på nedbygging i kommuner over 2018-2024",
+           color_values_map2 = c("Sikker" = "#94F4B6",
+                                 "Ganske sikker" = "#FFF085", 
+                                 "Ganske usikker" = "#FFC68A",
+                                 "Usikker" = "#FF8A8A"),
+           map_title1 = "Totalt areal av verdsatte gått tapt (dekar) på nedbygging i kommuner over 2018-2024",
            map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
+
 
 ```
 
@@ -1807,26 +1906,26 @@ static_map(data1 = encacc_002_map_mun,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of map of total area of ''særlig viktig natur'' lost due to encroachment in fylke over 2018-2024"
+#| code-summary: "Static map of map of total area of specially important nature lost due to encroachment in counties over 2018-2024"
 
 ## Static maps
 # Call for the function to do static mapping
 source(paste0(functions_path, "/static_map.R"))
 
 # Run function
-static_map(data1 = encacc_002_map_fy, 
-           data2 = encacc_002_map_fy, 
-           fill_variable1 =  "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+static_map(data1 = encacc_002_map_un_fy, 
+           data2 = encacc_002_map_un_fy, 
+           fill_variable1 =  "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
            fill_variable2 =  "Usikkerhet av totalt areal", 
-           legend_title1 = "Areal av ''særlig viktig natur'' gått tapt", 
+           legend_title1 = "Areal av verdsatte natur gått tapt", 
            legend_title2 = "Usikkerhet",
            style_type_map1 = "fixed",
            interval_breaks_map1 = c(0, 100, 300, 500, 1000),
-           color_values_map2 = c("Quite certain" = "#94F4B6",
-                                 "Rather certain" = "#FFF085", 
-                                 "Rather uncertain" = "#FFC68A",
-                                 "Quite uncertain" = "#FF8A8A"),
-           map_title1 = "Totalt areal av ''særlig viktig natur'' gått tapt (dekar) på nedbygging i fylker over 2018-2024",
+           color_values_map2 = c("Sikker" = "#94F4B6",
+                                 "Ganske sikker" = "#FFF085", 
+                                 "Ganske usikker" = "#FFC68A",
+                                 "Usikker" = "#FF8A8A"),
+           map_title1 = "Totalt areal av verdsatte natur gått tapt (dekar) på nedbygging i fylker over 2018-2024",
            map_title2 = "Usikkerhet om totalt areal av nedbygging over 2018-2024")
 
 ```
@@ -1871,8 +1970,8 @@ rm(list = setdiff(ls(),
                     "encacc_002_map_un_fy")))
 ```
 
-#### 10.2.4 ENCACC_002: Share of nedbygging that was "særlig viktig natur"
-We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map. As few municipalities have "særlig viktig natur" in their encroachments, we do not provide summary statistics at Fylke Level.
+#### 10.2.4 ENCACC_002: Share of land take that was specially important nature
+We first prepare the dataset for mapping then map it both using an interactive and static map. Due to memory issues in the html, we only display the static map.
 ```{r map_enc002_perc_1}
 #| eval: true
 #| warning: false
@@ -1900,13 +1999,13 @@ fylke_total_enc_area <- komenc %>%
 encacc_002_perc_map <- encacc_002_map_un %>%
                         ungroup() %>%
                         left_join(., kom_total_enc_area, join_by("Kommune nummer" == "GISCO_ID")) %>%
-                        mutate("Prosentandel (%) av nedbygging som er ''særlig viktig natur''" = round2(`Totalt areal særlig viktige naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
+                        mutate("Prosentandel (%) av nedbygging som er verdsatte natur" = round2(`Totalt areal verdsatte naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
                         select("Fylke nummer",
                                "Kommune nummer",
                                "Kommune navn",
                                "total_enc_area",
-                               "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
-                               "Prosentandel (%) av nedbygging som er ''særlig viktig natur''",
+                               "Totalt areal verdsatte naturtyper gått tapt (dekar)",
+                               "Prosentandel (%) av nedbygging som er verdsatte natur",
                                "Usikkerhet av totalt areal",
                                "geometry") %>%
                         rename("Usikkerhet" =  "Usikkerhet av totalt areal",
@@ -1916,12 +2015,12 @@ encacc_002_perc_map <- encacc_002_map_un %>%
 encacc_002_perc_map_fy <- encacc_002_map_un_fy %>%
                             ungroup() %>%
                             left_join(., fylke_total_enc_area, join_by("Fylke nummer" == "fylkesnr")) %>%
-                            mutate("Prosentandel (%) av nedbygging som er ''særlig viktig natur''" = round2(`Totalt areal særlig viktige naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
+                            mutate("Prosentandel (%) av nedbygging som er verdsatte natur" = round2(`Totalt areal verdsatte naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
                             select("Fylke nummer",
                                    "Fylke navn",
                                    "total_enc_area",
-                                   "Totalt areal særlig viktige naturtyper gått tapt (dekar)",
-                                   "Prosentandel (%) av nedbygging som er ''særlig viktig natur''",
+                                   "Totalt areal verdsatte naturtyper gått tapt (dekar)",
+                                   "Prosentandel (%) av nedbygging som er verdsatte natur",
                                    "Usikkerhet av totalt areal",
                                    "geometry") %>%
                             rename("Usikkerhet" =  "Usikkerhet av totalt areal",
@@ -1948,12 +2047,12 @@ encacc_002_perc_map_fy$`Usikkerhet`[which(encacc_002_perc_map_fy$`Usikkerhet` ==
 ```
 
 
-```{r map_enc002_perc_1}
+```{r map_enc002_perc_2}
 #| eval: false
 #| warning: false
 #| message: false
 #| output: false
-#| code-summary: "Interactive map of the share of nebygging that are ''sæarlig viktig natur'' in municipalities over 2018-2024"
+#| code-summary: "Interactive map of the share of land take that are specially important nature in municipalities over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -1962,7 +2061,7 @@ source(paste0(functions_path, "/interactive_map.R"))
 # Run function
 interactive_map(data1 = encacc_002_perc_map, 
                 data2 = encacc_002_perc_map, 
-                fill_variable1 = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+                fill_variable1 = "Prosentandel (%) av nedbygging som er verdsatte natur", 
                 fill_variable2 = "Usikkerhet",
                 legend_title1 = "Prosentandel (%)", 
                 legend_title2 = "Usikkerhet", 
@@ -1972,18 +2071,18 @@ interactive_map(data1 = encacc_002_perc_map,
                                       "Ganske sikker" = "#FFF085",
                                       "Ganske usikker" = "#FFC68A",
                                       "Usikker" = "#FF8A8A"),
-                map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i kommuner over 2018-\n2024", 
+                map_title1 = "Prosentandel (%) av nedbygging som er verdsatte naturtyper i kommuner over 2018-\n2024", 
                 map_title2 = "Usikkerhet av prosentandel over 2018-2024")
 
 
 ```
 
-```{r map_enc002_perc_2}
-#| eval: false
+```{r map_enc002_perc_3}
+#| eval: true
 #| warning: false
 #| message: false
-#| output: false
-#| code-summary: "Static map of the share of nebygging that are ''sæarlig viktig natur'' in municipalities over 2018-2024"
+#| output: true
+#| code-summary: "Static map of the share of nebygging that are specialy important nature in municipalities over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -1992,7 +2091,7 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encacc_002_perc_map, 
            data2 = encacc_002_perc_map, 
-           fill_variable1 = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+           fill_variable1 = "Prosentandel (%) av nedbygging som er verdsatte natur", 
            fill_variable2 = "Usikkerhet",
            legend_title1 = "Prosentandel (%)", 
            legend_title2 = "Usikkerhet", 
@@ -2002,8 +2101,9 @@ static_map(data1 = encacc_002_perc_map,
                                  "Ganske sikker" = "#FFF085",
                                  "Ganske usikker" = "#FFC68A",
                                  "Usikker" = "#FF8A8A"),
-           map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i kommuner over 2018-\n2024", 
+           map_title1 = "Prosentandel (%) av nedbygging som er verdsatte naturtyper i kommuner over 2018-\n2024", 
            map_title2 = "Usikkerhet av prosentandel over 2018-2024")
+
 ```
 
 ```{r map_enc006_perc_4}
@@ -2011,7 +2111,7 @@ static_map(data1 = encacc_002_perc_map,
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Static map of the share of nebygging that are ''sæarlig viktig natur'' in fylke over 2018-2024"
+#| code-summary: "Static map of the share of nebygging that are specially important nature in counties over 2018-2024"
 
 ## Interactive maps -- disabled as too heavy to render in html
 # Call for the function to do interactive mapping
@@ -2020,7 +2120,7 @@ source(paste0(functions_path, "/static_map.R"))
 # Run function
 static_map(data1 = encacc_002_perc_map_fy, 
            data2 = encacc_002_perc_map_fy, 
-           fill_variable1 = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+           fill_variable1 = "Prosentandel (%) av nedbygging som er verdsatte natur", 
            fill_variable2 = "Usikkerhet",
            legend_title1 = "Prosentandel (%)", 
            legend_title2 = "Usikkerhet", 
@@ -2030,7 +2130,7 @@ static_map(data1 = encacc_002_perc_map_fy,
                                  "Ganske sikker" = "#FFF085",
                                  "Ganske usikker" = "#FFC68A",
                                  "Usikker" = "#FF8A8A"),
-           map_title1 = "Prosentandel (%) av nedbygging som er særlig viktige naturtyper i fylker over 2018-\n2024", 
+           map_title1 = "Prosentandel (%) av nedbygging som er verdsatte naturtyper i fylker over 2018-\n2024", 
            map_title2 = "Usikkerhet av prosentandel over 2018-2024")
 
 
@@ -2044,15 +2144,114 @@ This is typically where people will harvest data from, so make sure to include a
 -->
 
 ## 11. Export file
-We create a geopackage with all the different maps created above: (i) total area of nedbygging; (ii) share of nedbygging; (iii) total area of "særlig viktig natur" lost to nedbygging; (iv) share of nedbygging that was "særlig viktig natur". All of these indicatores were display by municipalities and fylke.
+### 11.1 Tables
+```{r export_tab}
+#| eval: false
+#| warning: false
+#| message: false
+#| output: false
+#| code-summary: "Export tables"
+
+# Accounting tables
+write.table(st_drop_geometry(encacc_001_acc), 
+            paste0(project_path,
+                   "/result/tables/accounts/ENCACC001_accounting_table_kommune.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_001_fy_acc), 
+            paste0(project_path,
+                   "/result/tables/accounts/ENCACC001_accounting_table_fylke.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_002_acc), 
+            paste0(project_path,
+                   "/result/tables/accounts/ENCACC002_accounting_table_kommune.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_002_fy_acc), 
+            paste0(project_path,
+                   "/result/tables/accounts/ENCACC002_accounting_table_fylke.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+
+# Tables associated to maps
+write.table(st_drop_geometry(encacc_001_map_mun), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC001_map_kommune.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_001_map_fy), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC001_map_fylke.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_001_perc_map_mun), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC001-share_map_kommune.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+
+write.table(st_drop_geometry(encacc_001_perc_map_fy), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC001-share_map_fylke.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_002_map_un), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC002_map_kommune.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_002_map_un_fy), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC002_map_fylke.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_002_perc_map), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC002-share_map_kommune.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+write.table(st_drop_geometry(encacc_002_perc_map_fy), 
+            paste0(project_path,
+                   "/result/tables/map_tables/ENCACC002-share_map_fylke.csv"), 
+            sep = ";",
+            fileEncoding = "UTF-8",
+            row.names = FALSE)
+
+```
+
+### 11.2 Maps
+We create a geopackage with all the different maps created above: (i) total area of land take; (ii) share of land take; (iii) total area of specially important nature lost to land take; (iv) share of land take that was specially important nature. All of these indicators were display by municipalities and fylke.
 
 We first need to prepare the datasets because to display the maps on maps.nina.no, we need to create a variable for coloring.
 
 ```{r export_1}
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
-#| output: true
+#| output: false
 #| code-summary: "Prepare datasets"
 ## Call function to format the map to NINA's standard
 source(paste0(functions_path,"/map_nina_format.R"))
@@ -2084,31 +2283,31 @@ share_nedbygging_fylke <- map_nina_format(encacc_001_perc_map_fy,
                                           mapping_groups = 5, 
                                           groups_thresholds = c(0.01, 0.02, 0.03, 0.07))
 
-## Layer 5 - Total area of "særlig viktig natur" lost to nedbygging in municipalities
+## Layer 5 - Total area of verdatte natur lost to nedbygging in municipalities
 viktignatur_kommune <- map_nina_format(encacc_002_map_un, 
-                                       mapping_variable = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+                                       mapping_variable = "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
                                        mapping_groups = 5, 
                                        groups_thresholds = c(1, 5, 15, 30, 100, 400))
 
 
 
-## Layer 6 - Total area of "særlig viktig natur" lost to nedbygging in fylke
+## Layer 6 - Total area of verdsatte natur lost to nedbygging in fylke
 viktignatur_fylke <- map_nina_format(encacc_002_map_un_fy, 
-                                     mapping_variable = "Totalt areal særlig viktige naturtyper gått tapt (dekar)", 
+                                     mapping_variable = "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
                                      mapping_groups = 5, 
                                      groups_thresholds = c(100, 300, 500, 1000))
 
-## Layer 7 - Share of nedbygging that was "særlig viktig natur" in municipalities
+## Layer 7 - Share of nedbygging that was verdsatte natur in municipalities
 share_viktignatur_kommune <- map_nina_format(encacc_002_perc_map, 
-                                     mapping_variable = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+                                     mapping_variable = "Prosentandel (%) av nedbygging som er verdsatte natur", 
                                      mapping_groups = 5, 
                                      groups_thresholds = c(0.5, 2, 4, 10, 50))
 
 
 
-## Layer 8 - Share of nedbygging that was "særlig viktig natur" in fylke
+## Layer 8 - Share of nedbygging that was verdsatte natur in fylke
 share_viktignatur_fylke <- map_nina_format(encacc_002_perc_map_fy, 
-                                           mapping_variable = "Prosentandel (%) av nedbygging som er ''særlig viktig natur''", 
+                                           mapping_variable = "Prosentandel (%) av nedbygging som er verdsatte natur", 
                                            mapping_groups = 5, 
                                            groups_thresholds = c(1.5, 2.5, 3, 5.5))
 
@@ -2117,10 +2316,10 @@ share_viktignatur_fylke <- map_nina_format(encacc_002_perc_map_fy,
 
 Now we can export all the layers in the same geopackage. *Note: we need to export to the scratch folder because the Mounts cause problems when writing geopackages.*
 ```{r export_2}
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
-#| output: true
+#| output: false
 #| code-summary: "Export datasets as geopackage"
 
 # Path to the result geopackage
@@ -2206,12 +2405,12 @@ sessionInfo()
 <!--                                        col_column_names = "uncertainty_source2", -->
 <!--                                        kom_num = "naturtype", -->
 <!--                                        accounting_year = "accounting_period") %>% -->
-<!--                         add_uncertainty_global(.,  -->
+<!--                         add_uncertainty_global(., -->
 <!--                                                kom_num = "naturtype", -->
 <!--                                                uncertainty_col_name = "unc_concat_full", -->
 <!--                                                accounting_year = "accounting_period") %>% -->
 <!--                       ungroup() %>% -->
-<!--                       select(!c(unc_concat_full,  -->
+<!--                       select(!c(unc_concat_full, -->
 <!--                                 global_cumulative_uncertainty, -->
 <!--                                 naturtype, -->
 <!--                                 accounting_period)) %>% -->
@@ -2224,5 +2423,39 @@ sessionInfo()
 <!--             as.data.frame() %>% -->
 <!--             arrange(desc(.$total_area)) %>% -->
 <!--             filter(total_area <0.21) -->
+
+
+
+
+
+
+
+
+<!-- max_kom <- encacc_002_perc_map %>% -->
+<!--             as.data.frame() %>% -->
+<!--             arrange(desc(.$`Prosentandel (%) av nedbygging som er ''særlig viktig natur''`)) %>% -->
+<!--             filter(`Prosentandel (%) av nedbygging som er ''særlig viktig natur''`< 10) -->
+
+<!-- max_kom <- encacc_002_map_un %>% -->
+<!--             as.data.frame() %>% -->
+<!--             arrange(desc(.$`Totalt areal særlig viktige naturtyper gått tapt (dekar)`)) %>% -->
+<!--             filter(`Totalt areal særlig viktige naturtyper gått tapt (dekar)`< 100) -->
+
+<!-- tot_enc <- encacc_001_acc %>% -->
+<!--             as.data.frame() %>% -->
+<!--             filter(!is.na(`Årlig areal i dekar`)) %>% -->
+<!--             filter(Regnskapsår == 2024) %>% -->
+<!--   filter(`Kommune navn` %in% c("Nesbyen", "Flesberg", "Gausdal", "Sigdal", "Flå", -->
+<!--                                          "Sandnes", "Skien", "Sunnfjord", "Tønsberg", "Kongsberg" -->
+<!-- )) %>% -->
+<!--   select("Kommune nummer", -->
+<!--          "Kommune navn", -->
+<!--          "Kumulativ areal i dekar") -->
+
+<!-- essai <- left_join(max_kom, tot_enc, by = c("Kommune navn", "Kommune nummer")) %>% -->
+<!--           st_drop_geometry() %>% -->
+<!--           mutate(perc = `Kumulativ areal av nedbygging i dekar` / `Kumulativ areal i dekar` * 100) %>% -->
+<!--             arrange(desc(.$`perc`)) %>% -->
+<!--             filter(`perc`> 1211) -->
 
 <!-- ``` -->
