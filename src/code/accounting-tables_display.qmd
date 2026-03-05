@@ -229,8 +229,8 @@ Friluftslivsom-råder - kartlagte](^https://kartkatalog.geonorge.no/metadata/fri
 [Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Kart over potensielle «nedbyg-ging»-hendelser i Norge i perioden 2018–2024. Disse dataene er hen-tet fra Sentinal-2-satellittbilder og et konvolusjonelt nevralt nettverk fra Google kalt Dynamic World. 
 
 
-### 2.3 Kart over habitatene som anses som «særlig viktig natur»
-[Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$): Kart over habitatene som anses som «særlig viktig natur» i henhold til verdsettingskriteriene i veilederen M-1941 Konsekvensutredninger for klima og miljø og Miljøforvaltningens Innsigelsespraksis (T-2/16) [1.4 Sette verdi - miljodirektoratet.no](https://www.miljodirektoratet.no/ansvarsomrader/overvaking-arealplanlegging/arealplanlegging/konsekvensutredninger/metode-for-utredning/naturmangfold/1.4-sett-verdi) Naturmangfold med «stor» eller «svært stor» verdi inngår i rundskriv T-2/16
+### 2.3 Kart over habitatene som anses som versdatte natur
+[Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$): Kart over habitatene som anses som verdsatte nature av "stor" of "svært stro" verdi i henhold til verdsettingskriteriene i veilederen M-1941 Konsekvensutredninger for klima og miljø og Miljøforvaltningens Innsigelsespraksis (T-2/16) [1.4 Sette verdi - miljodirektoratet.no](https://www.miljodirektoratet.no/ansvarsomrader/overvaking-arealplanlegging/arealplanlegging/konsekvensutredninger/metode-for-utredning/naturmangfold/1.4-sett-verdi) Naturmangfold med «stor» eller «svært stor» verdi inngår i rundskriv T-2/16
 
 
 ## 5. Usikkerhet
@@ -412,14 +412,14 @@ datatable(encacc_002_fy_acc,
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell F3 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
       
   formatStyle(
-    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    "Areal verdsatte naturtyper gått tapt (dekar)",
     backgroundColor = styleEqual(
       c("Green",   "Yellow",    "Orange",    "Red", "NA"),
       c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
@@ -470,16 +470,16 @@ datatable(encrec_0056_fy_acc,
                           columnDefs = list(list(targets = c(which(colnames(encrec_0056_fy_acc) == "Usikkerhet for areal i regnskapsperiode")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og særlig viktig friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
 
   formatStyle(
-    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    "Areal verdsatte naturtyper gått tapt (dekar)",
     backgroundColor = styleEqual(
       c("Green",   "Yellow",    "Orange",    "Red", "NA"),
       c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
@@ -671,14 +671,14 @@ datatable(encacc_002_acc,
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell K3 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal særlig viktige naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
 
   formatStyle(
-    "Areal særlig viktige naturtyper gått tapt (dekar)",
+    "Areal verdsatte naturtyper gått tapt (dekar)",
     backgroundColor = styleEqual(
       c("Green",   "Yellow",    "Orange",    "Red", "NA"),
       c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
@@ -730,7 +730,7 @@ datatable(encrec_0056_acc,
                           columnDefs = list(list(targets = c(which(colnames(encrec_0056_acc) == "Usikkerhet for areal i regnskapsperiode")),
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og særlig viktig friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
