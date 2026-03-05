@@ -13,10 +13,6 @@ book:
   sharing: [twitter, facebook, linkedin]
   chapters:
     - index.qmd
-    - part: "Encroachment Accounts"
-      chapters: 
-        - src/code/encroachment_recreation_areas.qmd
-        - src/code/encroachment_all_municipalities.qmd
     - part: "Accounting Tables"
       chapters:
         - src/code/accounting-tables_display.qmd
