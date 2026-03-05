@@ -1,26 +1,33 @@
 ---
 ---
 
-## Welcome {.unnumbered}
 
-This book presents encroachment accounts within recreation areas and especially valuable nature in Norwegian municipalities.
+## 1. Innledning
+Norge mister natur i raskt tempo. Ifølge NRK-artikkelen «Norge i rødt, hvitt og grått» mistet Norge 208 km2 natur til nedbygging (NRK, 2024; Venter et al., 2024).  Nesten ett år senere, i oktober 2025, publiserte NRK en ny artikkel som så på omfanget av nedbygging av natur og jordbruk i Europa. Ifølge «Europa fra grønt til grått – Norge har det høyeste tapet av natur per innbygger i Europa» -  mer enn 38 m2 natur per person i perioden 2018–2024 (NRK, 2025). 
 
-### Project Overview
+Selv om NRK undersøkte hva som skjedde på nasjonalt nivå, vet vi ikke hva som skjer innenfor friluftsområdene. Hvor mye natur går tapt i disse områdene på grunn av arealuttak? Og hvilken type natur går tapt? For å besvare disse spørsmålene, utarbeider vi arealregnskap for perioden 2018–2024 for:
 
-This is an internal project supported by the MAREA project. Its goal is the compilation of encroachment accounts within recreation areas and especially valuable nature in Norwegian municipalities.
+1. All nedbygging innenfor kommunen/fylket.
 
-### Data Sources
+2. Nedbygging innenfor alle friluftslivsområder per kommune/fylke.
 
-The analyses use the following datasets:
+3. Nedbygging innenfor viktige og svært viktige friluftslivsområder per kommune/fylke.
 
-- **Outdoor recreation areas** from [naturebase.no](https://geocortex02.miljodirektoratet.no/vertigisstudio/web/?app=a3a09afee5c24c459c53a9a9ff0915f1)
-- **Land take data** from [Zenodo repository](https://zenodo.org/records/15130992), version 1 (3/04/2025)
-- **Administrative boundaries** from Eurostat [Local Administrative Units](https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units)
-- **Specially important nature types** from [Naturtyper - verdsatte](https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314)
+4. Versatte naturtyper tapt innenfor 1, 2 og 3 ovenfor.
 
-### Structure
 
-The book is organized into two main parts:
+## 2. Hvilke datasett brukte vi?
+### 2.1 Kart over kommunegrensene i Norge 
 
-1. **Encroachment Accounts** - Detailed analysis of land take in recreation areas
-2. **Accounting Tables** - Summary tables at municipality (kommune) and county (fylke) levels
+[Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$): Kart over kommunegrensene i Norge. Kartet er utarbeidet av Eu-rostat. Vi valgte å ikke bruke Kart-verkets kart over kommunene, da deres grenser strekker seg til mari-ne habitater. Eurostats grenser er begrenset til terrestriske habitater. Da nedbygging er begrenset til terrestriske habitater, valgte vi å begrense omfanget av friluftsområder til kun terrestriske habitater.
+
+### 2.2 Kart over området og verdiene av kommunale friluftsområder
+Friluftslivsom-råder - kartlagte](^https://kartkatalog.geonorge.no/metadata/friluftslivsomraader-kartlagte/91e31bb7-356f-4478-bcba-d5c2de6e91bc$): Kart over området og verdiene av kommunale friluftsområder. Kart-leggingen er utført av kommunene selv i henhold til Miljødirektoratets Veileder M98-2013 (Tidligere DN håndbok 25 – 2004 Kartlegging og verdsetting av friluftslivsområder).
+
+
+### 2.3 Kart over potensielle «nedbygging» i Norge i perioden 2018–2024
+[Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Kart over potensielle «nedbyg-ging»-hendelser i Norge i perioden 2018–2024. Disse dataene er hen-tet fra Sentinal-2-satellittbilder og et konvolusjonelt nevralt nettverk fra Google kalt Dynamic World. 
+
+
+### 2.3 Kart over habitatene som anses som versdatte natur
+[Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$): Kart over habitatene som anses som verdsatte nature av "stor" of "svært stro" verdi i henhold til verdsettingskriteriene i veilederen M-1941 Konsekvensutredninger for klima og miljø og Miljøforvaltningens Innsigelsespraksis (T-2/16) [1.4 Sette verdi - miljodirektoratet.no](https://www.miljodirektoratet.no/ansvarsomrader/overvaking-arealplanlegging/arealplanlegging/konsekvensutredninger/metode-for-utredning/naturmangfold/1.4-sett-verdi) Naturmangfold med «stor» eller «svært stor» verdi inngår i rundskriv T-2/16
