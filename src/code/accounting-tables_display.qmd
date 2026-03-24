@@ -250,7 +250,7 @@ datatable(encacc_001_fy_acc,
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell F1 – Tematiske nedbyggingsregnskap: totalt areal av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal siden 2018 (dekar)"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
@@ -345,32 +345,25 @@ encacc_002_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/EN
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
-                        select(!"Indikatorens navn")
+                        select(!"Indikatorens navn") %>%
+                        filter(!`Fylke navn` == "Norge") %>% # remove totals
+                        select(!c("Usikkerhet for areal i regnskapsperiode")) %>% # remove uncertainty
+                        rename(`Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Areal verdsatte naturtyper gått tapt (dekar)`) # rename area column to include date
 
 # Display the table dynamically
 datatable(encacc_002_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encacc_002_fy_acc) == "Usikkerhet for areal i regnskapsperiode")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F3 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F3 - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-      
-  formatStyle(
-    "Areal verdsatte naturtyper gått tapt (dekar)",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for areal i regnskapsperiode" )
+    dec.mark = ",")
 
 
 ```
