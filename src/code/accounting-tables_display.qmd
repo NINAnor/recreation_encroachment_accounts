@@ -426,7 +426,7 @@ datatable(encrec_0056_fy_acc,
 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -456,46 +456,31 @@ encacc_001_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCAC
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
-                        select(!"Indikatorens navn")
+                        select(!"Indikatorens navn")  %>%
+                        filter(!`Kommune navn` == "Norge") %>% # remove totals
+                        filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
+                        select(!c("Usikkerhet for årlig areal", #remove uncertainty
+                                  "Usikkerhet for kumulativ areal")) %>%
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
 
 # Display the table dynamically
 datatable(encacc_001_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encacc_001_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encacc_001_acc) == "Usikkerhet for kumulativ areal")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K1 – Tematiske arealregnskap: totalt areal av nedbygging i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K1 – Tematiske nedbyggingsregnskap: totalt areal av nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
- 
-  formatStyle(
-    "Årlig areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for årlig areal"           
-  ) %>%
- 
-  formatStyle(
-    "Kumulativ areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
-    ),
-    valueColumns = "Usikkerhet for kumulativ areal"          
-  )
+    dec.mark = ",") 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
