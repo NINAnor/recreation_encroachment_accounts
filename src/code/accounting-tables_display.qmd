@@ -541,7 +541,7 @@ datatable(encrec_0012_acc,
 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
