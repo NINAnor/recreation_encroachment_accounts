@@ -233,10 +233,11 @@ encacc_001_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/EN
                                 head = TRUE) %>%
                         filter(!`Fylke navn` == "Norge") %>% # remove totals
                         filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
-                        select(!c("Indikatorens navn", #remove uncertanty
+                        select(!c("Indikatorens navn", #remove uncertainty
                                   "Usikkerhet for årlig areal",
                                   "Usikkerhet for kumulativ areal")) %>%
-                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`) # rename area column to include date
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
 
 
 
@@ -266,6 +267,12 @@ datatable(encacc_001_fy_acc,
 
 
 ### Totalt areal av nedbygging i friluftlivsområder {#tab2}
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+
+- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+
+- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+
 \
 
 ```{r ENCREC0012_fylke}
@@ -282,7 +289,13 @@ project_path <- here::here()
 encrec_0012_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_fylke.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
-                                head = TRUE)
+                                head = TRUE) %>%
+                        filter(!`Fylke navn` == "Totalt") %>% # remove totals
+                        filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
+                        select(!c("Usikkerhet for årlig areal",
+                                  "Usikkerhet for kumulativ areal")) %>%
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
 
 encrec_0012_fy_acc$`Indikatorens navn`[encrec_0012_fy_acc$`Indikatorens navn` == "ENCREC_001"] <- "Alle friluftslivsområder"
 encrec_0012_fy_acc$`Indikatorens navn`[encrec_0012_fy_acc$`Indikatorens navn` == "ENCREC_002"] <- "Viktige og svært viktige friluftslivsområder"
@@ -292,40 +305,18 @@ datatable(encrec_0012_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0012_fy_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encrec_0012_fy_acc) == "Usikkerhet for kumulativ areal")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 2 – Tematiske nedbygingsregnskap: areal av all nedbygging i friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-  
-  formatStyle(
-    "Årlig areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for årlig areal"           
-  ) %>%
-
-  formatStyle(
-    "Kumulativ areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
-    ),
-    valueColumns = "Usikkerhet for kumulativ areal"           
-  )
-
+    dec.mark = ",")
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -394,6 +385,11 @@ datatable(encacc_002_fy_acc,
 
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab4}
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+
+- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+
+- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
@@ -526,6 +522,12 @@ datatable(encacc_001_acc,
 ### Totalt areal av nedbygging i friluftlivsområder {#tab6}
 Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.
 
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+
+- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+
+- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+
 ```{r ENCREC002_kommune}
 #| eval: true
 #| warning: false
@@ -654,6 +656,12 @@ datatable(encacc_002_acc,
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab8}
 Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.
+
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+
+- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+
+- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
