@@ -268,11 +268,11 @@ datatable(encacc_001_fy_acc,
 
 
 ### Totalt areal av nedbygging i friluftlivsområder {#tab2}
-**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
 
-- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
 
-- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
@@ -379,11 +379,11 @@ datatable(encacc_002_fy_acc,
 
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab4}
-**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
 
-- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
 
-- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
@@ -492,11 +492,11 @@ datatable(encacc_001_acc,
 
 
 ### Totalt areal av nedbygging i friluftlivsområder {#tab6}
-**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
 
-- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
 
-- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 ```{r ENCREC002_kommune}
 #| eval: true
@@ -601,11 +601,11 @@ datatable(encacc_002_acc,
 
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab8}
-**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen `Indikatorens navn`:
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
 
-- **Alle friluftslivsområder** viser nedbygging i alle friluftslivsområder
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
 
-- **Viktige og svært viktige friluftslivsområder**  viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
