@@ -170,6 +170,7 @@ meta |>
 <!--# Update this logg with short messages for each update -->
 - 25 February 2026 - Analyses completed
 - 04 March 2026 - First version
+- 25 March 2026 - Second version
 :::
 
 <hr />
@@ -231,46 +232,32 @@ encacc_001_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/EN
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
-                        select(!"Indikatorens navn")
+                        filter(!`Fylke navn` == "Norge") %>% # remove totals
+                        filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
+                        select(!c("Indikatorens navn", #remove uncertainty
+                                  "Usikkerhet for årlig areal",
+                                  "Usikkerhet for kumulativ areal")) %>%
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
+
+
 
 # Display the table dynamically
 datatable(encacc_001_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encacc_001_fy_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encacc_001_fy_acc) == "Usikkerhet for kumulativ areal")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F1 – Tematiske arealregnskap: totalt areal av nedbygging i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F1 – Tematiske nedbyggingsregnskap: totalt areal av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-
-  formatStyle(
-    "Årlig areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for årlig areal"         
-  ) %>%
- 
-  formatStyle(
-    "Kumulativ areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
-    ),
-    valueColumns = "Usikkerhet for kumulativ areal"          
-  )
-
+    dec.mark = ",")
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -281,6 +268,12 @@ datatable(encacc_001_fy_acc,
 
 
 ### Totalt areal av nedbygging i friluftlivsområder {#tab2}
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
+
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
+
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
+
 \
 
 ```{r ENCREC0012_fylke}
@@ -297,7 +290,13 @@ project_path <- here::here()
 encrec_0012_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_fylke.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
-                                head = TRUE)
+                                head = TRUE) %>%
+                        filter(!`Fylke navn` == "Totalt") %>% # remove totals
+                        filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
+                        select(!c("Usikkerhet for årlig areal",
+                                  "Usikkerhet for kumulativ areal")) %>%
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
 
 encrec_0012_fy_acc$`Indikatorens navn`[encrec_0012_fy_acc$`Indikatorens navn` == "ENCREC_001"] <- "Alle friluftslivsområder"
 encrec_0012_fy_acc$`Indikatorens navn`[encrec_0012_fy_acc$`Indikatorens navn` == "ENCREC_002"] <- "Viktige og svært viktige friluftslivsområder"
@@ -307,40 +306,18 @@ datatable(encrec_0012_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0012_fy_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encrec_0012_fy_acc) == "Usikkerhet for kumulativ areal")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell 2 – Tematiske nedbygingsregnskap: areal av all nedbygging i friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-  
-  formatStyle(
-    "Årlig areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for årlig areal"           
-  ) %>%
-
-  formatStyle(
-    "Kumulativ areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
-    ),
-    valueColumns = "Usikkerhet for kumulativ areal"           
-  )
-
+    dec.mark = ",")
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -369,36 +346,29 @@ encacc_002_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/EN
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
-                        select(!"Indikatorens navn")
+                        select(!"Indikatorens navn") %>%
+                        filter(!`Fylke navn` == "Norge") %>% # remove totals
+                        select(!c("Usikkerhet for areal i regnskapsperiode")) %>% # remove uncertainty
+                        rename(`Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Areal verdsatte naturtyper gått tapt (dekar)`) # rename area column to include date
 
 # Display the table dynamically
 datatable(encacc_002_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encacc_002_fy_acc) == "Usikkerhet for areal i regnskapsperiode")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F3 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F3 - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-      
-  formatStyle(
-    "Areal verdsatte naturtyper gått tapt (dekar)",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for areal i regnskapsperiode" )
+    dec.mark = ",")
 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -409,6 +379,11 @@ datatable(encacc_002_fy_acc,
 
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab4}
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
+
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
+
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
@@ -426,7 +401,11 @@ project_path <- here::here()
 encrec_0056_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC005-006_accounting_table_fylke.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
-                                head = TRUE) 
+                                head = TRUE) %>%
+                        filter(!`Fylke navn` == "Totalt") %>% # remove totals
+                        select(!c("Usikkerhet for areal i regnskapsperiode")) %>% # remove uncertainty
+                        rename(`Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Areal verdsatte naturtyper gått tapt (dekar)`,
+                               `Verdsatte naturtyper` = `Natur typer`) # rename area column to include date
 
 encrec_0056_fy_acc$`Indikatorens navn`[encrec_0056_fy_acc$`Indikatorens navn` == "ENCREC_005"] <- "Alle friluftslivsområder"
 encrec_0056_fy_acc$`Indikatorens navn`[encrec_0056_fy_acc$`Indikatorens navn` == "ENCREC_006"] <- "Viktige og svært viktige friluftslivsområder"
@@ -436,30 +415,19 @@ datatable(encrec_0056_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0056_fy_acc) == "Usikkerhet for areal i regnskapsperiode")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F4 - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-
-  formatStyle(
-    "Areal verdsatte naturtyper gått tapt (dekar)",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for areal i regnskapsperiode"           
-  )
+    dec.mark = ",")
 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -489,46 +457,31 @@ encacc_001_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCAC
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
-                        select(!"Indikatorens navn")
+                        select(!"Indikatorens navn")  %>%
+                        filter(!`Kommune navn` == "Norge") %>% # remove totals
+                        filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
+                        select(!c("Usikkerhet for årlig areal", #remove uncertainty
+                                  "Usikkerhet for kumulativ areal")) %>%
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
 
 # Display the table dynamically
 datatable(encacc_001_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encacc_001_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encacc_001_acc) == "Usikkerhet for kumulativ areal")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K1 – Tematiske arealregnskap: totalt areal av nedbygging i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K1 – Tematiske nedbyggingsregnskap: totalt areal av nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
- 
-  formatStyle(
-    "Årlig areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for årlig areal"           
-  ) %>%
- 
-  formatStyle(
-    "Kumulativ areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
-    ),
-    valueColumns = "Usikkerhet for kumulativ areal"          
-  )
+    dec.mark = ",") 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+
 \
 
 \
@@ -539,7 +492,11 @@ datatable(encacc_001_acc,
 
 
 ### Totalt areal av nedbygging i friluftlivsområder {#tab6}
-Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
+
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
+
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 ```{r ENCREC002_kommune}
 #| eval: true
@@ -555,7 +512,13 @@ project_path <- here::here()
 encrec_0012_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_kommune.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
-                                head = TRUE)
+                                head = TRUE) %>%
+                        filter(!`Kommune navn` == "Totalt") %>% # remove totals
+                        filter(!is.na(`Usikkerhet for årlig areal`)) %>% #remove change
+                        select(!c("Usikkerhet for årlig areal",
+                                  "Usikkerhet for kumulativ areal")) %>%
+                        rename(`Kumulativ areal siden 2018 (dekar)` = `Kumulativ areal i dekar`,
+                               `Årlig areal (dekar)` = `Årlig areal i dekar`) # rename area column to include date
 
 encrec_0012_acc$`Indikatorens navn`[encrec_0012_acc$`Indikatorens navn` == "ENCREC_001"] <- "Alle friluftslivsområder"
 encrec_0012_acc$`Indikatorens navn`[encrec_0012_acc$`Indikatorens navn` == "ENCREC_002"] <- "Viktige og svært viktige friluftslivsområder"
@@ -565,40 +528,19 @@ datatable(encrec_0012_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0012_acc) == "Usikkerhet for årlig areal"),
-                                                             which(colnames(encrec_0012_acc) == "Usikkerhet for kumulativ areal")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K2* – Tematiske nedbyggingsregnskap: areal av all nedbygging i friluftslivsomeråder i kommunner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
+    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-  
-  formatStyle(
-    "Årlig areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for årlig areal"           
-  ) %>%
-  
-  formatStyle(
-    "Kumulativ areal i dekar",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A")
-    ),
-    valueColumns = "Usikkerhet for kumulativ areal"           
-  )
+    dec.mark = ",")
 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+**Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.*
 \
 
 \
@@ -609,7 +551,6 @@ datatable(encrec_0012_acc,
 
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging {#tab7}
-We detected a loss of verdsatte nature av "stor" og "svært stor" verdi within 268 municipalities out of total of 357. It should be noted that the mapping of these naturtyper is not fully nationally representative. This means that if the loss of a verdsatte nature av "stor" og "svært stor" verdi naturtype does not occur in one municipality in our results, it can be either because (i) there is indeed none that have been lost; or (ii) some have been lost but as the habitats have not been mapped yet, the loss is not reported in our results. 
 
 \
 
@@ -628,36 +569,28 @@ encacc_002_acc <- read.table(paste0(project_path,"/result/tables/accounts/ENCACC
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
-                        select(!"Indikatorens navn")
+                        select(!"Indikatorens navn") %>%
+                        filter(!`Kommune navn` == "Norge") %>% # remove totals
+                        select(!c("Usikkerhet for areal i regnskapsperiode")) %>% # remove uncertainty
+                        rename(`Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Areal verdsatte naturtyper gått tapt (dekar)`) # rename area column to include date
 
 # Display the table dynamically
 datatable(encacc_002_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encacc_002_acc) == "Usikkerhet for areal i regnskapsperiode")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K3 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-
-  formatStyle(
-    "Areal verdsatte naturtyper gått tapt (dekar)",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for areal i regnskapsperiode"          
-  )
+    dec.mark = ",") 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+**We detected a loss of verdsatte nature av "stor" og "svært stor" verdi within 268 municipalities out of total of 357. It should be noted that the mapping of these naturtyper is not fully nationally representative. This means that if the loss of a verdsatte nature av "stor" og "svært stor" verdi naturtype does not occur in one municipality in our results, it can be either because (i) there is indeed none that have been lost; or (ii) some have been lost but as the habitats have not been mapped yet, the loss is not reported in our results.*
 \
 
 \
@@ -668,7 +601,11 @@ datatable(encacc_002_acc,
 
 
 ### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab8}
-Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.
+**!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
+
+- `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
+
+- `Viktige og svært viktige friluftslivsområder` viser nedbyggingsområder i friluftsområder som er klassifisert som «viktige» og «svært viktige»
 
 \
 
@@ -686,7 +623,11 @@ project_path <- here::here()
 encrec_0056_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC005-006_accounting_table_kommune.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
-                                head = TRUE) 
+                                head = TRUE) %>%
+                        filter(!`Kommune navn` == "Totalt") %>% # remove totals
+                        select(!c("Usikkerhet for areal i regnskapsperiode")) %>% # remove uncertainty
+                        rename(`Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Areal verdsatte naturtyper gått tapt (dekar)`,
+                               `Verdsatte naturtyper` = `Natur typer`) # rename area column to include date
 
 encrec_0056_acc$`Indikatorens navn`[encrec_0056_acc$`Indikatorens navn` == "ENCREC_005"] <- "Alle friluftslivsområder"
 encrec_0056_acc$`Indikatorens navn`[encrec_0056_acc$`Indikatorens navn` == "ENCREC_006"] <- "Viktige og svært viktige friluftslivsområder"
@@ -696,30 +637,19 @@ datatable(encrec_0056_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
           options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
-                          columnDefs = list(list(targets = c(which(colnames(encrec_0056_acc) == "Usikkerhet for areal i regnskapsperiode")),
-                                                 visible = FALSE))),
+                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K4 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
-    dec.mark = ",") %>%
-
-  formatStyle(
-    "Areal verdsatte naturtyper gått tapt (dekar)",
-    backgroundColor = styleEqual(
-      c("Green",   "Yellow",    "Orange",    "Red", "NA"),
-      c("#94F4B6", "#FFF085", "#FFC68A", "#FF8A8A", "")
-    ),
-    valueColumns = "Usikkerhet for areal i regnskapsperiode"           
-  )
+    dec.mark = ",")
 
 
 ```
-*Grønn = sikker; Gul = ganske sikker; Oransje = Ganske usikker; Rød = Usikker*
+**Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.*
 \
 
 \
@@ -728,8 +658,6 @@ datatable(encrec_0056_acc,
 
 \
 
-## References
-(Waiting, 2024; Venter et al., 2024)
 
 ::: {.callout-tip collapse="true"}
 ## Session Info
