@@ -205,12 +205,13 @@ meta |>
 
 
 ## Usikkerhet
-Resultatene må være pålitelige for å ta informerte beslutninger. Rapporten bruker et tra-fikklyssystem for å vise viser relativ (u)sikkerhet i resultatene fra din kommune og / eller fylke: 
+Det finnes flere kilder til usikkerhet knyttet til resultatene våre som vi ikke har kunnet korrigere i denne rapporten. Dette omfatter blant annet prognosen for nedbygging, tids-forskjeller mellom de anvendte datasettene, manglende landsdekning for enkelte data-sett, eller ganske enkelt den generelle kvaliteten på selve kartleggingen.
 
-1. Grønn = sikker
-2. Gul = ganske sikker
-3. Oransje = Ganske usikker
-4. Rød = Usikker
+Når brukerne henviser til tallene våre, bør de legge til følgende merknad:
+
+`«Merk: statistikken er basert på metoder og datakilder som har feilkilder med lokal romlig og årlig variasjon.  Alle årlige tall på kommune og fylkesnivå er ikke korrigert for disse feilkildene (NINA Rapport 2754)»`
+
+**Områdene i tabeller kunne ikke justeres for å oppnå kartnøyaktighet. Tallene er avrundet.**
 
 ## Fylke tematisk arealregnskap for nedbygging
 ### Totalt areal av nedbygging {#tab1}
