@@ -13,9 +13,7 @@ book:
   sharing: [twitter, facebook, linkedin]
   chapters:
     - index.qmd
-    - part: "Accounting Tables"
-      chapters:
-        - src/code/accounting-tables_display.qmd
+    - src/code/accounting-tables_display.qmd
     
 format:
   html: 
