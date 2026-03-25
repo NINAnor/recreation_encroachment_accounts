@@ -3909,7 +3909,7 @@ nedbygging_kommune <- map_nina_format(encrec_002_map,
                                      mapping_groups = 5, 
                                      groups_thresholds = c(50, 150, 250, 500, 2200)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
-                        rename(`Kumulativ areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
+                        rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
                       
 ## Layer 2 - Total area of nedbygging in important and very important recreation areas in fylke
 nedbygging_fylke <-  map_nina_format(encrec_002_map_fy, 
@@ -3917,7 +3917,7 @@ nedbygging_fylke <-  map_nina_format(encrec_002_map_fy,
                                      mapping_groups = 5, 
                                      groups_thresholds = c(2000, 4000, 6000, 8000, 16200)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
-                        rename(`Kumulativ areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
+                        rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
 
 
 ## Layer 3 - Share of nedbygging in important and very important recreation areas in municipalities
@@ -3925,8 +3925,10 @@ share_nedbygging_kommune <-  map_nina_format(encrec_002_perc_map,
                                              mapping_variable = "Prosentandel (%) av friluftsliv gått tapt", 
                                              mapping_groups = 6, 
                                              groups_thresholds = c(0.015, 0.050, 0.10, 0.20, 1, 2)) %>%
-                        select(!`Usikkerhet av prosentandel`) %>% # remove uncertainty for map display
-                        rename(`Kumulativ areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i 2024 (dekar)`) # rename kumulative area with dates
+                        select(!c(`Usikkerhet av prosentandel`,
+                                  `Totalt areal friluftsliv`)) %>% # remove uncertainty for map display
+                        rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i 2024 (dekar)`,
+                               `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024` = `Prosentandel (%) av friluftsliv gått tapt`) # rename kumulative area with dates
 
 
 ## Layer 4 - Share of nedbygging in important and very important recreation areas in fylke
@@ -3934,9 +3936,10 @@ share_nedbygging_fylke <-  map_nina_format(encrec_002_perc_map_fy,
                                            mapping_variable = "Prosentandel (%) av friluftsliv gått tapt", 
                                            mapping_groups = 5, 
                                            groups_thresholds = c(0.040, 0.080, 0.10, 0.20, 0.40)) %>%
-                        select(!`Usikkerhet av prosentandel`) %>% # remove uncertainty for map display
-                        rename(`Kumulativ areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i 2024 (dekar)`,
-                              `Prosentandel (%) av nedbygging som er verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av friluftsliv gått tapt`) # rename kumulative area with dates
+                        select(!c(`Usikkerhet av prosentandel`,
+                                  `Totalt areal friluftsliv`)) %>% # remove uncertainty for map display
+                        rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i 2024 (dekar)`,
+                               `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024` = `Prosentandel (%) av friluftsliv gått tapt`) # rename kumulative area with dates
 
 
 
@@ -3966,7 +3969,9 @@ share_viktignatur_kommune <- map_nina_format(encrec_006_perc_map,
                                      mapping_groups = 5, 
                                      groups_thresholds = c(1, 3, 10, 50, 100)) %>%
                         select(!`Usikkerhet`) %>% # remove uncertainty for map display
-                        rename(`Prosentandel (%) av nedbygging som er verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`) # rename kumulative area with dates
+                        rename(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`,
+                               `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`,
+                               `Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`) # rename kumulative area with dates
 
 
 
@@ -3976,7 +3981,9 @@ share_viktignatur_fylke <- map_nina_format(encrec_006_perc_map_fy,
                                            mapping_groups = 5, 
                                            groups_thresholds = c(1, 2, 3, 9, 12.5))  %>%
                         select(!`Usikkerhet`) %>% # remove uncertainty for map display
-                        rename(`Prosentandel (%) av nedbygging som er verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`) # rename kumulative area with dates
+                        rename(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`,
+                               `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`,
+                               `Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`) # rename kumulative area with dates
 
 ```
 
