@@ -658,8 +658,6 @@ datatable(encrec_0056_acc,
 
 \
 
-## References
-(Waiting, 2024; Venter et al., 2024)
 
 ::: {.callout-tip collapse="true"}
 ## Session Info
