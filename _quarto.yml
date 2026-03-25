@@ -3,19 +3,17 @@ project:
   output-dir: _book
   
 book:
-  title: "Recreation Encroachment Accounts"
+  title: "Nedbyggingsregnskap for friluftslivsområder i Norge "
   author: "NINA"
   description: | 
-    Encroachment accounts within recreation areas and especially valuable nature in Norwegian municipalities.
+    Nedbyggingsregnskap tabeller som kartlegger det årlige og kumulative arealforbruket i perioden 2018–2024 innenfor: (i) kommuner og fylker; og (ii) friluftsområder som er merket som «viktige» og «svært viktige». Vi presenterer også arealet av «spesielt viktig natur» som er gått tapt til arealforbruk innenfor (i) og (ii).
   repo-url: https://github.com/NINAnor/recereation_encroachment_accounts
   repo-branch: main
   repo-actions: [edit]
   sharing: [twitter, facebook, linkedin]
   chapters:
     - index.qmd
-    - part: "Accounting Tables"
-      chapters:
-        - src/code/accounting-tables_display.qmd
+    - src/code/accounting-tables_display.qmd
     
 format:
   html: 
