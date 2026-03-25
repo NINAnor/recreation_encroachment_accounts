@@ -1,5 +1,5 @@
 ---
-title: "Tematisk arealregnskap - nedbygging i Norge og friluftslivsområder"
+title: "Nedbyggingsregnskap Tabeller"
 
 folderName: code # name of the folder under 'indicators/'. 
 
