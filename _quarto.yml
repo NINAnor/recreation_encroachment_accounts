@@ -6,7 +6,7 @@ book:
   title: "Nedbyggingsregnskap for friluftslivsområder i Norge "
   author: "NINA"
   description: | 
-    Nedbyggingsregnskap tabeller som kartlegger det årlige og kumulative arealforbruket i perioden 2018–2024 innenfor: (i) kommuner og fylker; og (ii) friluftsområder som er merket som «viktige» og «svært viktige». Vi presenterer også arealet av «spesielt viktig natur» som er gått tapt til arealforbruk innenfor (i) og (ii).
+    Nedbyggingsregnskap tabeller i fylker og kommuner i perioden 2018–2024.
   repo-url: https://github.com/NINAnor/recereation_encroachment_accounts
   repo-branch: main
   repo-actions: [edit]
