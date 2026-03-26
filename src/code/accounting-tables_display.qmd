@@ -642,7 +642,7 @@ datatable(encrec_0056_acc,
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
+    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
     interval = 3,                 
     mark = " " ,
