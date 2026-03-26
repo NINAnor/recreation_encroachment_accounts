@@ -1,0 +1,41 @@
+---
+title: "Innledning"
+---
+
+
+## Innledning
+Norge mister natur i raskt tempo. Ifølge NRK-artikkelen «Norge i rødt, hvitt og grått» mistet Norge 208 km2 natur til nedbygging (NRK, 2024; Venter et al., 2024).  Nesten ett år senere, i oktober 2025, publiserte NRK en ny artikkel som så på omfanget av nedbygging av natur og jordbruk i Europa. Ifølge «Europa fra grønt til grått – Norge har det høyeste tapet av natur per innbygger i Europa» -  mer enn 38 m2 natur per person i perioden 2018–2024 (NRK, 2025). 
+
+Selv om NRK undersøkte hva som skjedde på nasjonalt nivå, vet vi ikke hva som skjer innenfor friluftsområdene. Hvor mye natur går tapt i disse områdene på grunn av arealuttak? Og hvilken type natur går tapt? For å besvare disse spørsmålene, utarbeider vi arealregnskap for perioden 2018–2024 for:
+
+1. All nedbygging innenfor kommunen/fylket.
+
+2. Nedbygging innenfor alle friluftslivsområder per kommune/fylke.
+
+3. Nedbygging innenfor viktige og svært viktige friluftslivsområder per kommune/fylke.
+
+4. Versatte naturtyper tapt innenfor 1, 2 og 3 ovenfor.
+
+
+## Hvilke datasett brukte vi?
+### Kart over kommunegrensene i Norge 
+
+[Local Administrative Units](^https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units$): Kart over kommunegrensene i Norge. Kartet er utarbeidet av Eu-rostat. Vi valgte å ikke bruke Kart-verkets kart over kommunene, da deres grenser strekker seg til mari-ne habitater. Eurostats grenser er begrenset til terrestriske habitater. Da nedbygging er begrenset til terrestriske habitater, valgte vi å begrense omfanget av friluftsområder til kun terrestriske habitater.
+
+### Kart over området og verdiene av kommunale friluftsområder
+Friluftslivsom-råder - kartlagte](^https://kartkatalog.geonorge.no/metadata/friluftslivsomraader-kartlagte/91e31bb7-356f-4478-bcba-d5c2de6e91bc$): Kart over området og verdiene av kommunale friluftsområder. Kart-leggingen er utført av kommunene selv i henhold til Miljødirektoratets Veileder M98-2013 (Tidligere DN håndbok 25 – 2004 Kartlegging og verdsetting av friluftslivsområder).
+
+
+### Kart over potensielle «nedbygging» i Norge i perioden 2018–2024
+[Map of built-up expansion ("nedbygging") over Norway 2017-2024 with year of loss, Venter (2025)](^https://zenodo.org/records/15130992$): Kart over potensielle «nedbyg-ging»-hendelser i Norge i perioden 2018–2024. Disse dataene er hen-tet fra Sentinal-2-satellittbilder og et konvolusjonelt nevralt nettverk fra Google kalt Dynamic World. 
+
+
+### Kart over habitatene som anses som versdatte natur
+[Naturtyper - verdsatte](^https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314$): Kart over habitatene som anses som verdsatte nature av "stor" of "svært stro" verdi i henhold til verdsettingskriteriene i veilederen M-1941 Konsekvensutredninger for klima og miljø og Miljøforvaltningens Innsigelsespraksis (T-2/16) [1.4 Sette verdi - miljodirektoratet.no](https://www.miljodirektoratet.no/ansvarsomrader/overvaking-arealplanlegging/arealplanlegging/konsekvensutredninger/metode-for-utredning/naturmangfold/1.4-sett-verdi) Naturmangfold med «stor» eller «svært stor» verdi inngår i rundskriv T-2/16
+
+## References
+NRK, 2024. Norge i rødt , hvitt og grått [online]. NRK. URL https://www.nrk.no/dokumentar/xl/nrk-avslorer_-44.000-inngrep-i-norsk-natur-pa-fem-ar-1.16573560 (accessed 2.20.26). 
+
+NRK, 2025. NRK avslører europeisk naturtap: Norge topper verstingliste [online]. NRK. URL https://www.nrk.no/dokumentar/xl/europa-fra-gront-til-gratt_-nordmenn-bygger-ned-mest-natur_-viser-europeisk-kartlegging-1.17577504 (accessed 2.20.26). 
+
+Venter, Z., 2024. Viser nedbygging av naturen ved hjelp av fugleperspektiv og kunstig intelligens [online]. Norsk institutt for naturforskning. URL https://www.nina.no/Om-NINA/Aktuelt/Nyheter/article/viser-nedbygging-av-naturen-ved-hjelp-av-fugleperspektiv-og-kunstig-intelligens (accessed 2.20.26). 
