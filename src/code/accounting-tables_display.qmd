@@ -541,7 +541,7 @@ datatable(encrec_0012_acc,
 
 
 ```
-**Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.*
+* *Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.*
 \
 
 \
@@ -591,7 +591,7 @@ datatable(encacc_002_acc,
     dec.mark = ",") 
 
 ```
-**We detected a loss of verdsatte nature av "stor" og "svært stor" verdi within 268 municipalities out of total of 357. It should be noted that the mapping of these naturtyper is not fully nationally representative. This means that if the loss of a verdsatte nature av "stor" og "svært stor" verdi naturtype does not occur in one municipality in our results, it can be either because (i) there is indeed none that have been lost; or (ii) some have been lost but as the habitats have not been mapped yet, the loss is not reported in our results.*
+* *We detected a loss of verdsatte nature av "stor" og "svært stor" verdi within 268 municipalities out of total of 357. It should be noted that the mapping of these naturtyper is not fully nationally representative. This means that if the loss of a verdsatte nature av "stor" og "svært stor" verdi naturtype does not occur in one municipality in our results, it can be either because (i) there is indeed none that have been lost; or (ii) some have been lost but as the habitats have not been mapped yet, the loss is not reported in our results.*
 \
 
 \
@@ -650,7 +650,7 @@ datatable(encrec_0056_acc,
 
 
 ```
-**Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.*
+* *Træna, Evje og Hornnes, Dyrøy, Fedje, og Frosta are excluded from these accounts as no nedbygging was detected in their outdoor recreation areas.*
 \
 
 \
