@@ -13,6 +13,7 @@ book:
   sharing: [twitter, facebook, linkedin]
   chapters:
     - index.qmd
+    - innledning.qmd
     - src/code/accounting-tables_display.qmd
     
 format:
