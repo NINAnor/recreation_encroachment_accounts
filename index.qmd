@@ -5,4 +5,4 @@ title: "Vilkommen!"
 
 På denne nettsiden finner du Nedbyggingsregnskap tabeller som kartlegger det årlige og kumulative areal av nedbygging i perioden 2018–2024 innenfor: (i) kommuner og fylker; og (ii) friluftslivsområder. Vi presenterer også arealet av «spesielt viktig natur» som er gått tapt til arealforbruk innenfor (i) kommuner og fylker; og (ii) friluftslivsområder.
 
-Tabellene vises i [3  Nedbyggingsregnskap Tabeller](src/code/accounting-tables_display.qmd ). Les om prosjektet og dataene vi brukte i [1. Innledning](/innledning.qmd).
+Tabellene vises i [3  Nedbyggingsregnskap Tabeller](src/code/accounting-tables_display.qmd ). Les om prosjektet og dataene vi brukte i [2. Innledning](/innledning.qmd).
