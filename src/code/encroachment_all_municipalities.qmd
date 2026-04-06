@@ -2270,7 +2270,7 @@ source(paste0(functions_path,"/map_nina_format.R"))
 nedbygging_kommune <- map_nina_format(encacc_001_map_mun, 
                                       mapping_variable = "Kumulativ areal av nedbygging i dekar", 
                                       mapping_groups = 5, 
-                                      groups_thresholds = c(500, 1000, 1500, 2000, 2500)) %>%
+                                      groups_thresholds = c(500, 1000, 1500, 2000)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
 
@@ -2279,7 +2279,7 @@ nedbygging_kommune <- map_nina_format(encacc_001_map_mun,
 nedbygging_fylke <- map_nina_format(encacc_001_map_fy, 
                                     mapping_variable = "Kumulativ areal av nedbygging i dekar", 
                                     mapping_groups = 5, 
-                                    groups_thresholds = c(10000, 20000, 30000, 40000, 54000)) %>%
+                                    groups_thresholds = c(10000, 20000, 30000, 40000)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
 
@@ -2288,7 +2288,7 @@ nedbygging_fylke <- map_nina_format(encacc_001_map_fy,
 share_nedbygging_kommune <- map_nina_format(encacc_001_perc_map_mun,
                                             mapping_variable = "Prosentandel (%) av nedbygging", 
                                             mapping_groups = 5, 
-                                            groups_thresholds = c(0.05, 0.1, 0.2, 0.5, 2.6)) %>%
+                                            groups_thresholds = c(0.05, 0.1, 0.2, 0.5)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Prosentandel (%) av nedbygging mellom 2018 og 2024` = `Prosentandel (%) av nedbygging`,
                               `Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i dekar`) # rename kumulative area with dates
@@ -2298,8 +2298,8 @@ share_nedbygging_kommune <- map_nina_format(encacc_001_perc_map_mun,
 ## Layer 4 - Share of nedbygging in fylke
 share_nedbygging_fylke <- map_nina_format(encacc_001_perc_map_fy,
                                           mapping_variable = "Prosentandel (%) av nedbygging", 
-                                          mapping_groups = 5, 
-                                          groups_thresholds = c(0.01, 0.02, 0.03, 0.07)) %>%
+                                          mapping_groups = 4, 
+                                          groups_thresholds = c(0.01, 0.02, 0.03)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Prosentandel (%) av nedbygging mellom 2018 og 2024` = `Prosentandel (%) av nedbygging`,
                               `Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i dekar`) # rename kumulative area with dates
@@ -2310,8 +2310,8 @@ share_nedbygging_fylke <- map_nina_format(encacc_001_perc_map_fy,
 ## Layer 5 - Total area of verdatte natur lost to nedbygging in municipalities
 viktignatur_kommune <- map_nina_format(encacc_002_map_un, 
                                        mapping_variable = "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
-                                       mapping_groups = 5, 
-                                       groups_thresholds = c(1, 5, 15, 30, 100, 400))  %>%
+                                       mapping_groups = 6, 
+                                       groups_thresholds = c(1, 5, 15, 30, 100))  %>%
                         select(!`Usikkerhet av totalt areal`) %>% # remove uncertainty for map display
                         rename(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) # rename kumulative area with dates
 
@@ -2329,7 +2329,7 @@ viktignatur_fylke <- map_nina_format(encacc_002_map_un_fy,
 share_viktignatur_kommune <- map_nina_format(encacc_002_perc_map, 
                                      mapping_variable = "Prosentandel (%) av nedbygging som er verdsatte natur", 
                                      mapping_groups = 5, 
-                                     groups_thresholds = c(0.5, 2, 4, 10, 50)) %>%
+                                     groups_thresholds = c(0.5, 2, 4, 10)) %>%
                         select(!`Usikkerhet`) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`,
                           `Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`,
