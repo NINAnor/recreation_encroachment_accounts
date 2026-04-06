@@ -16,7 +16,7 @@ yearAdded: 2026 # the year when the indicator was first submitted to ecRxiv
 yearLastUpdate: 2026
 status: incomplete # options are complete, incomplete, or deprecated
 Version: "000.001" # Beta-versions are numbers incrementally with values below 0. Operational versions can be given the version numbers above 0. Use this terms similar as for software versioning,
-VersionComment: Første versjon av tematisk arealregnskap - nedbygging i Norge og friluftslivsområder # Describe briefly how this version differs from earlier versions 
+VersionComment: Første versjon av tematisk nedbyggingsregnskap i Norge og friluftslivsområder # Describe briefly how this version differs from earlier versions 
 format: 
   html:
     embed-resources: true
@@ -191,7 +191,7 @@ meta |>
 - Hvor mye nedbygging skjedde i friluftsområdene i kommunen min? Gå til [Tabell K2](#tab6)
 
 
-- Hvilket areal og hvilken type verdsatt natur gikk tapt til nedbygging i fylket mitt? Gå til [Tabell F3](#tab3)
+- Hvilket areal og hvilken type verdsat natur gikk tapt til nedbygging i fylket mitt? Gå til [Tabell F3](#tab3)
 
 
 - Hvilket areal og hvilken type verdsatt natur gikk tapt til nedbygging i kommunen min? Gå til [Tabell K3](#tab7)
@@ -213,7 +213,7 @@ Når brukerne henviser til tallene våre, bør de legge til følgende merknad:
 
 **Områdene i tabeller kunne ikke justeres for å oppnå kartnøyaktighet. Tallene er avrundet.**
 
-## Fylke tematisk arealregnskap for nedbygging
+## Fylke tematisk nedbyggingsregnskap
 ### Totalt areal av nedbygging {#tab1}
 
 \
@@ -328,7 +328,7 @@ datatable(encrec_0012_fy_acc,
 \
 
 
-### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging {#tab3}
+### Totalt areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» tapt til nedbygging {#tab3}
 
 \
 
@@ -359,7 +359,7 @@ datatable(encacc_002_fy_acc,
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F3 - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F3 - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» tapt til nedbygging i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
@@ -379,7 +379,7 @@ datatable(encacc_002_fy_acc,
 \
 
 
-### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab4}
+### Totalt areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab4}
 **!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
 
 - `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
@@ -418,7 +418,7 @@ datatable(encrec_0056_fy_acc,
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell F4 - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell F4 - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging innenfor viktig og svært viktige friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
@@ -438,7 +438,7 @@ datatable(encrec_0056_fy_acc,
 \
 
 
-## Kommune tematisk arealregnskap for nedbygging
+## Kommune tematisk nedbyggingsregnskap
 ### Totalt areal av nedbygging {#tab5}
 
 \
@@ -551,7 +551,7 @@ datatable(encrec_0012_acc,
 \
 
 
-### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging {#tab7}
+### Totalt areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» tapt til nedbygging {#tab7}
 
 \
 
@@ -582,7 +582,7 @@ datatable(encacc_002_acc,
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
@@ -601,7 +601,7 @@ datatable(encacc_002_acc,
 \
 
 
-### Totalt areal av verdsatte «verdsatte naturtyper» av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab8}
+### Totalt areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» tapt til nedbygging i friluftlivsområder {#tab8}
 **!!Advarsel**: Denne tabellen viser to indikatorer. Du kan velge det som interesserer deg i kolonnen **Indikatorens navn**:
 
 - `Alle friluftslivsområder` viser nedbygging i alle friluftslivsområder
@@ -640,7 +640,7 @@ datatable(encrec_0056_acc,
           options = list( dom = 'Bfrtip',
                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
+                                            htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging innenfor viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
     formatCurrency(
     columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
     currency = "",                
