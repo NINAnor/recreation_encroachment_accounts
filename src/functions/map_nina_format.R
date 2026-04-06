@@ -34,28 +34,37 @@ map_nina_format <- function(data, mapping_variable, mapping_groups, groups_thres
   
   
   # Group
-  if(isFALSE(mapping_groups %in% c(5, 6))){
+  if(isFALSE(mapping_groups %in% c(4, 5, 6))){
     
-    return(c("Mapping function needs to be adjusted, it only allows for 5 or 6 groups"))
+    return(c("Mapping function needs to be adjusted, it only allows for 4, 5 or 6 groups"))
   
+  }else if(isTRUE(mapping_groups == 4)){
+    
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[1])] <- "Group 1"
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[2] & data[[mapping_var]] >= groups_thresholds[1])] <- "Group 2"
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[3] & data[[mapping_var]] >= groups_thresholds[2])] <- "Group 3"
+    data_new$mapping_groups[which(data[[mapping_var]] >= groups_thresholds[3])] <- "Group 4"
+    
+    return(data_new)
+    
   }else if(isTRUE(mapping_groups == 5)){
       
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[1])] <- "Group 1"
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[2] & data[[mapping_var]] >= groups_thresholds[1])] <- "Group 2"
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[3] & data[[mapping_var]] >= groups_thresholds[2])] <- "Group 3"
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[4] & data[[mapping_var]] >= groups_thresholds[3])] <- "Group 4"
-    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[5] & data[[mapping_var]] >= groups_thresholds[4])] <- "Group 5"
+    data_new$mapping_groups[which(data[[mapping_var]] >= groups_thresholds[4])] <- "Group 5"
     
     return(data_new)
     
     }else if(isTRUE(mapping_groups == 6)){
     
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[1])] <- "Group 1"
-    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[2] & data[[mapping_var]] >= groups_thresholds[3])] <- "Group 2"
-    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[3] & data[[mapping_var]] >= groups_thresholds[4])] <- "Group 3"
-    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[4] & data[[mapping_var]] >= groups_thresholds[5])] <- "Group 4"
-    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[5] & data[[mapping_var]] >= groups_thresholds[6])] <- "Group 5"
-    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[6] & data[[mapping_var]] >= groups_thresholds[7])] <- "Group 6"
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[2] & data[[mapping_var]] >= groups_thresholds[1])] <- "Group 2"
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[3] & data[[mapping_var]] >= groups_thresholds[2])] <- "Group 3"
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[4] & data[[mapping_var]] >= groups_thresholds[3])] <- "Group 4"
+    data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[5] & data[[mapping_var]] >= groups_thresholds[4])] <- "Group 5"
+    data_new$mapping_groups[which(data[[mapping_var]] >= groups_thresholds[5])] <- "Group 6"
     
     return(data_new)
     
