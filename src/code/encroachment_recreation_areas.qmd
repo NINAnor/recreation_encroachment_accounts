@@ -844,8 +844,8 @@ In our report, we define "specially important nature" as the nature types within
 # Select columns of relevance
 natur_types <- naturtyper %>%
                 mutate(year_natur_recorded = substr(.$registreringsdato, 1, 4)) %>%
-                filter(verdikategori %in% c("Svært stor verdi",
-                                            "Stor verdi")) %>%
+                filter(verdikategori %in% c("sværtStorVerdi",
+                                            "storVerdi")) %>%
                 select(naturtype,
                        year_natur_recorded,
                        kommunenummer)
@@ -976,6 +976,7 @@ encnatur <- encnatur_raw %>%
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_cln",
                     "project_path",
                     "functions_path",
                     "rcl_final",
