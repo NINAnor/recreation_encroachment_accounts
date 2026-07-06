@@ -1035,6 +1035,7 @@ unc_006_idv <- encnatur %>%
 rm(list = setdiff(ls(), 
                   c("lau_no",
                     "encroach_dt",
+                    "natur_cln",
                     "project_path",
                     "functions_path",
                     "rcl_final",
@@ -1363,9 +1364,8 @@ datatable(encrec_0012_acc,
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell 1 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
-    currency = "",                
+    formatRound(
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),          
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
@@ -1547,9 +1547,8 @@ datatable(encrec_0012_fy_acc,
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell 2 – Tematiske arealregnskap: areal av all nedbygging i friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
-    currency = "",                
+    formatRound(
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),            
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
@@ -1574,7 +1573,7 @@ datatable(encrec_0012_fy_acc,
 ```
 
 
-#### 10.1.3 ENCREC_003 and ENCREC_004: Extent accounts of recreation areas
+#### 10.1.2 ENCREC_003 and ENCREC_004: Extent accounts of recreation areas
 Here we present the extent accounts table for the total area of mapped recreation areas between 2018 and 2024 for all recreation areas within each municipality in Norway. We compile the extent of these area in all recreation areas (ENCREC_003), but also only in recreation areas classified as important and very important (ENCREC_004). These accounts present both the yearly area of land take and the cumulative area of land take over the years. We also present a total across all municipalities in Norway which mapped their recreation areas.
 
 Note that only the municipalities which have mapped their outdoors areas appear in the table below.
@@ -1827,9 +1826,8 @@ datatable(encrec_0034_acc,
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell 3 – Tematiske arealregnskap: areal av friluftslivomeråder i kommunner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
-    currency = "",                
+    formatRound(
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),     
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
@@ -2042,9 +2040,8 @@ datatable(encrec_0034_fy_acc,
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell 4 – Tematiske arealregnskap: areal av friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),
-    currency = "",                
+    formatRound(
+    columns = c("Årlig areal i dekar", "Kumulativ areal i dekar"),             
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
@@ -2068,7 +2065,7 @@ datatable(encrec_0034_fy_acc,
   )
 ```
 
-#### 10.1.5 ENCREC_005 and ENCREC_006: Extent accounts of specially important nature lost due to land take in recreation areas
+#### 10.1.3 ENCREC_005 and ENCREC_006: Extent accounts of specially important nature lost due to land take in recreation areas
 Here we present the extent accounts table for the total area of specially important nature lost due to land take in recreation areas between 2018 and 2024, within each municipality in Norway. We compile the loss of these area in all recreation areas (ENCREC_005), but also only in recreation areas classified as important and very important (ENCREC_006). As the loss of these nature types did not happen homogeneously within municipalities, these accounts only present both the total area lost by nature types over the 2018-2024 period. This is to avoid confusion and present the bigger picture, instead of having different years for different municipalities and nature types. We also present a total across all municipalities in Norway which mapped their recreation areas.
 
 Note that only the municipalities which have mapped their outdoors areas and in which specially important nature lost due to land take, appear in the table below.
@@ -2258,9 +2255,8 @@ datatable(encrec_0056_acc,
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabel 5 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
-    currency = "",                
+    formatRound(
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),            
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
@@ -2408,9 +2404,8 @@ datatable(encrec_0056_fy_acc,
                                                  visible = FALSE))),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabel 6 - Tematiske arealregnskap: areal av verdsatte natur tapt på grunn av nedbygging i viktig og svært viktig friluftslivomeråder i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),
-    currency = "",                
+    formatRound(
+    columns = c("Areal verdsatte naturtyper gått tapt (dekar)"),            
     interval = 3,                 
     mark = " " ,
     dec.mark = ",") %>%
@@ -2424,6 +2419,84 @@ datatable(encrec_0056_fy_acc,
     valueColumns = "Usikkerhet for areal i regnskapsperiode"           # column used for the intervals
   )
 
+
+```
+
+#### 10.1.4 Differenciate municipalities with no data versus with extent equals 0
+The accounts only display the municipalities which have recreation areas and with an extent of nedbygging > 0. We need to add the municipalities with missing data and then add the remaining missing municipalities as just having 0 as extent. This is only done at municipality level as all fylke are present in the accounts so we didn't need to modify these tables.
+
+```{r res_acc_tables56_2}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Add municipalities with missing data versus 0 extent"
+
+# Create a vector of kommune names and number
+kom_norge_nv_nb <- lau_no %>%
+                    st_drop_geometry() %>%
+                    select(GISCO_ID, LAU_NAME)
+
+# List of all municipalities in Norway
+kom_norge_list <- lau_no %>%
+                    st_drop_geometry() %>%
+                    select(GISCO_ID)
+
+# List of municipalities with recreation areas mapped
+kom_rec_list <- rcl_final %>%
+                  st_drop_geometry() %>%
+                  select(kommune) %>%
+                  unique() 
+
+# List of municipalities with no recreation areas
+kom_no_rec_list <- setdiff(kom_norge_list$GISCO_ID, kom_rec_list$kommune) 
+
+# Create a data frame with all the municipalities with no recreation areas mapped and label them as "Data not available"
+kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 65),
+                                                    rep("ENCREC_002", 65),
+                                                    rep("ENCREC_003", 65),
+                                                    rep("ENCREC_004", 65),
+                                                    rep("ENCREC_005", 65),
+                                                    rep("ENCREC_006", 65)),
+                            `Kommune nummer` = kom_no_rec_list, 
+                            `Regnskapsår` = rep(2018, 65*6),
+                            `Årlig areal i dekar` = rep("Data ikke tilgjengelig", 65*6),
+                            `Kumulativ areal i dekar` = rep("Data ikke tilgjengelig", 65*6),
+                            `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", 65*6),
+                            `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", 65*6),
+                            check.names = FALSE) %>%
+                    
+                    complete(nesting(`Indikatorens navn`, `Kommune nummer`), Regnskapsår = 2018:2024, fill = list(`Årlig areal i dekar` = "Data ikke tilgjengelig",
+                                                                                                                  `Kumulativ areal i dekar` = "Data ikke tilgjengelig",
+                                                                                                                  `Usikkerhet for årlig areal` =  "Data ikke tilgjengelig",
+                                                                                                                  `Usikkerhet for kumulativ areal` = "Data ikke tilgjengelig")) %>%
+                  mutate("Fylke nummer" = add_fylke(data = ., kommune_nummer = "Kommune nummer")[[1]], .after = "Indikatorens navn") %>%
+                  left_join(., kom_norge_nv_nb , join_by("Kommune nummer" == "GISCO_ID")) %>%
+                  rename("Kommune navn" = LAU_NAME) %>%
+                  relocate("Kommune navn", .after = "Kommune nummer")
+                  
+
+
+
+# Create a data frame with all the municipalities with extent equals to 0
+
+
+
+
+# Create the final accounting tables by adding all the missing municipalities
+
+encrec_0012_acc_fnl <- encrec_0012_acc %>%
+                        
+
+
+
+kom_12_acc <- encrec_0012_acc %>%
+                select("Kommune navn") %>% 
+                unique()
+
+                    
+                    encrec_0034_acc
+                    encrec_0056_acc
 
 ```
 
