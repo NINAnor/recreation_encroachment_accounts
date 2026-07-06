@@ -220,6 +220,7 @@ meta |>
 <!--# Update this logg with short messages for each update -->
 - 25 February 2026 - Analyses completed
 - 04 March 2026 - First version
+- 06 July 2026 - Added new features to spatial layers
 :::
 
 
@@ -429,7 +430,6 @@ temp_dir <- tempdir()
 # Download the dataset
 lau_no <- gisco_get_lau(year = "2024",
                         epsg = "3035",
-                        cache = TRUE,
                         update_cache = TRUE,
                         cache_dir = temp_dir,
                         verbose = FALSE,
@@ -824,7 +824,7 @@ Now that the dataset has been downloaded in a temporary file, we can read it in 
 #| code-summary: "DT04 - read the data"
 
 # Read data
-naturtyper <- st_read(natur_link[grepl("Naturtyper", natur_link)])
+naturtyper <- st_read(natur_link[grepl("naturtyper", natur_link)])
 ```
 
 #### 7.4.3 Clean and format the data for analyses
@@ -832,7 +832,7 @@ We first need to select the column of relevance for our work and clean the topol
 
 In our report, we define "specially important nature" as the nature types within DT03 that are classified as "stor" and "svært stor" verdi. So we need to filter for them.
 
-*Note: we restrict the coverage to 2025, which means that we filter out the polygons from 2026. This was done to be consistent with the figures in the NINA report we published but can of course be removed!*
+*Note: we restrict the coverage to 2024, which means that we filter out the polygons from 2026. This was done to be consistent with the figures in the NINA report we published but can of course be removed!*
 
 ```{r clean_natur}
 #| eval: true
@@ -869,7 +869,7 @@ natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2913"] <- "2013"
 # Remove nature types that have been recorded before 2010
 natur_cln <- natur_cln %>%
               filter(year_natur_recorded > 2009) %>%
-              filter(year_natur_recorded < 2026) %>%
+              filter(year_natur_recorded < 2025) %>%
               filter(!is.na(year_natur_recorded))
   
 
