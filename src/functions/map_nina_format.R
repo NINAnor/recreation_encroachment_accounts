@@ -44,6 +44,7 @@ map_nina_format <- function(data, mapping_variable, mapping_groups, groups_thres
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[2] & data[[mapping_var]] >= groups_thresholds[1])] <- "Group 2"
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[3] & data[[mapping_var]] >= groups_thresholds[2])] <- "Group 3"
     data_new$mapping_groups[which(data[[mapping_var]] >= groups_thresholds[3])] <- "Group 4"
+    data_new$mapping_groups[which(is.na(data[[mapping_var]]) == TRUE)] <- "Group missing data"
     
     return(data_new)
     
@@ -54,6 +55,7 @@ map_nina_format <- function(data, mapping_variable, mapping_groups, groups_thres
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[3] & data[[mapping_var]] >= groups_thresholds[2])] <- "Group 3"
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[4] & data[[mapping_var]] >= groups_thresholds[3])] <- "Group 4"
     data_new$mapping_groups[which(data[[mapping_var]] >= groups_thresholds[4])] <- "Group 5"
+    data_new$mapping_groups[which(is.na(data[[mapping_var]]) == TRUE)] <- "Group missing data"
     
     return(data_new)
     
@@ -65,6 +67,7 @@ map_nina_format <- function(data, mapping_variable, mapping_groups, groups_thres
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[4] & data[[mapping_var]] >= groups_thresholds[3])] <- "Group 4"
     data_new$mapping_groups[which(data[[mapping_var]] < groups_thresholds[5] & data[[mapping_var]] >= groups_thresholds[4])] <- "Group 5"
     data_new$mapping_groups[which(data[[mapping_var]] >= groups_thresholds[5])] <- "Group 6"
+    data_new$mapping_groups[which(is.na(data[[mapping_var]]) == TRUE)] <- "Group missing data"
     
     return(data_new)
     
