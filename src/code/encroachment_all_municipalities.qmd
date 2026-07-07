@@ -1194,7 +1194,7 @@ colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
-                              "Verdsatte naturtype",
+                              "Nnatur typer",
                               "Regnskapsperiode",
                               "Areal verdsatte naturtyper gått tapt (dekar)",
                               "Usikkerhet for areal i regnskapsperiode")
@@ -1356,7 +1356,7 @@ datatable(encacc_002_fy_acc,
 ```
 
 #### 10.1.3 Differenciate municipalities with no data versus with extent equals 0
-The accounts only display the municipalities which have recreation areas and with an extent of nedbygging > 0. We need to add the municipalities having 0 as extent for encroached expacially valuable nature. ENCACC_001 shows that all municipalities have nedbygging, but not 104 municipalities have their nedbygging not appearing on especially valuable nature. We need to put these 104 as 0 extent, instead of not including them on the maps and tables. This is only done at municipality level as all fylke are present in the accounts so we didn't need to modify these tables. This addition is only done for ENCACC_002.
+We need to add the municipalities having 0 as extent for encroached especially valuable nature. ENCACC_001 shows that all municipalities have nedbygging, but not 104 municipalities have their nedbygging not appearing on especially valuable nature. We need to put these 104 as 0 extent, instead of not including them on the maps and tables. This is only done at municipality level as all fylke are present in the accounts so we didn't need to modify these tables. This addition is only done for ENCACC_002.
 
 First, we identify the municipalities with no nedbygging built upon especially valuable nature.
 ```{r add_mun_1}
@@ -1383,7 +1383,45 @@ kom_no_nat_list <- setdiff(kom_norge_list$GISCO_ID, encnatur$GISCO_ID)
 
 ```
 
+Then, we create an accounting table for them. 
+```{r add_mun_2}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Create accounting tables"
 
+# Create a data frame with all the municipalities with extent equals to 0
+kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_002", 104)),
+                                `Kommune nummer` = kom_no_nat_list, 
+                                `Natur typer` =  rep("Ingen", 104),
+                                `Regnskapsperiode` = rep("2018-2024", 104),
+                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, 104),
+                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 104),
+                                check.names = FALSE)  %>%
+                          mutate("Fylke nummer" = add_fylke(data = ., kommune_nummer = "Kommune nummer")[[1]], .after = "Indikatorens navn") %>%
+                          left_join(., kom_norge_nv_nb , join_by("Kommune nummer" == "GISCO_ID")) %>%
+                          rename("Kommune navn" = LAU_NAME) %>%
+                          relocate("Kommune navn", .after = "Kommune nummer")
+```
+
+Finally, we create the final accounting tables by binding the rows of all the accounting tables using the municipalities numbers filtered previously for each accounting tables.
+```{r add_mun_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Create final accounting tables"
+
+# Bind rows and create a separate column for 
+encacc_002_acc_fnl <- bind_rows(encacc_002_acc,
+                                 kom_no_extent_df)
+                       
+
+
+
+
+```
 
 
 
