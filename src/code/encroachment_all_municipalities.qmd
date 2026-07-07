@@ -2455,7 +2455,7 @@ share_viktignatur_kommune <- map_nina_format(encacc_002_perc_map,
 ## Layer 8 - Share of nedbygging that was verdsatte natur in fylke
 share_viktignatur_fylke <- map_nina_format(encacc_002_perc_map_fy, 
                                            mapping_variable = "Prosentandel (%) av nedbygging som er verdsatte natur", 
-                                           mapping_groups = 5, 
+                                           mapping_groups = 4, 
                                            groups_thresholds = c(1.5, 2.5, 3, 5.5))  %>%
                         select(!`Usikkerhet`) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`,
