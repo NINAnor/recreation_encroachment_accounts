@@ -4374,7 +4374,7 @@ share_nedbygging_fylke <-  map_nina_format(encrec_002_perc_map_fy,
 
 
 ## Layer 5 - Total area of "særlig viktig natur" lost to nedbygging in important and very important recreation areas in municipalities
-viktignatur_kommune <- map_nina_format(encrec_006_map_un, 
+viktignatur_kommune <- map_nina_format(encrec_006_map_tot, 
                                        mapping_variable = "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
                                        mapping_groups = 5, 
                                        groups_thresholds = c(2, 5, 15, 50)) %>%
