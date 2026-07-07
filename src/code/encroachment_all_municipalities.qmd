@@ -693,6 +693,8 @@ rm(list = setdiff(ls(),
                     "komenc_raw")))
 
 ```
+
+
 ### 9.3 Uncertainty analyses
 Our traffic-light uncertainty required to steps:
 
@@ -1352,6 +1354,38 @@ datatable(encacc_002_fy_acc,
     valueColumns = "Usikkerhet for areal i regnskapsperiode" )
 
 ```
+
+#### 10.1.3 Differenciate municipalities with no data versus with extent equals 0
+The accounts only display the municipalities which have recreation areas and with an extent of nedbygging > 0. We need to add the municipalities having 0 as extent for encroached expacially valuable nature. ENCACC_001 shows that all municipalities have nedbygging, but not 104 municipalities have their nedbygging not appearing on especially valuable nature. We need to put these 104 as 0 extent, instead of not including them on the maps and tables. This is only done at municipality level as all fylke are present in the accounts so we didn't need to modify these tables. This addition is only done for ENCACC_002.
+
+First, we identify the municipalities with no nedbygging built upon especially valuable nature.
+```{r add_mun_1}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Identify municipalities with 0 extent"
+
+# Create a vector of kommune names and number
+kom_norge_nv_nb <- lau_no %>%
+                    st_drop_geometry() %>%
+                    select(GISCO_ID, LAU_NAME)
+
+# List of all municipalities in Norway
+kom_norge_list <- lau_no %>%
+                    st_drop_geometry() %>%
+                    select(GISCO_ID)
+
+# List of municipalities with no especially valuable nature encroached
+# We don't know if it is because there is no especially valuable nature or if it has not been surveyed!
+# So we count it as a 0 but in fact we are not sure.
+kom_no_nat_list <- setdiff(kom_norge_list$GISCO_ID, encnatur$GISCO_ID) 
+
+```
+
+
+
+
 
 
 ### 10.2 Maps
