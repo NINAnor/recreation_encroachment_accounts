@@ -2080,6 +2080,7 @@ rm(list = setdiff(ls(),
                     "encacc_001_acc",
                     "encacc_001_fy_acc",
                     "encacc_002_acc",
+                    "encacc_002_acc_fnl",
                     "encacc_002_fy_acc",
                     "unc_001_idv",
                     "unc_002_idv",
@@ -2090,7 +2091,7 @@ rm(list = setdiff(ls(),
                     "encacc_001_map_fy",
                     "encacc_001_perc_map_mun",
                     "encacc_001_perc_map_fy",
-                    "encacc_002_map_un",
+                    "encacc_002_map_tot",
                     "encacc_002_map_un_fy")))
 ```
 
@@ -2120,7 +2121,7 @@ fylke_total_enc_area <- komenc %>%
                           summarise(total_enc_area = round2(sum(area_inter_m2)/1000, 2))
 
 # Datasets for mapping
-encacc_002_perc_map <- encacc_002_map_un %>%
+encacc_002_perc_map <- encacc_002_map_tot %>%
                         ungroup() %>%
                         left_join(., kom_total_enc_area, join_by("Kommune nummer" == "GISCO_ID")) %>%
                         mutate("Prosentandel (%) av nedbygging som er verdsatte natur" = round2(`Totalt areal verdsatte naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
@@ -2279,28 +2280,28 @@ This is typically where people will harvest data from, so make sure to include a
 # Accounting tables
 write.table(st_drop_geometry(encacc_001_acc), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCACC001_accounting_table_kommune.csv"), 
+                   "/result/tables/accounts/ENCACC001_accounting_table_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_001_fy_acc), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCACC001_accounting_table_fylke.csv"), 
+                   "/result/tables/accounts/ENCACC001_accounting_table_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
-write.table(st_drop_geometry(encacc_002_acc), 
+write.table(st_drop_geometry(encacc_002_acc_fnl), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCACC002_accounting_table_kommune.csv"), 
+                   "/result/tables/accounts/ENCACC002_accounting_table_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_002_fy_acc), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCACC002_accounting_table_fylke.csv"), 
+                   "/result/tables/accounts/ENCACC002_accounting_table_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
@@ -2309,21 +2310,21 @@ write.table(st_drop_geometry(encacc_002_fy_acc),
 # Tables associated to maps
 write.table(st_drop_geometry(encacc_001_map_mun), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC001_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCACC001_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_001_map_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC001_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCACC001_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_001_perc_map_mun), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC001-share_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCACC001-share_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
@@ -2331,35 +2332,35 @@ write.table(st_drop_geometry(encacc_001_perc_map_mun),
 
 write.table(st_drop_geometry(encacc_001_perc_map_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC001-share_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCACC001-share_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
-write.table(st_drop_geometry(encacc_002_map_un), 
+write.table(st_drop_geometry(encacc_002_map_tot), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC002_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCACC002_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_002_map_un_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC002_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCACC002_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_002_perc_map), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC002-share_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCACC002-share_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encacc_002_perc_map_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCACC002-share_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCACC002-share_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
@@ -2422,7 +2423,7 @@ share_nedbygging_fylke <- map_nina_format(encacc_001_perc_map_fy,
 
 
 ## Layer 5 - Total area of verdatte natur lost to nedbygging in municipalities
-viktignatur_kommune <- map_nina_format(encacc_002_map_un, 
+viktignatur_kommune <- map_nina_format(encacc_002_map_tot, 
                                        mapping_variable = "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
                                        mapping_groups = 6, 
                                        groups_thresholds = c(1, 5, 15, 30, 100))  %>%
