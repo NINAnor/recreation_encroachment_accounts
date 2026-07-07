@@ -335,7 +335,7 @@ For ENCACC_001, we have two deviations from the SEEA-EA traditional extent accou
 
 2. SEEA-EA extent accounts report the total area of an ecosystem during the accounting period and details the reductions, additions and net changes in this extent. As per point 1 above, land take intrinsically represent change in land cover only as the data only record the area of new land take in “natural areas” each year. Even though we consider it as a “pseudo-ecosystem” in our extent accounts, it meant that we could not calculate a change over the opening and closing years in the traditional way the SEEA-EA presents by subtracting the yearly opening extent to the yearly closing extent. To counteract this, we decided to also compile the cumulative area so we could compile a change in area between the opening and closing year. However, as previously noted, the land take data only record the apparition of new land take each year. This means that we only report the additions in area over the years, not the reductions (e.g., restoration works). In other words, we report when an encroachment appear but not when it disappears. There is thus a bias in the way the information is presented and the total change we present over the accounting period (2018-2024) is not a “net change”. Overall this means that we do not compile full SEEA-EA extent accounts, but only partial ones.
 
-For ENCACC_002, we only presented the total area lost over the accounting period per habitat type. This was to simplify the interpretation by the municpalities as areas are not lost constantly over time.
+For ENCACC_002, we only presented the total area lost over the accounting period per habitat type. This was to simplify the interpretation by the municipalities as areas are not lost constantly over time.
 
 ### 3.2 Spatial aggregation
 
@@ -2167,7 +2167,7 @@ encrec_005_tot_un <-  unc_005_idv %>%
                                 accounting_period,
                                 global_cumulative_uncertainty)) %>%
                       cbind(encrec_005_tot, .) %>%
-                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
+                      #mutate(naturtype = "Alle", .after = LAU_NAME) %>%
                       rename(global_period_uncertainty = global_yearly_uncertainty)
 
 encrec_006_tot_un <-  unc_006_idv %>%
@@ -2187,7 +2187,7 @@ encrec_006_tot_un <-  unc_006_idv %>%
                                 accounting_period,
                                 global_cumulative_uncertainty)) %>%
                       cbind(encrec_006_tot, .) %>%
-                      mutate(naturtype = "Alle", .after = LAU_NAME) %>%
+                      #mutate(naturtype = "Alle", .after = LAU_NAME) %>%
                       rename(global_period_uncertainty = global_yearly_uncertainty)
 
 
@@ -2455,11 +2455,16 @@ kom_no_rec_list <- setdiff(kom_norge_list$GISCO_ID, kom_rec_list$kommune)
 
 
 # List of municipalities with recreation areas but not encroachment detected whether in ENCREC_001/2/3/4/5/6
+# Take indicators 1 by 1 because they all have different municipalities missing. If we take the all table,
+# we miss some of them, as present in 1 indicator of the table but absent in another.
 kom_with_rec_list <- setdiff(kom_norge_list$GISCO_ID, kom_no_rec_list) # Take municipalities with rec areas to identify the ones with real 0 extent
 
-kom_no_extent_list <- c(setdiff(kom_with_rec_list, encrec_0012_acc$`Kommune nummer`),
-                        setdiff(kom_with_rec_list, encrec_0034_acc$`Kommune nummer`),
-                        setdiff(kom_with_rec_list, encrec_0056_acc$`Kommune nummer`)) %>%
+kom_no_extent_list <- c(setdiff(kom_with_rec_list, unique(encrec_0012_acc[encrec_0012_acc$`Indikatorens navn` == "ENCREC_001", "Kommune nummer"])),
+                        setdiff(kom_with_rec_list, unique(encrec_0012_acc[encrec_0012_acc$`Indikatorens navn` == "ENCREC_002", "Kommune nummer"])),
+                        setdiff(kom_with_rec_list, unique(encrec_0034_acc[encrec_0034_acc$`Indikatorens navn` == "ENCREC_003", "Kommune nummer"])),
+                        setdiff(kom_with_rec_list, unique(encrec_0034_acc[encrec_0034_acc$`Indikatorens navn` == "ENCREC_004", "Kommune nummer"])),
+                        setdiff(kom_with_rec_list, unique(encrec_0056_acc[encrec_0056_acc$`Indikatorens navn` == "ENCREC_005", "Kommune nummer"])),
+                        setdiff(kom_with_rec_list, unique(encrec_0056_acc[encrec_0056_acc$`Indikatorens navn` == "ENCREC_006", "Kommune nummer"]))) %>%
                           unique()
 ```
 
@@ -2507,22 +2512,22 @@ kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 65),
 
 
 # Create a data frame with all the municipalities with extent equals to 0
-kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 141),
-                                                        rep("ENCREC_002", 141),
-                                                        rep("ENCREC_003", 141),
-                                                        rep("ENCREC_004", 141),
-                                                        rep("ENCREC_005", 141),
-                                                        rep("ENCREC_006", 141)),
+kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 292),
+                                                        rep("ENCREC_002", 292),
+                                                        rep("ENCREC_003", 292),
+                                                        rep("ENCREC_004", 292),
+                                                        rep("ENCREC_005", 292),
+                                                        rep("ENCREC_006", 292)),
                                 `Kommune nummer` = kom_no_extent_list, 
-                                `Regnskapsår` = rep(2018, 141*6),
-                                `Årlig areal i dekar` = rep(0, 141*6),
-                                `Kumulativ areal i dekar` = rep(0, 141*6),
-                                `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", 141*6),
-                                `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", 141*6),
-                                `Natur typer` =  rep("Ingen", 141*6),
-                                `Regnskapsperiode` = rep("2018-2024", 141*6),
-                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, 141*6),
-                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 141*6),
+                                `Regnskapsår` = rep(2018, 292),
+                                `Årlig areal i dekar` = rep(0, 292),
+                                `Kumulativ areal i dekar` = rep(0, 292),
+                                `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", 292),
+                                `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", 292),
+                                `Natur typer` =  rep("Ingen", 292),
+                                `Regnskapsperiode` = rep("2018-2024", 292),
+                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, 292),
+                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 292),
                                 check.names = FALSE) %>%
                         
                         complete(nesting(`Indikatorens navn`, `Kommune nummer`), Regnskapsår = 2018:2024, fill = list(`Årlig areal i dekar` = 0,
@@ -2561,6 +2566,17 @@ kom_no_extent_df_chg <- kom_no_extent_df %>%
                           compact() %>%
                           bind_rows()
 
+
+
+# Correct uncertainty for global_yearly_uncertainty when accounting year is "Change 2018-2024"
+kom_no_rec_df_chg[which(kom_no_rec_df_chg$`Regnskapsår` == "Change 2018-2024"), "Usikkerhet for årlig areal"] <- "NA"
+kom_no_extent_df_chg[which(kom_no_extent_df_chg$`Regnskapsår`  == "Change 2018-2024"), "Usikkerhet for årlig areal"] <- "NA"
+
+# Translate "Change 2018-2024" in Norwegian
+kom_no_rec_df_chg[which(kom_no_rec_df_chg$`Regnskapsår`  == "Change 2018-2024"), "Regnskapsår"] <- "Endring 2018-2024"
+kom_no_extent_df_chg[which(kom_no_extent_df_chg$`Regnskapsår`  == "Change 2018-2024"), "Regnskapsår"] <- "Endring 2018-2024"
+
+
 ```
 
 Now, we identify the municipalities with missing data versus 0 extent for each accounting table separately. This will allow us to subset the accounting tables we created for them above, and then bind the rows of the original accounting tables with the ones from the missing municipalities. Each accounting table will thus have a total of 357 municipalities.
@@ -2569,26 +2585,67 @@ Now, we identify the municipalities with missing data versus 0 extent for each a
 #| warning: false
 #| message: false
 #| output: true
-#| code-summary: "Identifying missing municipalities within each accounting tables"
+#| code-summary: "Identifying missing municipalities for each indicator of each accounting tables"
 
-# ENCREC_12
-encrec_12_kom_list <- filter(encrec_0012_acc, `Kommune nummer` != "Totalt") %>% select(`Kommune nummer`) %>% unique()
-kom_data_missing_12 <- setdiff(kom_no_rec_list, encrec_12_kom_list$`Kommune nummer`)
-kom_0_extent_12 <- setdiff(kom_no_extent_list, encrec_12_kom_list$`Kommune nummer`)
+# ENCREC_001
+encrec_1_kom_list <- filter(encrec_0012_acc, `Kommune nummer` != "Totalt") %>% 
+                      filter(`Indikatorens navn` == "ENCREC_001") %>%
+                      select(`Kommune nummer`) %>% 
+                      unique()
 
-# ENCREC_34
-encrec_34_kom_list <- filter(encrec_0034_acc, `Kommune nummer` != "Totalt") %>% select(`Kommune nummer`) %>% unique()
-kom_data_missing_34 <- setdiff(kom_no_rec_list, encrec_34_kom_list$`Kommune nummer`)
-kom_0_extent_34 <- setdiff(kom_no_extent_list, encrec_34_kom_list$`Kommune nummer`)
+kom_data_missing_1 <- setdiff(kom_no_rec_list, encrec_1_kom_list$`Kommune nummer`)
+kom_0_extent_1 <- setdiff(kom_no_extent_list, encrec_1_kom_list$`Kommune nummer`)
 
-# ENCREC_56
-encrec_56_kom_list <- filter(encrec_0056_acc, `Kommune nummer` != "Totalt") %>% select(`Kommune nummer`) %>% unique()
-kom_data_missing_56 <- setdiff(kom_no_rec_list, encrec_56_kom_list$`Kommune nummer`)
-kom_0_extent_56 <- setdiff(kom_no_extent_list, encrec_56_kom_list$`Kommune nummer`)
+# ENCREC_002
+encrec_2_kom_list <- filter(encrec_0012_acc, `Kommune nummer` != "Totalt") %>% 
+                      filter(`Indikatorens navn` == "ENCREC_002") %>%
+                      select(`Kommune nummer`) %>% 
+                      unique()
+
+kom_data_missing_2 <- setdiff(kom_no_rec_list, encrec_2_kom_list$`Kommune nummer`)
+kom_0_extent_2 <- setdiff(kom_no_extent_list, encrec_2_kom_list$`Kommune nummer`)
+
+# ENCREC_003
+encrec_3_kom_list <- filter(encrec_0034_acc, `Kommune nummer` != "Totalt") %>% 
+                      filter(`Indikatorens navn` == "ENCREC_003") %>%
+                      select(`Kommune nummer`) %>% 
+                      unique()
+
+kom_data_missing_3 <- setdiff(kom_no_rec_list, encrec_3_kom_list$`Kommune nummer`)
+kom_0_extent_3 <- setdiff(kom_no_extent_list, encrec_3_kom_list$`Kommune nummer`)
+
+# ENCREC_004
+encrec_4_kom_list <- filter(encrec_0034_acc, `Kommune nummer` != "Totalt") %>% 
+                      filter(`Indikatorens navn` == "ENCREC_004") %>%
+                      select(`Kommune nummer`) %>% 
+                      unique()
+
+kom_data_missing_4 <- setdiff(kom_no_rec_list, encrec_4_kom_list$`Kommune nummer`)
+kom_0_extent_4 <- setdiff(kom_no_extent_list, encrec_4_kom_list$`Kommune nummer`)
+
+# ENCREC_005
+encrec_5_kom_list <- filter(encrec_0056_acc, `Kommune nummer` != "Totalt") %>% 
+                      filter(`Indikatorens navn` == "ENCREC_005") %>%
+                      select(`Kommune nummer`) %>% 
+                      unique()
+
+kom_data_missing_5 <- setdiff(kom_no_rec_list, encrec_5_kom_list$`Kommune nummer`)
+kom_0_extent_5 <- setdiff(kom_no_extent_list, encrec_5_kom_list$`Kommune nummer`)
+
+# ENCREC_006
+encrec_6_kom_list <- filter(encrec_0056_acc, `Kommune nummer` != "Totalt") %>% 
+                      filter(`Indikatorens navn` == "ENCREC_006") %>%
+                      select(`Kommune nummer`) %>% 
+                      unique()
+
+kom_data_missing_6 <- setdiff(kom_no_rec_list, encrec_6_kom_list$`Kommune nummer`)
+kom_0_extent_6 <- setdiff(kom_no_extent_list, encrec_6_kom_list$`Kommune nummer`)
+
+
 
 ```
 
-Finally, we create the final accounting tables by binding the rows of all the accounting tables using the municipalities numbers filtered previously for ecah accounting tables.
+Finally, we create the final accounting tables by binding the rows of all the accounting tables using the municipalities numbers filtered previously for each accounting tables.
 ```{r add_mun_3}
 #| eval: true
 #| warning: false
@@ -2596,76 +2653,183 @@ Finally, we create the final accounting tables by binding the rows of all the ac
 #| output: true
 #| code-summary: "Create final accounting tables"
 
-
-
-
 ## ENCREC_0012
-# Select the rows corresponding to th emissing municipalities of ENCREC_12 accounting table
-encrec_12_acc_missing_rec <- kom_no_rec_df_chg %>%
+# Select the rows corresponding to the missing municipalities of ENCREC_12 accounting table
+encrec_1_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_001") %>%
                               select(!c("Natur typer",
                                        "Regnskapsperiode",
                                        "Areal verdsatte naturtyper gått tapt (dekar)",
                                        "Usikkerhet for areal i regnskapsperiode")) %>%
-                              filter(., "Kommune nummer" %in% kom_data_missing_12)
+                              filter(., `Kommune nummer` %in% kom_data_missing_1)
 
-encrec_12_acc_0_ext <- kom_no_extent_df_chg %>%
+encrec_1_acc_0_ext <- kom_no_extent_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_001") %>%
                               select(!c("Natur typer",
                                        "Regnskapsperiode",
                                        "Areal verdsatte naturtyper gått tapt (dekar)",
                                        "Usikkerhet for areal i regnskapsperiode")) %>%
-                              filter(., "Kommune nummer" %in% kom_0_extent_12)
+                              filter(., `Kommune nummer` %in% kom_0_extent_1)
+
+encrec_2_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_002") %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., `Kommune nummer` %in% kom_data_missing_2)
+
+encrec_2_acc_0_ext <- kom_no_extent_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_002") %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., `Kommune nummer` %in% kom_0_extent_2)
 
 # Bind rows and create a seåarate column for 
 encrec_0012_acc_fnl <- bind_rows(encrec_0012_acc,
-                                 encrec_12_acc_0_ext,
-                                 encrec_12_acc_missing_rec)
+                                 encrec_1_acc_0_ext,
+                                 encrec_1_acc_missing_rec,
+                                 encrec_2_acc_0_ext,
+                                 encrec_2_acc_missing_rec)
                        
 
 ## ENCREC_0034
-# Select the rows corresponding to th emissing municipalities of ENCREC_12 accounting table
-encrec_34_acc_missing_rec <- kom_no_rec_df_chg %>%
+# Select the rows corresponding to the missing municipalities of ENCREC_34 accounting table
+encrec_3_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_003") %>%
                               select(!c("Natur typer",
                                        "Regnskapsperiode",
                                        "Areal verdsatte naturtyper gått tapt (dekar)",
                                        "Usikkerhet for areal i regnskapsperiode")) %>%
-                              filter(., "Kommune nummer" %in% kom_data_missing_34)
+                              filter(., `Kommune nummer` %in% kom_data_missing_3)
 
-encrec_34_acc_0_ext <- kom_no_extent_df_chg %>%
+encrec_3_acc_0_ext <- kom_no_extent_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_003") %>%
                               select(!c("Natur typer",
                                        "Regnskapsperiode",
                                        "Areal verdsatte naturtyper gått tapt (dekar)",
                                        "Usikkerhet for areal i regnskapsperiode")) %>%
-                              filter(., "Kommune nummer" %in% kom_0_extent_34)
+                              filter(., `Kommune nummer` %in% kom_0_extent_3)
+
+encrec_4_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_003") %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., `Kommune nummer` %in% kom_data_missing_4)
+
+encrec_4_acc_0_ext <- kom_no_extent_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_004") %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., `Kommune nummer` %in% kom_0_extent_4)
 
 # Bind rows and create a seåarate column for 
 encrec_0034_acc_fnl <- bind_rows(encrec_0034_acc,
-                                 encrec_34_acc_0_ext,
-                                 encrec_34_acc_missing_rec)  
+                                 encrec_3_acc_0_ext,
+                                 encrec_3_acc_missing_rec,
+                                 encrec_4_acc_0_ext,
+                                 encrec_4_acc_missing_rec)  
 
 
 ## ENCREC_0056
 # Select the rows corresponding to th emissing municipalities of ENCREC_12 accounting table
-encrec_56_acc_missing_rec <- kom_no_rec_df_chg %>%
+encrec_5_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_005") %>%
                               select(!c("Regnskapsår",
                                         "Årlig areal i dekar",
                                         "Kumulativ areal i dekar",
                                         "Usikkerhet for årlig areal",
                                         "Usikkerhet for kumulativ areal")) %>%
-                              filter(., "Kommune nummer" %in% kom_data_missing_56)
+                              filter(., `Kommune nummer` %in% kom_data_missing_5)
 
-encrec_56_acc_0_ext <- kom_no_extent_df_chg %>%
+encrec_5_acc_0_ext <- kom_no_extent_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_005") %>%
                               select(!c("Regnskapsår",
                                         "Årlig areal i dekar",
                                         "Kumulativ areal i dekar",
                                         "Usikkerhet for årlig areal",
                                         "Usikkerhet for kumulativ areal")) %>%
-                              filter(., "Kommune nummer" %in% kom_0_extent_56)
+                              filter(., `Kommune nummer` %in% kom_0_extent_5)
 
-# Bind rows and create a seåarate column for 
+encrec_6_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_006") %>%
+                              select(!c("Regnskapsår",
+                                        "Årlig areal i dekar",
+                                        "Kumulativ areal i dekar",
+                                        "Usikkerhet for årlig areal",
+                                        "Usikkerhet for kumulativ areal")) %>%
+                              filter(., `Kommune nummer` %in% kom_data_missing_6)
+
+encrec_6_acc_0_ext <- kom_no_extent_df_chg %>%
+                              filter(`Indikatorens navn` == "ENCREC_006") %>%
+                              select(!c("Regnskapsår",
+                                        "Årlig areal i dekar",
+                                        "Kumulativ areal i dekar",
+                                        "Usikkerhet for årlig areal",
+                                        "Usikkerhet for kumulativ areal")) %>%
+                              filter(., `Kommune nummer` %in% kom_0_extent_6)
+
+# Bind rows and create a separate column for 
 encrec_0056_acc_fnl <- bind_rows(encrec_0056_acc,
-                                 encrec_56_acc_0_ext,
-                                 encrec_56_acc_missing_rec) 
+                                 encrec_5_acc_0_ext,
+                                 encrec_5_acc_missing_rec,
+                                 encrec_6_acc_0_ext,
+                                 encrec_6_acc_missing_rec) 
 
+
+
+```
+
+
+```{r clean_R_env}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Clean R environment"
+
+
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "project_path",
+                    "functions_path",
+                    "rcl_final",
+                    "natur_32",
+                    "encrec_raw",
+                    "encrec",
+                    "encnatur_raw",
+                    "encnatur",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_005_idv",
+                    "unc_006_idv",
+                    "unc_0013_idv",
+                    "unc_0024_idv",
+                    "unc_0013_sum",
+                    "unc_0024_sum",
+                    "unc_005_sum",
+                    "unc_006_sum",
+                    "add_change_encroachment_area",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
+                    "add_fylke",
+                    "encrec_0012_acc",
+                    "encrec_0034_acc",
+                    "encrec_0056_acc",
+                    "encrec_0012_acc_fnl",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc_fnl",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc_fnl",
+                    "encrec_0056_fy_acc")))
 
 
 ```
@@ -2693,7 +2857,7 @@ kom_navn <- lau_no %>%
 
 ## Prepare dataset
 # Municipalities
-encrec_001_map <- encrec_0012_acc %>%
+encrec_001_map <- encrec_0012_acc_fnl %>%
                     filter(!c(`Kommune navn` == "Totalt" | Regnskapsår == "Endring 2018-2024")) %>%
                     filter(Regnskapsår == 2024) %>%
                     filter(`Indikatorens navn` == "ENCREC_001") %>%
@@ -2862,10 +3026,13 @@ rm(list = setdiff(ls(),
                     "concatenate_fn",
                     "add_fylke",
                     "encrec_0012_acc",
-                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0034_fy_acc",
                     "encrec_0056_acc",
+                    "encrec_0012_acc_fnl",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc_fnl",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc_fnl",
                     "encrec_0056_fy_acc",
                     "fylke_geo",
                     "kom_navn",
@@ -2886,7 +3053,7 @@ We first prepare the dataset for mapping then map it both using an interactive a
 ## Prepare dataset
 ## Prepare dataset
 # Municipalities
-encrec_002_map <- encrec_0012_acc %>%
+encrec_002_map <- encrec_0012_acc_fnl %>%
                     filter(!c(`Kommune navn` == "Totalt" | Regnskapsår == "Endring 2018-2024")) %>%
                     filter(Regnskapsår == 2024) %>%
                     filter(`Indikatorens navn` == "ENCREC_002") %>%
@@ -3055,10 +3222,13 @@ rm(list = setdiff(ls(),
                     "concatenate_fn",
                     "add_fylke",
                     "encrec_0012_acc",
-                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0034_fy_acc",
                     "encrec_0056_acc",
+                    "encrec_0012_acc_fnl",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc_fnl",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc_fnl",
                     "encrec_0056_fy_acc",
                     "fylke_geo",
                     "kom_navn",
@@ -3093,7 +3263,7 @@ fylke_total_rec_area <- rcl_final %>%
                           summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
 
 # Share datasets
-encrec_001_perc_map <- encrec_0012_acc %>%
+encrec_001_perc_map <- encrec_0012_acc_fnl %>%
                         filter(!c(`Kommune navn` == "Totalt" | Regnskapsår == "Endring 2018-2024")) %>%
                         filter(Regnskapsår == 2024) %>%
                         filter(`Indikatorens navn` == "ENCREC_001") %>%
@@ -3281,10 +3451,13 @@ rm(list = setdiff(ls(),
                     "concatenate_fn",
                     "add_fylke",
                     "encrec_0012_acc",
-                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0034_fy_acc",
                     "encrec_0056_acc",
+                    "encrec_0012_acc_fnl",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc_fnl",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc_fnl",
                     "encrec_0056_fy_acc",
                     "fylke_geo",
                     "kom_navn",
@@ -3324,7 +3497,7 @@ fylke_total_recAB_area <- rcl_final %>%
                           summarise(total_rec_area = round2(sum(area_rec_m2)/1000, 2))
 
 # Share datasets
-encrec_002_perc_map <- encrec_0012_acc %>%
+encrec_002_perc_map <- encrec_0012_acc_fnl %>%
                         filter(!c(`Kommune navn` == "Totalt" | Regnskapsår == "Endring 2018-2024")) %>%
                         filter(Regnskapsår == 2024) %>%
                         filter(`Indikatorens navn` == "ENCREC_002") %>%
@@ -3510,10 +3683,13 @@ rm(list = setdiff(ls(),
                     "concatenate_fn",
                     "add_fylke",
                     "encrec_0012_acc",
-                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0034_fy_acc",
                     "encrec_0056_acc",
+                    "encrec_0012_acc_fnl",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc_fnl",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc_fnl",
                     "encrec_0056_fy_acc",
                     "fylke_geo",
                     "kom_navn",
@@ -3540,11 +3716,11 @@ We first prepare the dataset for mapping then map it both using an interactive a
 
 ## Prepare dataset
 # Municipalities
-encrec_006_map_tot <- encrec_0056_acc %>%
+encrec_006_map_sum <- encrec_0056_acc %>%
                         filter(`Indikatorens navn` == "ENCREC_006") %>%
                         filter(!`Kommune navn` == "Totalt") %>%
                         group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
-                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`))
+                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`)) # table to add the uncertainties below
 
 
 encrec_006_map_un <- unc_006_idv %>%
@@ -3562,19 +3738,28 @@ encrec_006_map_un <- unc_006_idv %>%
                                 global_cumulative_uncertainty,
                                 kommune,
                                 accounting_period)) %>%
-                      cbind(encrec_006_map_tot, .) %>%
+                      cbind(encrec_006_map_sum, .) %>%
                       mutate(Naturtyper = "Alle", .after = "Kommune navn") %>%
                       rename(global_period_uncertainty = global_yearly_uncertainty) %>%
                     left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
-                    select("Fylke nummer",
-                           "Kommune nummer",
-                           "Kommune navn",
-                           "Totalt areal verdsatte naturtyper gått tapt (dekar)",
+                    ungroup() %>%
+                    select("Kommune nummer",
                            "global_period_uncertainty",
                            "geometry") %>%
                     rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
-                    st_as_sf()
+                    st_as_sf() # add uncertainties
 
+
+encrec_006_map_tot <- encrec_0056_acc_fnl %>%
+                        filter(`Indikatorens navn` == "ENCREC_006") %>%
+                        filter(!`Kommune navn` == "Totalt") %>%
+                        filter(!coalesce(`Natur typer` == "Ingen" & is.na(`Areal verdsatte naturtyper gått tapt (dekar)`), FALSE)) %>%
+                        group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
+                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`)) %>%
+                        left_join(., encrec_006_map_un, by = "Kommune nummer") %>%
+                        mutate("Usikkerhet av totalt areal" = if_else(is.na(`Usikkerhet av totalt areal`), 
+                                                                      "Data ikke tilgjengelig",
+                                                                      `Usikkerhet av totalt areal`)) # final mapping table
 
 # Fylke
 encrec_006_map_tot_fy <- encrec_0056_fy_acc %>%
@@ -3613,13 +3798,13 @@ encrec_006_map_un_fy <- unc_006_idv %>%
                     st_as_sf()
 
 # Replace labels of uncertainty
-encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
+encrec_006_map_tot$`Usikkerhet av totalt areal`[which(encrec_006_map_tot$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
 
-encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Yellow")]<- "Ganske sikker"
+encrec_006_map_tot$`Usikkerhet av totalt areal`[which(encrec_006_map_tot$`Usikkerhet av totalt areal` == "Yellow")]<- "Ganske sikker"
 
-encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Orange")]<- "Ganske usikker"
+encrec_006_map_tot$`Usikkerhet av totalt areal`[which(encrec_006_map_tot$`Usikkerhet av totalt areal` == "Orange")]<- "Ganske usikker"
 
-encrec_006_map_un$`Usikkerhet av totalt areal`[which(encrec_006_map_un$`Usikkerhet av totalt areal` == "Red")]<- "Usikker"
+encrec_006_map_tot$`Usikkerhet av totalt areal`[which(encrec_006_map_tot$`Usikkerhet av totalt areal` == "Red")]<- "Usikker"
 
 
 encrec_006_map_un_fy$`Usikkerhet av totalt areal`[which(encrec_006_map_un_fy$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
@@ -3759,10 +3944,13 @@ rm(list = setdiff(ls(),
                     "concatenate_fn",
                     "add_fylke",
                     "encrec_0012_acc",
-                    "encrec_0012_fy_acc",
                     "encrec_0034_acc",
-                    "encrec_0034_fy_acc",
                     "encrec_0056_acc",
+                    "encrec_0012_acc_fnl",
+                    "encrec_0012_fy_acc",
+                    "encrec_0034_acc_fnl",
+                    "encrec_0034_fy_acc",
+                    "encrec_0056_acc_fnl",
                     "encrec_0056_fy_acc",
                     "fylke_geo",
                     "kom_navn",
@@ -3774,7 +3962,7 @@ rm(list = setdiff(ls(),
                     "encrec_001_perc_map_fy",
                     "encrec_002_perc_map",
                     "encrec_002_perc_map_fy",
-                    "encrec_006_map_un",
+                    "encrec_006_map_tot",
                     "encrec_006_map_un_fy",
                     "encacc_001_acc")))
 
@@ -3807,7 +3995,7 @@ fylke_total_enc_area <- encrec %>%
                           summarise(total_enc_area = round2(sum(area_inter_m2)/1000, 2))
 
 # Datasets for mapping
-encrec_006_perc_map <- encrec_006_map_un %>%
+encrec_006_perc_map <- encrec_006_map_tot %>%
                         ungroup() %>%
                         left_join(., kom_total_enc_area, join_by("Kommune nummer" == "kommune")) %>%
                         mutate("Prosentandel (%) av nedbygging som er verdsatte natur" = round2(`Totalt areal verdsatte naturtyper gått tapt (dekar)` / `total_enc_area` * 100, 2)) %>%
@@ -3985,11 +4173,11 @@ rm(list = setdiff(ls(),
                     "add_uncertainty_global",
                     "concatenate_fn",
                     "add_fylke",
-                    "encrec_0012_acc",
+                    "encrec_0012_acc_fnl",
                     "encrec_0012_fy_acc",
-                    "encrec_0034_acc",
+                    "encrec_0034_acc_fnl",
                     "encrec_0034_fy_acc",
-                    "encrec_0056_acc",
+                    "encrec_0056_acc_fnl",
                     "encrec_0056_fy_acc",
                     "fylke_geo",
                     "kom_navn",
@@ -4001,7 +4189,7 @@ rm(list = setdiff(ls(),
                     "encrec_001_perc_map_fy",
                     "encrec_002_perc_map",
                     "encrec_002_perc_map_fy",
-                    "encrec_006_map_un",
+                    "encrec_006_map_tot",
                     "encrec_006_map_un_fy",
                     "encrec_006_perc_map",
                     "encrec_006_perc_map_fy")))
@@ -4026,44 +4214,44 @@ This is typically where people will harvest data from, so make sure to include a
 #| code-summary: "Export tables"
 
 # Accounting tables
-write.table(st_drop_geometry(encrec_0012_acc), 
+write.table(st_drop_geometry(encrec_0012_acc_fnl), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCREC001-002_accounting_table_kommune.csv"), 
+                   "/result/tables/accounts/ENCREC001-002_accounting_table_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_0012_fy_acc), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCREC001-002_accounting_table_fylke.csv"), 
+                   "/result/tables/accounts/ENCREC001-002_accounting_table_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
-write.table(st_drop_geometry(encrec_0034_acc), 
+write.table(st_drop_geometry(encrec_0034_acc_fnl), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCREC003-004_accounting_table_kommune.csv"), 
+                   "/result/tables/accounts/ENCREC003-004_accounting_table_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_0034_fy_acc), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCREC003-004_accounting_table_fylke.csv"), 
+                   "/result/tables/accounts/ENCREC003-004_accounting_table_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
-write.table(st_drop_geometry(encrec_0056_acc), 
+write.table(st_drop_geometry(encrec_0056_acc_fnl), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCREC005-006_accounting_table_kommune.csv"), 
+                   "/result/tables/accounts/ENCREC005-006_accounting_table_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_0056_fy_acc), 
             paste0(project_path,
-                   "/result/tables/accounts/ENCREC005-006_accounting_table_fylke.csv"), 
+                   "/result/tables/accounts/ENCREC005-006_accounting_table_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
@@ -4071,21 +4259,21 @@ write.table(st_drop_geometry(encrec_0056_fy_acc),
 # Tables associated to maps
 write.table(st_drop_geometry(encrec_002_map), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC002_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCREC002_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_002_map_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC002_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCREC002_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_002_perc_map), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC002-share_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCREC002-share_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
@@ -4093,35 +4281,35 @@ write.table(st_drop_geometry(encrec_002_perc_map),
 
 write.table(st_drop_geometry(encrec_002_perc_map_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC002-share_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCREC002-share_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
-write.table(st_drop_geometry(encrec_006_map_un), 
+write.table(st_drop_geometry(encrec_006_map_tot), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC006_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCREC006_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_006_map_un_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC006_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCREC006_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_006_perc_map), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC006-share_map_kommune.csv"), 
+                   "/result/tables/map_tables/ENCREC006-share_map_kommune_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
 
 write.table(st_drop_geometry(encrec_006_perc_map_fy), 
             paste0(project_path,
-                   "/result/tables/map_tables/ENCREC006-share_map_fylke.csv"), 
+                   "/result/tables/map_tables/ENCREC006-share_map_fylke_7JULY2026.csv"), 
             sep = ";",
             fileEncoding = "UTF-8",
             row.names = FALSE)
