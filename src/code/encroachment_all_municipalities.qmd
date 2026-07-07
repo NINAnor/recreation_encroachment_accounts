@@ -1423,8 +1423,39 @@ encacc_002_acc_fnl <- bind_rows(encacc_002_acc,
 
 ```
 
+```{r add_mun_3}
+#| eval: true
+#| warning: false
+#| message: false
+#| output: true
+#| code-summary: "Clean R environment"
 
-
+# Clean R environment
+rm(list = setdiff(ls(), 
+                  c("lau_no",
+                    "encroach_dt",
+                    "natur_32",
+                    "project_path",
+                    "functions_path",
+                    "komenc",
+                    "encrec",
+                    "encnatur",
+                    "kom_navn",
+                    "add_change_encroachment_area",
+                    "add_fylke",
+                    "add_uncertainty_individual",
+                    "add_uncertainty_global",
+                    "concatenate_fn",
+                    "encacc_001_acc",
+                    "encacc_001_fy_acc",
+                    "encacc_002_acc",
+                    "encacc_002_acc_fnl",
+                    "encacc_002_fy_acc",
+                    "unc_001_idv",
+                    "unc_002_idv",
+                    "unc_001_sum",
+                    "unc_002_sum")))
+```
 
 ### 10.2 Maps
 #### 10.2.1 ENCACC_001: Map of the total land take area in municipalities over 2018-2024
@@ -1611,6 +1642,7 @@ rm(list = setdiff(ls(),
                     "encacc_001_acc",
                     "encacc_001_fy_acc",
                     "encacc_002_acc",
+                    "encacc_002_acc_fnl",
                     "encacc_002_fy_acc",
                     "unc_001_idv",
                     "unc_002_idv",
@@ -1812,6 +1844,7 @@ rm(list = setdiff(ls(),
                     "encacc_001_acc",
                     "encacc_001_fy_acc",
                     "encacc_002_acc",
+                    "encacc_002_acc_fnl",
                     "encacc_002_fy_acc",
                     "unc_001_idv",
                     "unc_002_idv",
@@ -1836,10 +1869,10 @@ We first prepare the dataset for mapping then map it both using an interactive a
 
 ## Prepare dataset
 # Municipalities
-encacc_002_map_tot <- encacc_002_acc %>%
+encacc_002_map_sum <- encacc_002_acc %>%
                         filter(!`Kommune navn` == "Norge") %>%
                         group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
-                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`))
+                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`)) # table to add the uncertainties below
 
 
 encacc_002_map_un <- unc_002_idv %>%
@@ -1857,17 +1890,26 @@ encacc_002_map_un <- unc_002_idv %>%
                                 global_cumulative_uncertainty,
                                 GISCO_ID,
                                 accounting_period)) %>%
-                      cbind(encacc_002_map_tot, .) %>%
+                      cbind(encacc_002_map_sum, .) %>%
                       rename(global_period_uncertainty = global_yearly_uncertainty) %>%
                     left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
-                    select("Fylke nummer",
-                           "Kommune nummer",
-                           "Kommune navn",
-                           "Totalt areal verdsatte naturtyper gått tapt (dekar)",
+                    ungroup() %>%
+                    select("Kommune nummer",
                            "global_period_uncertainty",
                            "geometry") %>%
                     rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
-                    st_as_sf()
+                    st_as_sf() # add uncertainties
+
+
+encacc_002_map_tot <- encacc_002_acc_fnl %>%
+                        filter(!`Kommune navn` == "Norge") %>%
+                        group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
+                        summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`)) %>%
+                        left_join(., encacc_002_map_un, by = "Kommune nummer") %>%
+                        mutate("Usikkerhet av totalt areal" = if_else(is.na(`Usikkerhet av totalt areal`), 
+                                                                      "Data ikke tilgjengelig",
+                                                                      `Usikkerhet av totalt areal`)) # final mapping table
+
 
 
 # Fylke
