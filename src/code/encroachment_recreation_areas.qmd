@@ -2484,7 +2484,7 @@ kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 65),
                             `Kumulativ areal i dekar` = as.numeric(rep(NA, 65*6)),
                             `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", 65*6),
                             `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", 65*6),
-                            `Natur typer` =  as.numeric(rep(NA, 65*6)),
+                            `Natur typer` =  as.character(rep(NA, 65*6)),
                             `Regnskapsperiode` = rep("2018-2024", 65*6),
                             `Areal verdsatte naturtyper gått tapt (dekar)` = as.numeric(rep(NA, 65*6)),
                             `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 65*6),
@@ -2494,7 +2494,7 @@ kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 65),
                                                                                                                   `Kumulativ areal i dekar` = as.numeric(NA),
                                                                                                                   `Usikkerhet for årlig areal` =  "Data ikke tilgjengelig",
                                                                                                                   `Usikkerhet for kumulativ areal` = "Data ikke tilgjengelig",
-                                                                                                                  `Natur typer` =  as.numeric(NA),
+                                                                                                                  `Natur typer` =  as.character(NA),
                                                                                                                   `Regnskapsperiode` = "2018-2024",
                                                                                                                   `Areal verdsatte naturtyper gått tapt (dekar)` = as.numeric(NA),
                                                                                                                   `Usikkerhet for areal i regnskapsperiode` = "Data ikke tilgjengelig")) %>%
@@ -2561,8 +2561,6 @@ kom_no_extent_df_chg <- kom_no_extent_df %>%
                           compact() %>%
                           bind_rows()
 
-
-
 ```
 
 Now, we identify the municipalities with missing data versus 0 extent for each accounting table separately. This will allow us to subset the accounting tables we created for them above, and then bind the rows of the original accounting tables with the ones from the missing municipalities. Each accounting table will thus have a total of 357 municipalities.
@@ -2601,40 +2599,74 @@ Finally, we create the final accounting tables by binding the rows of all the ac
 
 
 
-## Create the final accounting tables by adding all the missing municipalities 
+## ENCREC_0012
+# Select the rows corresponding to th emissing municipalities of ENCREC_12 accounting table
+encrec_12_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., "Kommune nummer" %in% kom_data_missing_12)
 
-# Select the rows coresponding to th emissing municipalities of ENCREC_12 accounting table
-encrec_12_acc_missing_rec <- kom_no_rec_df %>%
-                              select(!c(`Natur typer`,
-                                       `Regnskapsperiode`,
-                                       `Areal verdsatte naturtyper gått tapt (dekar)`,
-                                       `Usikkerhet for areal i regnskapsperiode`)) %>%
-                              filter(., `Kommune nummer` %in% kom_data_missing_12)
-
-encrec_12_acc_0_ext <- kom_no_extent_df %>%
-                              select(!c(`Natur typer`,
-                                       `Regnskapsperiode`,
-                                       `Areal verdsatte naturtyper gått tapt (dekar)`,
-                                       `Usikkerhet for areal i regnskapsperiode`)) %>%
-                              filter(., `Kommune nummer` %in% kom_0_extent_12)
+encrec_12_acc_0_ext <- kom_no_extent_df_chg %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., "Kommune nummer" %in% kom_0_extent_12)
 
 # Bind rows and create a seåarate column for 
 encrec_0012_acc_fnl <- bind_rows(encrec_0012_acc,
-                                 encrec_12_acc_0_ext)
-                                 
-                                 
-                        
-                        
+                                 encrec_12_acc_0_ext,
+                                 encrec_12_acc_missing_rec)
+                       
+
+## ENCREC_0034
+# Select the rows corresponding to th emissing municipalities of ENCREC_12 accounting table
+encrec_34_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., "Kommune nummer" %in% kom_data_missing_34)
+
+encrec_34_acc_0_ext <- kom_no_extent_df_chg %>%
+                              select(!c("Natur typer",
+                                       "Regnskapsperiode",
+                                       "Areal verdsatte naturtyper gått tapt (dekar)",
+                                       "Usikkerhet for areal i regnskapsperiode")) %>%
+                              filter(., "Kommune nummer" %in% kom_0_extent_34)
+
+# Bind rows and create a seåarate column for 
+encrec_0034_acc_fnl <- bind_rows(encrec_0034_acc,
+                                 encrec_34_acc_0_ext,
+                                 encrec_34_acc_missing_rec)  
 
 
+## ENCREC_0056
+# Select the rows corresponding to th emissing municipalities of ENCREC_12 accounting table
+encrec_56_acc_missing_rec <- kom_no_rec_df_chg %>%
+                              select(!c("Regnskapsår",
+                                        "Årlig areal i dekar",
+                                        "Kumulativ areal i dekar",
+                                        "Usikkerhet for årlig areal",
+                                        "Usikkerhet for kumulativ areal")) %>%
+                              filter(., "Kommune nummer" %in% kom_data_missing_56)
 
-kom_12_acc <- encrec_0012_acc %>%
-                select("Kommune navn") %>% 
-                unique()
+encrec_56_acc_0_ext <- kom_no_extent_df_chg %>%
+                              select(!c("Regnskapsår",
+                                        "Årlig areal i dekar",
+                                        "Kumulativ areal i dekar",
+                                        "Usikkerhet for årlig areal",
+                                        "Usikkerhet for kumulativ areal")) %>%
+                              filter(., "Kommune nummer" %in% kom_0_extent_56)
 
-                    
-                    encrec_0034_acc
-                    encrec_0056_acc
+# Bind rows and create a seåarate column for 
+encrec_0056_acc_fnl <- bind_rows(encrec_0056_acc,
+                                 encrec_56_acc_0_ext,
+                                 encrec_56_acc_missing_rec) 
+
+
 
 ```
 
