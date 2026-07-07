@@ -538,7 +538,7 @@ Now that the dataset has been downloaded in a temporary file, we can read it in 
 #| code-summary: "DT03 - read the data"
 
 # Read data
-naturtyper <- st_read(natur_link[grepl("Naturtyper", natur_link)])
+naturtyper <- st_read(natur_link[grepl("naturtyper", natur_link)])
 ```
 
 #### 7.3.3 Clean and format the data for analyses
@@ -558,8 +558,8 @@ In our report, we define "specially important nature" as the nature types within
 # Select columns of relevance
 natur_types <- naturtyper %>%
                 mutate(year_natur_recorded = substr(.$registreringsdato, 1, 4)) %>%
-                filter(verdikategori %in% c("Svært stor verdi",
-                                            "Stor verdi")) %>%
+                filter(verdikategori %in% c("sværtStorVerdi",
+                                            "storVerdi")) %>%
                 select(naturtype,
                        year_natur_recorded,
                        kommunenummer)
@@ -582,7 +582,7 @@ natur_cln$year_natur_recorded[natur_cln$year_natur_recorded == "2913"] <- "2013"
 # Remove nature types that have been recorded before 2015
 natur_cln <- natur_cln %>%
               filter(year_natur_recorded > 2009) %>%
-              filter(year_natur_recorded < 2026) %>%
+              filter(year_natur_recorded < 2025) %>%
               filter(!is.na(year_natur_recorded))
   
 
