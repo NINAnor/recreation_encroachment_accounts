@@ -474,7 +474,6 @@ temp_dir <- tempdir()
 # Download the dataset
 lau_no <- gisco_get_lau(year = "2024",
                         epsg = "3035",
-                        cache = TRUE,
                         update_cache = TRUE,
                         cache_dir = temp_dir,
                         verbose = FALSE,
