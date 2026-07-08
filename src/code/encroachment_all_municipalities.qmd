@@ -1194,7 +1194,7 @@ colnames(encacc_002_acc) <- c("Indikatorens navn",
                               "Fylke nummer",
                               "Kommune nummer",
                               "Kommune navn",
-                              "Nnatur typer",
+                              "Natur typer",
                               "Regnskapsperiode",
                               "Areal verdsatte naturtyper gått tapt (dekar)",
                               "Usikkerhet for areal i regnskapsperiode")
@@ -1264,7 +1264,7 @@ datatable(encacc_002_acc,
 # Create the accounting table based on encacc_001_acc
 encacc_002_fy <- encacc_002_acc %>%
                   filter(!`Kommune navn` == "Norge") %>%
-                  group_by(`Indikatorens navn`, `Fylke nummer`, `Verdsatte naturtype`, Regnskapsperiode) %>%
+                  group_by(`Indikatorens navn`, `Fylke nummer`, `Natur typer`, Regnskapsperiode) %>%
                   summarise(total_area = sum(`Areal verdsatte naturtyper gått tapt (dekar)`))
 
 # Add uncertainties to encacc_001_fy
@@ -1279,7 +1279,7 @@ encacc_002_fy_un <-  unc_002_idv %>%
                                                       uncertainty_col_name = "unc_concat_full",
                                                       habitat_accounting = "naturtype") %>%
                       select(!unc_concat_full) %>%
-                      left_join(encacc_002_fy, ., join_by(`Fylke nummer` == "fylke", "Verdsatte naturtype" == "naturtype"))  %>%
+                      left_join(encacc_002_fy, ., join_by(`Fylke nummer` == "fylke", "Natur typer" == "naturtype"))  %>%
                       ungroup() %>%
                       mutate(fylke_name = add_fylke(data = ., fylke_nummer = "Fylke nummer"), .after = `Fylke nummer`)
 
@@ -1287,7 +1287,7 @@ encacc_002_fy_un <-  unc_002_idv %>%
 colnames(encacc_002_fy_un) <- c("Indikatorens navn",
                                  "Fylke nummer",
                                  "Fylke navn",
-                                 "Verdsatte naturtype",
+                                 "Natur typer",
                                  "Regnskapsperiode",
                                  "Areal verdsatte naturtyper gått tapt (dekar)",
                                  "Usikkerhet for areal i regnskapsperiode")
@@ -1416,10 +1416,6 @@ Finally, we create the final accounting tables by binding the rows of all the ac
 # Bind rows and create a separate column for 
 encacc_002_acc_fnl <- bind_rows(encacc_002_acc,
                                  kom_no_extent_df)
-                       
-
-
-
 
 ```
 
