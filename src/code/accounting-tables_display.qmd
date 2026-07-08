@@ -171,6 +171,7 @@ meta |>
 - 25 February 2026 - Analyses completed
 - 04 March 2026 - First version
 - 25 March 2026 - Second version
+- 08 July 2026 - Updated datasets and corrected excel export
 :::
 
 <hr />
@@ -229,7 +230,7 @@ Når brukerne henviser til tallene våre, bør de legge til følgende merknad:
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encacc_001_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCACC001_accounting_table_fylke.csv"), 
+encacc_001_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCACC001_accounting_table_fylke_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -288,7 +289,7 @@ datatable(encacc_001_fy_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encrec_0012_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_fylke.csv"), 
+encrec_0012_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_fylke_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -343,7 +344,7 @@ datatable(encrec_0012_fy_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encacc_002_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCACC002_accounting_table_fylke.csv"), 
+encacc_002_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCACC002_accounting_table_fylke_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -399,7 +400,7 @@ datatable(encacc_002_fy_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encrec_0056_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC005-006_accounting_table_fylke.csv"), 
+encrec_0056_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC005-006_accounting_table_fylke_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -454,7 +455,7 @@ datatable(encrec_0056_fy_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encacc_001_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCACC001_accounting_table_kommune.csv"), 
+encacc_001_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCACC001_accounting_table_kommune_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -510,7 +511,7 @@ datatable(encacc_001_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encrec_0012_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_kommune.csv"), 
+encrec_0012_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC001-002_accounting_table_kommune_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -566,7 +567,7 @@ datatable(encrec_0012_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encacc_002_acc <- read.table(paste0(project_path,"/result/tables/accounts/ENCACC002_accounting_table_kommune.csv"), 
+encacc_002_acc <- read.table(paste0(project_path,"/result/tables/accounts/ENCACC002_accounting_table_kommune_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
@@ -621,7 +622,7 @@ datatable(encacc_002_acc,
 project_path <- here::here()
 
 # Load the accounting table: encacc_001_acc
-encrec_0056_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC005-006_accounting_table_kommune.csv"), 
+encrec_0056_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCREC005-006_accounting_table_kommune_7JULY2026.csv"), 
                                 sep = ";",
                                 check.names = FALSE,
                                 head = TRUE) %>%
