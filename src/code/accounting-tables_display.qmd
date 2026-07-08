@@ -254,7 +254,7 @@ datatable(encacc_001_fy_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encacc_001_fy_acc) %in% c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)")) - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
@@ -325,7 +325,7 @@ datatable(encrec_0012_fy_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encacc_001_acc) %in% c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)")) - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
@@ -387,7 +387,7 @@ datatable(encacc_002_fy_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encacc_002_fy_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
@@ -458,7 +458,7 @@ datatable(encrec_0056_fy_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encrec_0056_fy_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
@@ -525,7 +525,7 @@ datatable(encacc_001_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encacc_001_acc) %in% c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)")) - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
@@ -595,7 +595,7 @@ datatable(encrec_0012_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encrec_0012_acc) %in% c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)")) - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
@@ -729,7 +729,7 @@ datatable(encrec_0056_acc,
                                         list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
                                         'pdf',
                                         'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+            columnDefs = list(list(targets = which(names(encrec_0056_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
                                    render = JS("function(data, type, row, meta) {
                 if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
                   return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
