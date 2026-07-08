@@ -546,7 +546,7 @@ order_url <- cap_all$`_links`[cap_all$`_links`$rel == "http://rel.geonorge.no/do
 # Create the order by listing the dataset id and capabilities of relevance
 order_body <- list(
   downloadAsBundle = FALSE,
-  email = "sylvie.clappe@nina.no",
+  email = "john.doe@email.com",
   orderLines = list(
     list(
       areas = list(
