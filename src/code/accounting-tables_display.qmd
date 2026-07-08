@@ -248,16 +248,28 @@ encacc_001_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/EN
 datatable(encacc_001_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell F1 – Tematiske nedbyggingsregnskap: totalt areal av nedbygging i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
+    
+    formatRound(columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
+                interval = 3,    
+                mark = " " ,
+                dec.mark = ",")
 ```
 
 \
@@ -307,16 +319,28 @@ encrec_0012_fy_acc$`Indikatorens navn`[encrec_0012_fy_acc$`Indikatorens navn` ==
 datatable(encrec_0012_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell 2 – Tematiske nedbygingsregnskap: areal av all nedbygging i friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
+    
+    formatRound(columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
+                interval = 3,  
+                mark = " " ,
+                dec.mark = ",")
 
 ```
 
@@ -357,16 +381,28 @@ encacc_002_fy_acc <- read.table(paste0(project_path, "/result/tables/accounts/EN
 datatable(encacc_002_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell F3 - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» tapt til nedbygging i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
+    
+    formatCurrency(columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
+                   interval = 3,
+                   mark = " " ,
+                   dec.mark = ",")
 
 
 ```
@@ -416,16 +452,28 @@ encrec_0056_fy_acc$`Indikatorens navn`[encrec_0056_fy_acc$`Indikatorens navn` ==
 datatable(encrec_0056_fy_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell F4 - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging innenfor viktig og svært viktige friluftslivsomeråder i fylker i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
+    
+    formatCurrency(columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
+                   interval = 3,    
+                   mark = " " ,
+                   dec.mark = ",")
 
 
 ```
@@ -471,16 +519,28 @@ encacc_001_acc <- read.table(paste0(project_path, "/result/tables/accounts/ENCAC
 datatable(encacc_001_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell K1 – Tematiske nedbyggingsregnskap: totalt areal av nedbygging i kommuner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",") 
+    
+    formatRound(columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
+                interval = 3,
+                mark = " " ,
+                dec.mark = ",") 
 
 ```
 
@@ -529,16 +589,27 @@ encrec_0012_acc$`Indikatorens navn`[encrec_0012_acc$`Indikatorens navn` == "ENCR
 datatable(encrec_0012_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell K2* – Tematiske nedbyggingsregnskap: areal av all nedbygging i friluftslivsomeråder i kommunner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
+    
+    formatRound(columns = c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)"),
+                mark = " " ,
+                dec.mark = ",")
 
 
 ```
@@ -580,16 +651,30 @@ encacc_002_acc <- read.table(paste0(project_path,"/result/tables/accounts/ENCACC
 datatable(encacc_002_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
-          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging i kommuner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",") 
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
+          caption = htmltools::tags$caption(
+            style = "caption-side: top; text-align: center; font-size: 1.5em;",
+            htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging i kommuner i perioden 2018–2024.")
+          )) %>%
+    
+    formatRound(columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
+                interval = 3,
+                mark = " " ,
+                dec.mark = ",")
 
 ```
 * *We detected a loss of verdsatte nature av "stor" og "svært stor" verdi within 268 municipalities out of total of 357. It should be noted that the mapping of these naturtyper is not fully nationally representative. This means that if the loss of a verdsatte nature av "stor" og "svært stor" verdi naturtype does not occur in one municipality in our results, it can be either because (i) there is indeed none that have been lost; or (ii) some have been lost but as the habitats have not been mapped yet, the loss is not reported in our results.*
@@ -638,16 +723,28 @@ encrec_0056_acc$`Indikatorens navn`[encrec_0056_acc$`Indikatorens navn` == "ENCR
 datatable(encrec_0056_acc,
           extensions = 'Buttons',
           filter = list(position = 'top', clear = TRUE), 
-          options = list( dom = 'Bfrtip',
-                          buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+          options = list(dom = 'Bfrtip',
+                         buttons = list('copy',
+                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                        'pdf',
+                                        'print'),
+            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                   render = JS("function(data, type, row, meta) {
+                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                }
+                return data;
+              }")
+            ))
+          ),
           caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
                                             htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging innenfor viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024."))) %>%
-    formatCurrency(
-    columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
-    currency = "",                
-    interval = 3,                 
-    mark = " " ,
-    dec.mark = ",")
+    
+    formatRound(columns = c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)"),
+                interval = 3,
+                mark = " " ,
+                dec.mark = ",")
 
 
 ```
