@@ -569,39 +569,40 @@ encrec_0012_acc$`Indikatorens navn`[encrec_0012_acc$`Indikatorens navn` == "ENCR
 encrec_0012_acc$`Indikatorens navn`[encrec_0012_acc$`Indikatorens navn` == "ENCREC_002"] <- "Viktige og svært viktige friluftslivsområder"
 
 # Display the table dynamically
-datatable(encrec_0012_acc,
-          rownames = FALSE,
-          extensions = 'Buttons',
-          filter = list(position = 'top', clear = TRUE), 
-          options = list(dom = 'Bfrtip',
-                         buttons = list('copy',
-                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
-                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
-                                        'pdf',
-                                        'print'),
-            columnDefs = list(list(targets = which(names(encrec_0012_acc) %in% c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)")) - 1,
-              render = JS("function(data, type, row, meta) {
-                if (type === 'display') {
-                  if (data === null || data === '' || data === 'Data ikke tilgjengelig') {
-                    return 'Data ikke tilgjengelig';
-                  }
-                  if (!isNaN(parseFloat(data))) {
-                    return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
-                  }
-                  return data;
-                }
-                return data;
-              }")
-            ))
-          ),
-          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K2* – Tematiske nedbyggingsregnskap: areal av all nedbygging i friluftslivsomeråder i kommunner i perioden 2018–2024.")),
-          htmltools::tags$p(
-    style = "font-size: 0.85em; color: #555; margin-top: 0.5em;",
-    "* Kommuner som oppgir «Data ikke tilgjengelig», har ennå ikke kartlagt sine friluftsområder, og det har derfor ikke vært mulig å foreta beregninger for dem."
-  ))
+res_tab <- datatable(encrec_0012_acc,
+                rownames = FALSE,
+                extensions = 'Buttons',
+                filter = list(position = 'top', clear = TRUE), 
+                options = list(dom = 'Bfrtip',
+                               buttons = list('copy',
+                                              list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                              list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                              'pdf',
+                                              'print'),
+                  columnDefs = list(list(targets = which(names(encrec_0012_acc) %in% c("Årlig areal (dekar)", "Kumulativ areal siden 2018 (dekar)")) - 1,
+                    render = JS("function(data, type, row, meta) {
+                      if (type === 'display') {
+                        if (data === null || data === '' || data === 'Data ikke tilgjengelig') {
+                          return 'Data ikke tilgjengelig';
+                        }
+                        if (!isNaN(parseFloat(data))) {
+                          return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                        }
+                        return data;
+                      }
+                      return data;
+                    }")
+                  ))
+                ),
+                caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                                  htmltools::strong("Tabell K2* – Tematiske nedbyggingsregnskap: areal av all nedbygging i friluftslivsomeråder i kommunner i perioden 2018–2024.")))
 
+    footnote <- htmltools::tags$p(
+      style = "font-size: 0.85em; color: #555; margin-top: 0.5em;",
+      "* Kommuner som oppgir «Data ikke tilgjengelig», har ennå ikke kartlagt sine friluftsområder, og det har derfor ikke vært mulig å foreta beregninger for dem."
+    )
 
+htmltools::browsable(htmltools::tagList(res_tab, footnote))
 
 
 ```
@@ -640,32 +641,36 @@ encacc_002_acc <- read.table(paste0(project_path,"/result/tables/accounts/ENCACC
                                `Verdsatte naturtyper` = `Natur typer`) # rename area column to include date
 
 # Display the table dynamically
-datatable(encacc_002_acc,
-          rownames = FALSE,
-          extensions = 'Buttons',
-          filter = list(position = 'top', clear = TRUE), 
-          options = list(dom = 'Bfrtip',
-                         buttons = list('copy',
-                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
-                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
-                                        'pdf',
-                                        'print'),
-            columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
-                                   render = JS("function(data, type, row, meta) {
-                if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
-                  return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
-                }
-                return data;
-              }")
-            ))
-          ),
-          caption = htmltools::tags$caption(
-            style = "caption-side: top; text-align: center; font-size: 1.5em;",
-            htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging i kommuner i perioden 2018–2024.")
-          ),
-          htmltools::tags$p(
-    style = "font-size: 0.85em; color: #555; margin-top: 0.5em;",
-    "* Kommuner med 0 dekar under «Areal med verdsatte naturtyper som er gått tapt mellom 2018 og 2024 (dekar)» og «Ingen» under «Verdsatte naturtyper» er kommuner der vi ikke har registrert noen nedbygging innenfor verdsatte naturtyper av «stor» og «svært stor» verdi. Det bør bemerkes at kartleggingen av disse naturtypene ikke er fullt ut nasjonalt representativ. Dette betyr at hvis tap av naturtyper med «stor» og «svært stor» verdi ikke forekommer i en kommune i våre resultater, kan det enten skyldes at (i) det faktisk ikke er noen som har gått tapt, eller (ii) at noen har gått tapt, men siden habitatene ikke er kartlagt ennå, er tapet ikke rapportert i våre resultater. Kommuner med en naturtype i kolonnen «Verdsatte naturtyper», men 0 dekar i «Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)», betyr at det er et omfang av naturtyper som er gått tapt, men at resultatet blir 0 på grunn av avrunding."))
+res_tab <- datatable(encacc_002_acc,
+              rownames = FALSE,
+              extensions = 'Buttons',
+              filter = list(position = 'top', clear = TRUE), 
+              options = list(dom = 'Bfrtip',
+                             buttons = list('copy',
+                                            list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                            list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                            'pdf',
+                                            'print'),
+                columnDefs = list(list(targets = which(names(encacc_002_acc) == "Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)") - 1,
+                                       render = JS("function(data, type, row, meta) {
+                    if (type === 'display' && data !== null && data !== '' && !isNaN(parseFloat(data))) {
+                      return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                    }
+                    return data;
+                  }")
+                ))
+              ),
+              caption = htmltools::tags$caption(
+                style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                htmltools::strong("Tabell K3* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging i kommuner i perioden 2018–2024.")
+              ))
+
+    footnote <- htmltools::tags$p(
+      style = "font-size: 0.85em; color: #555; margin-top: 0.5em;",
+      "* Kommuner med 0 dekar under «Areal med verdsatte naturtyper som er gått tapt mellom 2018 og 2024 (dekar)» og «Ingen» under «Verdsatte naturtyper» er kommuner der vi ikke har registrert noen nedbygging innenfor verdsatte naturtyper av «stor» og «svært stor» verdi. Det bør bemerkes at kartleggingen av disse naturtypene ikke er fullt ut nasjonalt representativ. Dette betyr at hvis tap av naturtyper med «stor» og «svært stor» verdi ikke forekommer i en kommune i våre resultater, kan det enten skyldes at (i) det faktisk ikke er noen som har gått tapt, eller (ii) at noen har gått tapt, men siden habitatene ikke er kartlagt ennå, er tapet ikke rapportert i våre resultater. Kommuner med en naturtype i kolonnen «Verdsatte naturtyper», men 0 dekar i «Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)», betyr at det er et omfang av naturtyper som er gått tapt, men at resultatet blir 0 på grunn av avrunding."
+    )
+
+htmltools::browsable(htmltools::tagList(res_tab, footnote))
 
 
 ```
@@ -716,36 +721,41 @@ encrec_0056_acc$`Indikatorens navn`[encrec_0056_acc$`Indikatorens navn` == "ENCR
 encrec_0056_acc$`Indikatorens navn`[encrec_0056_acc$`Indikatorens navn` == "ENCREC_006"] <- "Viktige og svært viktige friluftslivsområder"
 
 # Display the table dynamically
-datatable(encrec_0056_acc,
-          rownames = FALSE,
-          extensions = 'Buttons',
-          filter = list(position = 'top', clear = TRUE), 
-          options = list(dom = 'Bfrtip',
-                         buttons = list('copy',
-                                        list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
-                                        list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
-                                        'pdf',
-                                        'print'),
-            columnDefs = list(list(targets = which(names(encrec_0012_acc) %in% c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)")) - 1,
-              render = JS("function(data, type, row, meta) {
-                if (type === 'display') {
-                  if (data === null || data === '' || data === 'Data ikke tilgjengelig') {
-                    return 'Data ikke tilgjengelig';
-                  }
-                  if (!isNaN(parseFloat(data))) {
-                    return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
-                  }
-                  return data;
-                }
-                return data;
-              }")
-            ))
-          ),
-          caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
-                                            htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging innenfor viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024.")),
-          htmltools::tags$p(
-    style = "font-size: 0.85em; color: #555; margin-top: 0.5em;",
-    "* Kommuner med 0 dekar under «Areal med verdifulle habitater som er gått tapt mellom 2018 og 2024 (dekar)» og «Ingen» under «Verdifulle habitater» er kommuner der vi ikke har påvist noe tap av verdifulle habitater med «høy» eller «svært høy» verdi innenfor deres friluftsområder. Det bør bemerkes at kartleggingen av disse naturtypene ikke er fullt ut nasjonalt representativ. Dette betyr at dersom tap av naturtyper med «høy» og «svært høy» verdi ikke forekommer i en kommune i våre resultater, kan det enten skyldes at (i) ingen faktisk har gått tapt, eller (ii) at noen har gått tapt, men siden habitatene ennå ikke er kartlagt, er tapet ikke rapportert i våre resultater. Kommuner med en habitattype oppført i kolonnen «Verdsatte habitattyper», men med 0 dekar i kolonnen «Areal av verdsatte habitattyper som er gått tapt mellom 2018 og 2024 (dekar)», indikerer at det foreligger et tap av habitattyper, men at resultatet er 0 på grunn av avrunding. Kommuner som oppgir «Data ikke tilgjengelig», har ennå ikke kartlagt sine friluftsområder, og det har derfor ikke vært mulig å foreta beregninger for dem."))
+res_tab <- datatable(encrec_0056_acc,
+              rownames = FALSE,
+              extensions = 'Buttons',
+              filter = list(position = 'top', clear = TRUE), 
+              options = list(dom = 'Bfrtip',
+                             buttons = list('copy',
+                                            list(extend = 'csv',   exportOptions = list(orthogonal = 'sort')),
+                                            list(extend = 'excel', exportOptions = list(orthogonal = 'sort')),
+                                            'pdf',
+                                            'print'),
+                columnDefs = list(list(targets = which(names(encrec_0056_acc) %in% c("Areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)")) - 1,
+                  render = JS("function(data, type, row, meta) {
+                    if (type === 'display') {
+                      if (data === null || data === '' || data === 'Data ikke tilgjengelig') {
+                        return 'Data ikke tilgjengelig';
+                      }
+                      if (!isNaN(parseFloat(data))) {
+                        return new Intl.NumberFormat('fr-FR').format(parseFloat(data));
+                      }
+                      return data;
+                    }
+                    return data;
+                  }")
+                ))
+              ),
+              caption = htmltools::tags$caption(style = "caption-side: top; text-align: center; font-size: 1.5em;",
+                                                htmltools::strong("Tabell K4* - Tematiske nedbyggingsregnskap: areal av verdsatte naturtyper av «stor verdi« og «svært stor verdi» til nedbygging innenfor viktig og svært viktige friluftslivomeråder i kommuner i perioden 2018–2024.")))
+    
+    footnote <- htmltools::tags$p(
+      style = "font-size: 0.85em; color: #555; margin-top: 0.5em;",
+      "* Kommuner med 0 dekar under «Areal med verdifulle habitater som er gått tapt mellom 2018 og 2024 (dekar)» og «Ingen» under «Verdifulle habitater» er kommuner der vi ikke har påvist noe tap av verdifulle habitater med «høy» eller «svært høy» verdi innenfor deres friluftsområder. Det bør bemerkes at kartleggingen av disse naturtypene ikke er fullt ut nasjonalt representativ. Dette betyr at dersom tap av naturtyper med «høy» og «svært høy» verdi ikke forekommer i en kommune i våre resultater, kan det enten skyldes at (i) ingen faktisk har gått tapt, eller (ii) at noen har gått tapt, men siden habitatene ennå ikke er kartlagt, er tapet ikke rapportert i våre resultater. Kommuner med en habitattype oppført i kolonnen «Verdsatte habitattyper», men med 0 dekar i kolonnen «Areal av verdsatte habitattyper som er gått tapt mellom 2018 og 2024 (dekar)», indikerer at det foreligger et tap av habitattyper, men at resultatet er 0 på grunn av avrunding. Kommuner som oppgir «Data ikke tilgjengelig», har ennå ikke kartlagt sine friluftsområder, og det har derfor ikke vært mulig å foreta beregninger for dem."
+    )
+
+htmltools::browsable(htmltools::tagList(res_tab, footnote))
+
 ```
 
 
