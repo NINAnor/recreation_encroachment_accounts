@@ -525,7 +525,7 @@ source(paste0(functions_path,"/api_geonorge.R"))
 
 # Retrieve and download the data
 natur_link <- api_geonorge(geonorge_url = "https://kartkatalog.geonorge.no/metadata/naturtyper-verdsatte/64cbb884-a19d-4356-a114-380cfe4a7314",
-                              email_address = "john.doe@nina.no")
+                              email_address = "john.doe@email.com")
 
 ```
 
