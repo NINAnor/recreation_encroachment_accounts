@@ -209,6 +209,7 @@ meta |>
 <!--# Update this logg with short messages for each update -->
 - 25 February 2026 - Analyses completed
 - 04 March 2026 - First version
+- 06 July 2026 - Added new features to spatial layers
 :::
 
 
