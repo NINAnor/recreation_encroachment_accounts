@@ -2477,22 +2477,24 @@ Then, we create an accounting table for them. The municipalities with missing da
 #| code-summary: "Create accounting tables"
 
 # Create a data frame with all the municipalities with no recreation areas mapped and label them as "Data not available"
-kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 65),
-                                                    rep("ENCREC_002", 65),
-                                                    rep("ENCREC_003", 65),
-                                                    rep("ENCREC_004", 65),
-                                                    rep("ENCREC_005", 65),
-                                                    rep("ENCREC_006", 65)),
+nb_mis <- length(kom_no_rec_list)
+
+kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", nb_mis),
+                                                    rep("ENCREC_002", nb_mis),
+                                                    rep("ENCREC_003", nb_mis),
+                                                    rep("ENCREC_004", nb_mis),
+                                                    rep("ENCREC_005", nb_mis),
+                                                    rep("ENCREC_006", nb_mis)),
                             `Kommune nummer` = kom_no_rec_list, 
-                            `Regnskapsår` = rep(2018, 65*6),
-                            `Årlig areal i dekar` = as.numeric(rep(NA, 65*6)),
-                            `Kumulativ areal i dekar` = as.numeric(rep(NA, 65*6)),
-                            `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", 65*6),
-                            `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", 65*6),
-                            `Natur typer` =  as.character(rep(NA, 65*6)),
-                            `Regnskapsperiode` = rep("2018-2024", 65*6),
-                            `Areal verdsatte naturtyper gått tapt (dekar)` = as.numeric(rep(NA, 65*6)),
-                            `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 65*6),
+                            `Regnskapsår` = rep(2018, nb_mis*6),
+                            `Årlig areal i dekar` = as.numeric(rep(NA, nb_mis*6)),
+                            `Kumulativ areal i dekar` = as.numeric(rep(NA, nb_mis*6)),
+                            `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", nb_mis*6),
+                            `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", nb_mis*6),
+                            `Natur typer` =  as.character(rep(NA, nb_mis*6)),
+                            `Regnskapsperiode` = rep("2018-2024", nb_mis*6),
+                            `Areal verdsatte naturtyper gått tapt (dekar)` = as.numeric(rep(NA, nb_mis*6)),
+                            `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", nb_mis*6),
                             check.names = FALSE) %>%
                     
                     complete(nesting(`Indikatorens navn`, `Kommune nummer`), Regnskapsår = 2018:2024, fill = list(`Årlig areal i dekar` = as.numeric(NA),
@@ -2512,22 +2514,24 @@ kom_no_rec_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 65),
 
 
 # Create a data frame with all the municipalities with extent equals to 0
-kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 292),
-                                                        rep("ENCREC_002", 292),
-                                                        rep("ENCREC_003", 292),
-                                                        rep("ENCREC_004", 292),
-                                                        rep("ENCREC_005", 292),
-                                                        rep("ENCREC_006", 292)),
+nb_mis <- length(kom_no_extent_list)
+
+kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", nb_mis),
+                                                        rep("ENCREC_002", nb_mis),
+                                                        rep("ENCREC_003", nb_mis),
+                                                        rep("ENCREC_004", nb_mis),
+                                                        rep("ENCREC_005", nb_mis),
+                                                        rep("ENCREC_006", nb_mis)),
                                 `Kommune nummer` = kom_no_extent_list, 
-                                `Regnskapsår` = rep(2018, 292),
-                                `Årlig areal i dekar` = rep(0, 292),
-                                `Kumulativ areal i dekar` = rep(0, 292),
-                                `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", 292),
-                                `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", 292),
-                                `Natur typer` =  rep("Ingen", 292),
-                                `Regnskapsperiode` = rep("2018-2024", 292),
-                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, 292),
-                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 292),
+                                `Regnskapsår` = rep(2018, nb_mis),
+                                `Årlig areal i dekar` = rep(0, nb_mis),
+                                `Kumulativ areal i dekar` = rep(0, nb_mis),
+                                `Usikkerhet for årlig areal` =  rep("Data ikke tilgjengelig", nb_mis),
+                                `Usikkerhet for kumulativ areal` = rep("Data ikke tilgjengelig", nb_mis),
+                                `Natur typer` =  rep("Ingen", nb_mis),
+                                `Regnskapsperiode` = rep("2018-2024", nb_mis),
+                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, nb_mis),
+                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", nb_mis),
                                 check.names = FALSE) %>%
                         
                         complete(nesting(`Indikatorens navn`, `Kommune nummer`), Regnskapsår = 2018:2024, fill = list(`Årlig areal i dekar` = 0,
@@ -2545,7 +2549,7 @@ kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_001", 292),
 
 
 
-# Transform two columns as characters to run the chang function below
+# Transform two columns as characters to run the change function below
 kom_no_rec_df$Regnskapsår <- as.character(kom_no_rec_df$Regnskapsår)
 kom_no_extent_df$Regnskapsår <- as.character(kom_no_extent_df$Regnskapsår)
 
