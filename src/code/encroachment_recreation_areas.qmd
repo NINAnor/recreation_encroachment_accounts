@@ -3744,14 +3744,11 @@ encrec_006_map_un <- unc_006_idv %>%
                                 accounting_period)) %>%
                       cbind(encrec_006_map_sum, .) %>%
                       mutate(Naturtyper = "Alle", .after = "Kommune navn") %>%
-                      rename(global_period_uncertainty = global_yearly_uncertainty) %>%
-                    left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
+                      rename(global_period_uncertainty = global_yearly_uncertainty)  %>%
                     ungroup() %>%
                     select("Kommune nummer",
-                           "global_period_uncertainty",
-                           "geometry") %>%
-                    rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
-                    st_as_sf() # add uncertainties
+                           "global_period_uncertainty") %>%
+                    rename("Usikkerhet av totalt areal" = "global_period_uncertainty")  # add uncertainties
 
 
 encrec_006_map_tot <- encrec_0056_acc_fnl %>%
@@ -3761,9 +3758,12 @@ encrec_006_map_tot <- encrec_0056_acc_fnl %>%
                         group_by(`Fylke nummer`, `Kommune nummer`, `Kommune navn`) %>%
                         summarise("Totalt areal verdsatte naturtyper gått tapt (dekar)" = sum(`Areal verdsatte naturtyper gått tapt (dekar)`)) %>%
                         left_join(., encrec_006_map_un, by = "Kommune nummer") %>%
+  ungroup() %>%
+                    left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
                         mutate("Usikkerhet av totalt areal" = if_else(is.na(`Usikkerhet av totalt areal`), 
                                                                       "Data ikke tilgjengelig",
-                                                                      `Usikkerhet av totalt areal`)) # final mapping table
+                                                                      `Usikkerhet av totalt areal`)) %>%
+          st_as_sf() # final mapping table
 
 # Fylke
 encrec_006_map_tot_fy <- encrec_0056_fy_acc %>%
