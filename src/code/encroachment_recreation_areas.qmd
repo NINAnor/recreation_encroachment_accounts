@@ -4343,7 +4343,12 @@ nedbygging_kommune <- map_nina_format(encrec_002_map,
                                      mapping_groups = 5, 
                                      groups_thresholds = c(50, 150, 250, 500)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
-                        rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
+                        rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) %>% # rename kumulative area with dates
+  
+                        mutate(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = as.character(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)`)) %>%
+  
+                        mutate(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = if_else(is.na(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)`), "Data ikke tilgjengelig", `Totalt areal av nedbygging mellom 2018 og 2024 (dekar)`))
+
                       
 ## Layer 2 - Total area of nedbygging in important and very important recreation areas in fylke
 nedbygging_fylke <-  map_nina_format(encrec_002_map_fy, 
@@ -4352,6 +4357,9 @@ nedbygging_fylke <-  map_nina_format(encrec_002_map_fy,
                                      groups_thresholds = c(2000, 4000, 6000, 8000)) %>%
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
+  
+                       
+  
 
 
 ## Layer 3 - Share of nedbygging in important and very important recreation areas in municipalities
@@ -4362,7 +4370,14 @@ share_nedbygging_kommune <-  map_nina_format(encrec_002_perc_map,
                         select(!c(`Usikkerhet av prosentandel`,
                                   `Totalt areal friluftsliv`)) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i 2024 (dekar)`,
-                               `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024` = `Prosentandel (%) av friluftsliv gått tapt`) # rename kumulative area with dates
+                               `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024` = `Prosentandel (%) av friluftsliv gått tapt`) %>% # rename kumulative area with dates
+                        mutate(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = as.character(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)`),
+                               `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024` = as.character(`Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024`)) %>%
+                                              mutate(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = if_else(is.na(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)`), "Data ikke tilgjengelig", `Totalt areal av nedbygging mellom 2018 og 2024 (dekar)`),
+                                                     `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024` = if_else(is.na(`Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024`), "Data ikke tilgjengelig", `Prosentandel (%) av nedbygging i friluftslivsområder mellom 2018 og 2024`))
+
+
+
 
 
 ## Layer 4 - Share of nedbygging in important and very important recreation areas in fylke
@@ -4383,7 +4398,9 @@ viktignatur_kommune <- map_nina_format(encrec_006_map_tot,
                                        mapping_groups = 5, 
                                        groups_thresholds = c(2, 5, 15, 50)) %>%
                         select(!`Usikkerhet av totalt areal`) %>% # remove uncertainty for map display
-                        rename(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) # rename kumulative area with dates
+                        rename(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) %>% # rename kumulative area with dates
+                        mutate(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = as.character(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)`)) %>%
+                                              mutate(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = if_else(is.na(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)`), "Data ikke tilgjengelig", `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)`))
                       
 
 
@@ -4405,8 +4422,14 @@ share_viktignatur_kommune <- map_nina_format(encrec_006_perc_map,
                         select(!`Usikkerhet`) %>% # remove uncertainty for map display
                         rename(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`,
                                `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`,
-                               `Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`) # rename kumulative area with dates
-
+                               `Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`) %>% # rename kumulative area with dates
+  
+                    mutate(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = as.character(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024`),
+                                                                                                                       `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = as.character(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)`),
+                                                                                                                    `Totalt areal av nedbygging mellom 2018 og 2024` = as.character(`Totalt areal av nedbygging mellom 2018 og 2024`)) %>%
+                                                                                      mutate(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = if_else(is.na(`Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024`), "Data ikke tilgjengelig", `Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024`),
+                                                                                              `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = if_else(is.na(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)`), "Data ikke tilgjengelig",  `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)`),
+                                                                                             `Totalt areal av nedbygging mellom 2018 og 2024` = if_else(is.na(`Totalt areal av nedbygging mellom 2018 og 2024`), "Data ikke tilgjengelig", `Totalt areal av nedbygging mellom 2018 og 2024`))
 
 
 ## Layer 8 - Share of nedbygging that was "særlig viktig natur" in important and very important recreation areas in fylke
