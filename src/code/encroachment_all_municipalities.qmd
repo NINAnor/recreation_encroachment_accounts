@@ -1392,12 +1392,14 @@ Then, we create an accounting table for them.
 #| code-summary: "Create accounting tables"
 
 # Create a data frame with all the municipalities with extent equals to 0
-kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_002", 104)),
+nb_miss <- length(kom_no_nat_list)
+
+kom_no_extent_df <- data.frame(`Indikatorens navn` = c(rep("ENCREC_002", nb_miss)),
                                 `Kommune nummer` = kom_no_nat_list, 
-                                `Natur typer` =  rep("Ingen", 104),
-                                `Regnskapsperiode` = rep("2018-2024", 104),
-                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, 104),
-                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", 104),
+                                `Natur typer` =  rep("Ingen", nb_miss),
+                                `Regnskapsperiode` = rep("2018-2024", nb_miss),
+                                `Areal verdsatte naturtyper gått tapt (dekar)` = rep(0, nb_miss),
+                                `Usikkerhet for areal i regnskapsperiode` = rep("Data ikke tilgjengelig", nb_miss),
                                 check.names = FALSE)  %>%
                           mutate("Fylke nummer" = add_fylke(data = ., kommune_nummer = "Kommune nummer")[[1]], .after = "Indikatorens navn") %>%
                           left_join(., kom_norge_nv_nb , join_by("Kommune nummer" == "GISCO_ID")) %>%
@@ -1888,13 +1890,10 @@ encacc_002_map_un <- unc_002_idv %>%
                                 accounting_period)) %>%
                       cbind(encacc_002_map_sum, .) %>%
                       rename(global_period_uncertainty = global_yearly_uncertainty) %>%
-                    left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
                     ungroup() %>%
                     select("Kommune nummer",
-                           "global_period_uncertainty",
-                           "geometry") %>%
-                    rename("Usikkerhet av totalt areal" = "global_period_uncertainty") %>%
-                    st_as_sf() # add uncertainties
+                           "global_period_uncertainty") %>%
+                    rename("Usikkerhet av totalt areal" = "global_period_uncertainty") # add uncertainties
 
 
 encacc_002_map_tot <- encacc_002_acc_fnl %>%
@@ -1904,7 +1903,10 @@ encacc_002_map_tot <- encacc_002_acc_fnl %>%
                         left_join(., encacc_002_map_un, by = "Kommune nummer") %>%
                         mutate("Usikkerhet av totalt areal" = if_else(is.na(`Usikkerhet av totalt areal`), 
                                                                       "Data ikke tilgjengelig",
-                                                                      `Usikkerhet av totalt areal`)) # final mapping table
+                                                                      `Usikkerhet av totalt areal`)) %>% # final mapping table
+                  ungroup() %>%
+                  left_join(., kom_navn, join_by("Kommune nummer" == "GISCO_ID")) %>%
+                  st_as_sf()
 
 
 
@@ -1944,13 +1946,13 @@ encacc_002_map_un_fy <- unc_002_idv %>%
 
 
 # Replace labels of uncertainty
-encacc_002_map_un$`Usikkerhet av totalt areal`[which(encacc_002_map_un$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
+encacc_002_map_tot$`Usikkerhet av totalt areal`[which(encacc_002_map_tot$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
 
-encacc_002_map_un$`Usikkerhet av totalt areal`[which(encacc_002_map_un$`Usikkerhet av totalt areal` == "Yellow")]<- "Ganske sikker"
+encacc_002_map_tot$`Usikkerhet av totalt areal`[which(encacc_002_map_tot$`Usikkerhet av totalt areal` == "Yellow")]<- "Ganske sikker"
 
-encacc_002_map_un$`Usikkerhet av totalt areal`[which(encacc_002_map_un$`Usikkerhet av totalt areal` == "Orange")]<- "Ganske usikker"
+encacc_002_map_tot$`Usikkerhet av totalt areal`[which(encacc_002_map_tot$`Usikkerhet av totalt areal` == "Orange")]<- "Ganske usikker"
 
-encacc_002_map_un$`Usikkerhet av totalt areal`[which(encacc_002_map_un$`Usikkerhet av totalt areal` == "Red")]<- "Usikker"
+encacc_002_map_tot$`Usikkerhet av totalt areal`[which(encacc_002_map_tot$`Usikkerhet av totalt areal` == "Red")]<- "Usikker"
 
 
 encacc_002_map_un_fy$`Usikkerhet av totalt areal`[which(encacc_002_map_un_fy$`Usikkerhet av totalt areal` == "Green")]<- "Sikker"
@@ -2394,7 +2396,6 @@ nedbygging_fylke <- map_nina_format(encacc_001_map_fy,
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal av nedbygging i dekar`) # rename kumulative area with dates
 
-
 ## Layer 3 - Share of nedbygging in municipalities
 share_nedbygging_kommune <- map_nina_format(encacc_001_perc_map_mun,
                                             mapping_variable = "Prosentandel (%) av nedbygging", 
@@ -2403,8 +2404,6 @@ share_nedbygging_kommune <- map_nina_format(encacc_001_perc_map_mun,
                         select(!`Usikkerhet for kumulativ areal`) %>% # remove uncertainty for map display
                         rename(`Prosentandel (%) av nedbygging mellom 2018 og 2024` = `Prosentandel (%) av nedbygging`,
                               `Totalt areal av nedbygging mellom 2018 og 2024 (dekar)` = `Kumulativ areal i dekar`) # rename kumulative area with dates
-
-
 
 ## Layer 4 - Share of nedbygging in fylke
 share_nedbygging_fylke <- map_nina_format(encacc_001_perc_map_fy,
@@ -2417,15 +2416,13 @@ share_nedbygging_fylke <- map_nina_format(encacc_001_perc_map_fy,
 
 
 
-
 ## Layer 5 - Total area of verdatte natur lost to nedbygging in municipalities
 viktignatur_kommune <- map_nina_format(encacc_002_map_tot, 
                                        mapping_variable = "Totalt areal verdsatte naturtyper gått tapt (dekar)", 
                                        mapping_groups = 6, 
                                        groups_thresholds = c(1, 5, 15, 30, 100))  %>%
                         select(!`Usikkerhet av totalt areal`) %>% # remove uncertainty for map display
-                        rename(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) # rename kumulative area with dates
-
+                        rename(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) # rename kumulative area with dates                       
 
 
 ## Layer 6 - Total area of verdsatte natur lost to nedbygging in fylke
@@ -2435,6 +2432,7 @@ viktignatur_fylke <- map_nina_format(encacc_002_map_un_fy,
                                      groups_thresholds = c(100, 300, 500, 1000)) %>%
                         select(!`Usikkerhet av totalt areal`) %>% # remove uncertainty for map display
                         rename(`Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) # rename kumulative area with dates
+  
 
 ## Layer 7 - Share of nedbygging that was verdsatte natur in municipalities
 share_viktignatur_kommune <- map_nina_format(encacc_002_perc_map, 
@@ -2457,7 +2455,7 @@ share_viktignatur_fylke <- map_nina_format(encacc_002_perc_map_fy,
                         rename(`Totalt areal av nedbygging mellom 2018 og 2024` = `Totalt areal av nedbygging`,
                                `Prosentandel (%) av nedbygging som var verdsatte natur mellom 2018 og 2024` = `Prosentandel (%) av nedbygging som er verdsatte natur`,
                                `Totalt areal verdsatte naturtyper gått tapt mellom 2018 og 2024 (dekar)` = `Totalt areal verdsatte naturtyper gått tapt (dekar)`) # rename kumulative area with dates
-
+                        
 
 ```
 
